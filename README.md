@@ -2,6 +2,31 @@
 
 NoorAI Backend API built with NestJS, TypeORM, and PostgreSQL.
 
+## 📖 About NoorAI
+
+**NoorAI – Your Intelligent Qur'an-Centered Spiritual Companion**
+
+NoorAI is a warm, intelligent, and faith-centered digital companion designed to help Muslims build a peaceful, consistent, and emotionally supportive relationship with the Qur'an. It brings together AI-guided reflections, a clean Qur'an reading experience, and essential daily worship tools—all in one calming, distraction-free space.
+
+### Key Features
+
+1. **AI-Powered Qur'an Chat**  
+   - Qur'anic references, explanations, gentle emotional guidance  
+
+2. **Immersive Qur'an Reader**  
+   - Uthmani script, English translation, bookmarks, adjustable fonts  
+
+3. **My Reflections**  
+   - Private encrypted journaling, linked ayahs, auto-save  
+
+4. **Prayer Times & Reminders**  
+   - Accurate timings, countdown, configurable notifications  
+
+5. **Tasbih**  
+   - Simple counter with persistent state
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -63,7 +88,7 @@ NoorAI Backend API built with NestJS, TypeORM, and PostgreSQL.
 
 ## 🏗️ Project Structure
 
-For detailed information about the project structure and architecture, see [@README.md](./@README.md).
+For detailed information about the project structure and architecture, see the architecture documentation in the repository.
 
 ## 🔧 Environment Variables
 
@@ -94,7 +119,6 @@ JWT_TIMEFRAME=3d
 
 ## 📚 Documentation
 
-- [Architecture Documentation](./@README.md) - Detailed architecture and patterns
 - [API Documentation](http://localhost:PORT/api/docs) - Swagger API documentation (when server is running)
 
 ## 🧪 Testing
@@ -113,4 +137,3 @@ npm run test:cov
 ## 📝 License
 
 ISC
-# noorAI-BE
