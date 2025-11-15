@@ -13,7 +13,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const logger = app.get(Logger);
+  const logger = new Logger('Bootstrap');
 
   // Initialize database connection
   try {
