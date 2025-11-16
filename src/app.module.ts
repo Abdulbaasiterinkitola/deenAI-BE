@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bull';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { validateEnv } from '@shared/env.validator';
 import dataSource, { initializeDataSource } from '@database/data-source';
 import authConfig from '@config/auth.config';
+import { WaitlistModule } from './modules/waitlist/waitlist.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -13,6 +16,13 @@ import authConfig from '@config/auth.config';
       isGlobal: true,
       validate: validateEnv,
       load: [authConfig],
+    }),
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD,
+      },
     }),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
@@ -25,6 +35,8 @@ import authConfig from '@config/auth.config';
         return dataSource;
       },
     }),
+    WaitlistModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
