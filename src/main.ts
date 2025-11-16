@@ -13,7 +13,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const logger = app.get(Logger);
+  const logger = new Logger('Bootstrap');
 
   // Initialize database connection
   try {
@@ -38,8 +38,8 @@ async function bootstrap() {
 
   // Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle('NoorAI API Documentation')
-    .setDescription('NoorAI Backend API Documentation')
+    .setTitle('DeenAI API Documentation')
+    .setDescription('DeenAI Backend API Documentation')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
