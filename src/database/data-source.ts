@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { Logger } from '@nestjs/common';
 
 config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
@@ -20,8 +21,22 @@ const dataSource = new DataSource({
 });
 
 export async function initializeDataSource() {
+  const logger = new Logger('Database');
+  
   if (!dataSource.isInitialized) {
     await dataSource.initialize();
+    
+    try {
+      const migrations = await dataSource.runMigrations();
+      if (migrations.length > 0) {
+        logger.log(`Ran ${migrations.length} pending migration(s) successfully`);
+      } else {
+        logger.log('No pending migrations to run');
+      }
+    } catch (error) {
+      logger.error('Error running migrations:', error);
+      throw error;
+    }
   }
   return dataSource;
 }
