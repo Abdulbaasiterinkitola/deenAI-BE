@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { validateEnv } from '@shared/env.validator';
 import dataSource, { initializeDataSource } from '@database/data-source';
 import authConfig from '@config/auth.config';
+import { AuthModule } from '@modules/auth/auth.module';
+import { UsersModule } from '@modules/users/users.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import authConfig from '@config/auth.config';
         return dataSource;
       },
     }),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
