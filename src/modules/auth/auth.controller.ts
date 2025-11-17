@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { RegisterDocs } from './docs/register.doc';
-import { LoginBodyValidator } from './validators/login.validator';
 import { LoginDocs } from './docs/login.doc';
+import { LoginBodyValidator } from './validators/login.validator';
 
 @Controller('auth')
 @ApiTags('Authentication')
