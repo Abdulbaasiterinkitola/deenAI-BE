@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Reflector } from '@nestjs/core';
-
 export interface Response<T> {
   success: boolean;
   message: string;
@@ -15,29 +13,36 @@ export interface Response<T> {
   meta?: unknown;
 }
 
+const isResponsePayload = <T>(payload: unknown): payload is Response<T> => {
+  if (payload === null || typeof payload !== 'object') {
+    return false;
+  }
+
+  return (
+    'success' in payload &&
+    typeof (payload as Response<T>).success === 'boolean' &&
+    'message' in payload &&
+    typeof (payload as Response<T>).message === 'string' &&
+    'data' in payload
+  );
+};
+
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
-  constructor(private reflector: Reflector) {}
-
   intercept(
     context: ExecutionContext,
-    next: CallHandler,
+    next: CallHandler<T | Response<T>>,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((data) => {
-        // If data already has the response format, return as is
-        if (data && typeof data === 'object' && 'message' in data) {
-          return {
-            success: true,
-            ...data,
-          };
+      map((payload: T | Response<T>): Response<T> => {
+        if (isResponsePayload<T>(payload)) {
+          return payload;
         }
 
-        // Default response format
         return {
           success: true,
           message: 'Operation successful',
-          data,
+          data: payload,
         };
       }),
     );

@@ -1,4 +1,4 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { initializeDataSource } from '@database/data-source';
@@ -33,7 +33,7 @@ async function bootstrap() {
 
   // Global pipes, interceptors, and filters
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new ValidationExceptionFilter());
 
   // Swagger documentation
