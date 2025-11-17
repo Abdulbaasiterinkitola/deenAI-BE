@@ -64,7 +64,7 @@ export class ProcessMail {
     };
 
     //initialize nodemailer transport
-    console.log(transportOptions)
+    console.log(transportOptions);
     this.transport = nodemailerModule.createTransport(transportOptions);
   }
 
