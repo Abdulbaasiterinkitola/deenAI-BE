@@ -7,10 +7,14 @@ import { WaitlistCoreService } from './services/waitlist-core.service';
 import { WaitlistValidationService } from './services/waitlist-validation.service';
 import { WaitlistActionModel } from './action-models/waitlist.action-model';
 
-
 @Module({
-imports: [TypeOrmModule.forFeature([Waitlist])],
-controllers: [WaitlistController],
-providers: [WaitlistService, WaitlistCoreService, WaitlistValidationService, WaitlistActionModel],
+  imports: [TypeOrmModule.forFeature([Waitlist])],
+  controllers: [WaitlistController],
+  providers: [
+    WaitlistService,
+    WaitlistCoreService,
+    WaitlistValidationService,
+    WaitlistActionModel,
+  ],
 })
 export class WaitlistModule {}
