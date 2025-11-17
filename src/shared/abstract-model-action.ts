@@ -67,7 +67,7 @@ export abstract class AbstractModelAction<T extends ObjectLiteral> {
     if (transactionOptions?.useTransaction && transactionOptions.transaction) {
       return (await transactionOptions.transaction.save(
         this.entity,
-        createPayload as DeepPartial<T>,
+        createPayload,
       )) as T;
     }
 
@@ -90,10 +90,9 @@ export abstract class AbstractModelAction<T extends ObjectLiteral> {
         identifierOptions,
         updatePayload,
       );
-      return (await transactionOptions.transaction.findOne(
-        this.entity,
-        { where: identifierOptions } as FindOneOptions<T>,
-      )) as T | null;
+      return await transactionOptions.transaction.findOne(this.entity, {
+        where: identifierOptions,
+      } as FindOneOptions<T>);
     }
 
     await this.repository.update(identifierOptions, updatePayload);
@@ -108,7 +107,10 @@ export abstract class AbstractModelAction<T extends ObjectLiteral> {
     const { identifierOptions, transactionOptions } = deleteRecordOptions;
 
     if (transactionOptions?.useTransaction && transactionOptions.transaction) {
-      await transactionOptions.transaction.delete(this.entity, identifierOptions);
+      await transactionOptions.transaction.delete(
+        this.entity,
+        identifierOptions,
+      );
       return;
     }
 
