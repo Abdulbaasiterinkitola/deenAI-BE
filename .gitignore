@@ -56,5 +56,11 @@ lerna-debug.log*
 .cache
 .parcel-cache
 
+# PR Templates
+PR_TEMPLATE.md
+
 # Guide files
 guide.txt
+
+# Test database setup files
+setup-test-db.sql

@@ -20,22 +20,29 @@ export class MailProcessor {
     });
   }
 
-  private loadTemplate(templateName: string, variables: Record<string, string>): string {
-    const templatePath = path.join(__dirname, 'templates', `${templateName}.html`);
+  private loadTemplate(
+    templateName: string,
+    variables: Record<string, string>,
+  ): string {
+    const templatePath = path.join(
+      __dirname,
+      'templates',
+      `${templateName}.html`,
+    );
     let template = fs.readFileSync(templatePath, 'utf8');
-    
+
     // Replace variables in template
-    Object.keys(variables).forEach(key => {
+    Object.keys(variables).forEach((key) => {
       const regex = new RegExp(`{{${key}}}`, 'g');
       template = template.replace(regex, variables[key]);
     });
-    
+
     return template;
   }
 
   @Process('welcome-email')
   async handleWelcomeEmail(job: Job) {
-    const { email, name } = job.data;
+    const { email, name } = job.data as { email: string; name: string };
 
     const htmlContent = this.loadTemplate('welcome', { name });
 
