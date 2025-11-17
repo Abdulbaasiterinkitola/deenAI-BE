@@ -42,6 +42,19 @@ export class LoginDocs {
   }
 }
 
+class LoginData {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: 'JWT token for the user',
+  })
+  token: string;
+
+  @ApiProperty({
+    type: () => User,
+  })
+  user: User;
+}
+
 export class LoginResponseDto {
   @ApiProperty({
     example: true,
@@ -59,17 +72,4 @@ export class LoginResponseDto {
     type: () => LoginData,
   })
   data: LoginData;
-}
-
-class LoginData {
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT token for the user',
-  })
-  token: string;
-
-  @ApiProperty({
-    type: () => User,
-  })
-  user: User;
 }
