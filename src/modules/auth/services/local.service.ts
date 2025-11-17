@@ -7,6 +7,7 @@ import { LoginDto } from '../dtos/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { StringValue } from 'ms';
 import { UserResponseDto } from '../../users/dtos/user-response.dto';
 import UserValidationService from '../../users/services/user-validation.service';
 
@@ -31,9 +32,11 @@ export class LocalAuthService {
     return await this.usersService.createUser(userData);
   }
 
-  async login(
-    dto: LoginDto,
-  ): Promise<{ success: boolean; message: string; data: { token: string; user: UserResponseDto } }> {
+  async login(dto: LoginDto): Promise<{
+    success: boolean;
+    message: string;
+    data: { token: string; user: UserResponseDto };
+  }> {
     const user = await this.userValidationService.validateUserForLogin(
       dto.email,
       dto.password,
@@ -42,8 +45,8 @@ export class LocalAuthService {
     const token = this.jwtService.sign(
       { sub: user.id, email: user.email },
       {
-        secret: this.configService.get('JWT_SECRET'),
-        expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
+        secret: this.configService.get<string>('auth.jwtSecret'),
+        expiresIn: this.configService.get<StringValue>('auth.jwtExpiry'),
       },
     );
 

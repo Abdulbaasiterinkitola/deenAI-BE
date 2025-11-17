@@ -43,7 +43,10 @@ export default class UserValidationService {
       );
     }
 
-    const isPasswordMatch = await bcrypt.compare(passwordAttempt, user.password);
+    const isPasswordMatch = await bcrypt.compare(
+      passwordAttempt,
+      user.password,
+    );
 
     if (!isPasswordMatch) {
       throw new CustomHttpException(

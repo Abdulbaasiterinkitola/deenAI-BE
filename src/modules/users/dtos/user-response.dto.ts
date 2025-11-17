@@ -5,9 +5,6 @@ export class UserResponseDto {
   @ApiProperty({ example: 'uuid-string' })
   id!: string;
 
-  @ApiProperty({ example: 'user-identifier' })
-  identifier!: string;
-
   @ApiProperty({ example: 'John Doe' })
   name!: string;
 
