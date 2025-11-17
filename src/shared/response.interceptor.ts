@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
 export interface Response<T> {
   success: boolean;
   message: string;
-  data: T;
+  data?: T;
   meta?: unknown;
 }
 
@@ -22,8 +22,7 @@ const isResponsePayload = <T>(payload: unknown): payload is Response<T> => {
     'success' in payload &&
     typeof (payload as Response<T>).success === 'boolean' &&
     'message' in payload &&
-    typeof (payload as Response<T>).message === 'string' &&
-    'data' in payload
+    typeof (payload as Response<T>).message === 'string'
   );
 };
 
