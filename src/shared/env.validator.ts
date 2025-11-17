@@ -6,7 +6,7 @@ import {
   validateSync,
   IsBoolean,
   IsOptional,
-} from 'class-validator';
+} from 'class-validator'; 
 import { Logger } from '@nestjs/common';
 
 const logger = new Logger('EnvValidator');
@@ -57,6 +57,50 @@ class EnvVariables {
 
   @IsString()
   JWT_TIMEFRAME: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_HOST?: string;
+
+  @IsOptional()
+  @IsNumber()
+  SMTP_PORT?: number;
+
+  @IsOptional()
+  @IsString()
+  SMTP_USER?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_PASS?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_FROM?: string;
+
+  @IsOptional()
+  @IsString()
+  MAIL_HOST?: string;
+
+  @IsOptional()
+  @IsNumber()
+  MAIL_PORT?: number;
+
+  @IsOptional()
+  @IsString()
+  MAIL_USERNAME?: string;
+
+  @IsOptional()
+  @IsString()
+  MAIL_PASSWORD?: string;
+
+  @IsOptional()
+  @IsString()
+  MAIL_FROM_NAME?: string;
+
+  @IsOptional()
+  @IsString()
+  MAIL_FROM_ADDRESS?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
