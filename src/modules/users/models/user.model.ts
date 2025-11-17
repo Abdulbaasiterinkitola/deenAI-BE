@@ -21,6 +21,9 @@ export class User extends AbstractBaseEntity {
   })
   authProvider: AuthProvider;
 
+  @Column({ nullable: true })
+  identifier: string;
+
   @Column({ name: 'is_email_verified', default: false })
   isEmailVerified: boolean;
 }

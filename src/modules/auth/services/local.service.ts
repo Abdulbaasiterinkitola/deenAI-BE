@@ -6,10 +6,17 @@ import RegisterDto from '../dtos/register.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { CustomHttpException } from '@shared/custom.exception';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { UserResponseDto } from '../../users/dtos/user-response.dto';
 
 @Injectable()
 export class LocalAuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async register(dto: RegisterDto) {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -23,7 +30,9 @@ export class LocalAuthService {
     return await this.usersService.createUser(userData);
   }
 
-  async login(dto: LoginDto) {
+  async login(
+    dto: LoginDto,
+  ): Promise<{ success: boolean; message: string; data: { token: string; user: UserResponseDto } }> {
     const user = await this.usersService.getUserByEmail(dto.email);
 
     if (!user) {
@@ -43,6 +52,24 @@ export class LocalAuthService {
       throw new CustomHttpException('Invalid login credentials', 401);
     }
 
-    return user;
+    const token = this.jwtService.sign(
+      { sub: user.id, email: user.email },
+      {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
+      },
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+
+    return {
+      success: true,
+      message: 'Login successful',
+      data: {
+        token,
+        user: userWithoutPassword,
+      },
+    };
   }
 }
