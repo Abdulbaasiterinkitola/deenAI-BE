@@ -19,7 +19,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
     value: unknown,
     { metatype }: ArgumentMetadata,
   ): Promise<unknown> {
-    if (!metatype || !this.toValidate(metatype)) {
+    if (!metatype || !this.shouldValidate(metatype)) {
       return value;
     }
 
