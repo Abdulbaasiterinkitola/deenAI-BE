@@ -8,6 +8,7 @@ import dataSource, { initializeDataSource } from '@database/data-source';
 import authConfig from '@config/auth.config';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
+import { WaitlistModule } from '@modules/waitlist/waitlist.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { UsersModule } from '@modules/users/users.module';
     }),
     AuthModule,
     UsersModule,
+    WaitlistModule,
   ],
   controllers: [AppController],
   providers: [AppService],
