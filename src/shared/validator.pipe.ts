@@ -2,22 +2,29 @@ import {
   PipeTransform,
   Injectable,
   ArgumentMetadata,
-  BadRequestException,
+  HttpStatus,
+  Type,
 } from '@nestjs/common';
 import { validate } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { CustomHttpException } from './custom.exception';
-import { HttpStatus } from '@nestjs/common';
+
+type ClassType<T extends object = object> = ClassConstructor<T>;
+
+const primitiveTypes: ClassType[] = [String, Boolean, Number, Array, Object];
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<unknown> {
-  async transform(value: unknown, { metatype }: ArgumentMetadata): Promise<unknown> {
-    if (!metatype || !this.toValidate(metatype)) {
+  async transform(
+    value: unknown,
+    { metatype }: ArgumentMetadata,
+  ): Promise<unknown> {
+    if (!this.shouldValidate(metatype) || !this.isRecord(value)) {
       return value;
     }
 
-    const object = plainToInstance(metatype, value);
-    const errors = await validate(object);
+    const objectInstance = plainToInstance(metatype, value);
+    const errors = await validate(objectInstance);
 
     if (errors.length > 0) {
       const formattedErrors: Record<string, string[]> = {};
@@ -36,12 +43,18 @@ export class ValidationPipe implements PipeTransform<unknown> {
       );
     }
 
-    return value;
+    return objectInstance;
   }
 
-  private toValidate(metatype: Function): boolean {
-    const types: Function[] = [String, Boolean, Number, Array, Object];
-    return !types.includes(metatype);
+  private shouldValidate(metatype?: Type<unknown>): metatype is ClassType {
+    if (!metatype) {
+      return false;
+    }
+
+    return !primitiveTypes.includes(metatype as ClassType);
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
   }
 }
-
