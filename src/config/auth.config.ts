@@ -22,6 +22,4 @@ const buildAuthConfig = (): AuthConfig => ({
   jwtExpiry: process.env.JWT_TIMEFRAME || '3d',
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   appleClientId: process.env.APPLE_CLIENT_ID,
-});
-
-export default registerAs<AuthConfig>('auth', buildAuthConfig);
+}));

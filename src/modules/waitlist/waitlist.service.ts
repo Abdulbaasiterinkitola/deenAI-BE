@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { WaitlistCoreService } from './services/waitlist-core.service';
 import { WaitlistValidationService } from './services/waitlist-validation.service';
-import { WaitlistDto } from './dtos/waitlist.dto';
 
 @Injectable()
 export class WaitlistService {
@@ -10,7 +9,7 @@ export class WaitlistService {
     private readonly validation: WaitlistValidationService,
   ) {}
 
-  async register(payload: WaitlistDto) {
+  async register(payload) {
     const existing = await this.core.findByEmail(payload.email);
     this.validation.validateDuplicate(existing);
     return this.core.create(payload);
