@@ -6,10 +6,11 @@ import { LocalAuthService } from './services/local.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService],
+  providers: [AuthService, LocalAuthService, AuthGuard],
   imports: [
     UsersModule,
     JwtModule.registerAsync({
@@ -23,5 +24,6 @@ import { StringValue } from 'ms';
       inject: [ConfigService],
     }),
   ],
+  exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}
