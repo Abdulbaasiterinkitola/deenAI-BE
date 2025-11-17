@@ -18,9 +18,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json",
-    "test:setup": "NODE_ENV=test npm run build && NODE_ENV=test npm run migration:run",
-    "test:teardown": "NODE_ENV=test npm run migration:rollback",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
     "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js"

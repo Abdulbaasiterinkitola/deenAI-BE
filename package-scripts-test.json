@@ -1,5 +1,0 @@
-{
-  "test:setup": "NODE_ENV=test npm run migration:run",
-  "test:teardown": "NODE_ENV=test npm run migration:rollback",
-  "test:db": "psql -U postgres -c \"CREATE DATABASE IF NOT EXISTS deenai_test;\""
-}

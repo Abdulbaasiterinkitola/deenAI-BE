@@ -11,10 +11,7 @@ import { HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<unknown> {
-  async transform(
-    value: unknown,
-    { metatype }: ArgumentMetadata,
-  ): Promise<unknown> {
+  async transform(value: unknown, { metatype }: ArgumentMetadata): Promise<unknown> {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
@@ -47,3 +44,4 @@ export class ValidationPipe implements PipeTransform<unknown> {
     return !types.includes(metatype);
   }
 }
+
