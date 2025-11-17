@@ -6,10 +6,7 @@ import { Waitlist } from '../../entities/waitlist.entity';
 import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Waitlist]),
-    MailModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Waitlist]), MailModule],
   controllers: [WaitlistController],
   providers: [WaitlistService],
 })
