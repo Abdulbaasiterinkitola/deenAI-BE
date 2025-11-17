@@ -6,7 +6,7 @@ import {
   validateSync,
   IsBoolean,
   IsOptional,
-} from 'class-validator'; 
+} from 'class-validator';
 import { Logger } from '@nestjs/common';
 
 const logger = new Logger('EnvValidator');

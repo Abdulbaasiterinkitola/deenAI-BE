@@ -12,10 +12,11 @@ export class LocalAuthService {
   constructor(private readonly usersService: UsersService) {}
 
   async register(dto: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     const userData: UserType = {
       name: dto.name,
       email: dto.email,
-      password: dto.password,
+      password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: false,
     };
