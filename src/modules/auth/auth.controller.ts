@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { RegisterDocs } from './docs/register.doc';
+import { LoginBodyValidator } from './validators/login.validator';
+import { LoginDocs } from './docs/login.doc';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -15,5 +17,12 @@ export class AuthController {
   @RegisterDocs.register()
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
+  }
+
+  @HttpCode(200)
+  @Post('/login')
+  @LoginDocs.login()
+  async loginUser(@Body() credentials: LoginBodyValidator) {
+    return await this.authService.login(credentials);
   }
 }
