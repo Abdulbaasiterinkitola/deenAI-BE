@@ -8,6 +8,7 @@ export default class UserCoreService {
   constructor(
     private userModelAction: UserModelAction,
     private readonly userValidationService: UserValidationService,
+    // priva
   ) {}
 
   async createUser(createPayload: UserType) {
@@ -20,5 +21,9 @@ export default class UserCoreService {
       success: true,
       message: 'User created successfully.',
     };
+  }
+
+  async getUserByEmail(email: string) {
+    return await this.userModelAction.get({ email });
   }
 }

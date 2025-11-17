@@ -7,3 +7,10 @@ export type UserType = {
   authProvider: AuthProvider;
   isEmailVerified: boolean;
 };
+
+export type ResetPasswordEmailOptions = {
+  to: string;
+  name?: string;
+  resetLink: string;
+  expiresIn?: string;
+};
