@@ -16,6 +16,6 @@ import { User } from './models/user.model';
     UserValidationService,
     UserModelAction,
   ],
-  exports: [UsersService],
+  exports: [UsersService, UserValidationService],
 })
 export class UsersModule {}

@@ -92,11 +92,11 @@ For detailed information about the project structure and architecture, see the a
 
 ## 🔧 Environment Variables
 
-Required environment variables:
+Required environment variables (see `.env.example` for a complete template):
 
 ```bash
 # Application
-PORT=6001
+PORT=4001
 NODE_ENV=development
 
 # Database
@@ -106,15 +106,24 @@ DB_PASSWORD=your_password
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=your_database
-DB_ENTITIES=dist/modules/**/*.model{.ts,.js}
+DB_ENTITIES=dist/entities/**/*.entity{.ts,.js}
 DB_MIGRATIONS=dist/database/migrations/*{.ts,.js}
 DB_SSL=false
 
-# JWT
-JWT_SECRET=your_secret_key
+# JWT Authentication
+JWT_SECRET=your_jwt_secret_key_here
 JWT_TIMEFRAME=3d
 
-# Other services...
+# Email Configuration (SMTP) - Optional
+SMTP_HOST=your_smtp_host
+SMTP_PORT=587
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SMTP_FROM=noreply@yourdomain.com
+
+# OAuth (Optional)
+# GOOGLE_CLIENT_ID=your_google_client_id
+# APPLE_CLIENT_ID=your_apple_client_id
 ```
 
 ## 📚 Documentation
