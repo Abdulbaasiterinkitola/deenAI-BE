@@ -24,9 +24,9 @@ describe('Waitlist (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
-
+    
     waitlistRepository = moduleFixture.get(getRepositoryToken(Waitlist));
-
+    
     await app.init();
   });
 

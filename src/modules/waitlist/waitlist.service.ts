@@ -28,7 +28,7 @@ export class WaitlistService {
     // Queue welcome email (with error handling)
     try {
       await this.mailService.sendWelcomeEmail(saved.email, saved.name);
-    } catch (error: any) {
+    } catch (error) {
       console.log('Email service error:', error.message);
       // Continue without failing the registration
     }
