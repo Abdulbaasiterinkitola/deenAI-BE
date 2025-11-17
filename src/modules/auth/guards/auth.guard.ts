@@ -3,7 +3,6 @@ import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { UsersService } from '@modules/users/users.service';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ConfigService } from '@nestjs/config';
-import e from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -32,7 +31,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       decodedToken = this.jwtService.verify(
-        token,
+        token as string,
         this.configService.get<JwtVerifyOptions>('auth.jwtSecret'),
       );
     } catch (error) {
@@ -55,7 +54,9 @@ export class AuthGuard implements CanActivate {
       throw new CustomHttpException('Invalid token payload', 401);
     }
 
-    const user = await this.userService.getUserByEmail(decodedToken.email);
+    const user = await this.userService.getUserByEmail(
+      decodedToken.email as string,
+    );
 
     if (!user) {
       throw new CustomHttpException('User not found', 404);
