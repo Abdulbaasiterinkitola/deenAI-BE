@@ -1,4 +1,4 @@
-# NoorAI Backend - Architecture Documentation
+# DeenAI Backend - Architecture Documentation
 
 This document outlines the initial backend architecture setup. It covers the core patterns for TypeORM abstraction, error handling, configuration management, and database setup.
 

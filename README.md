@@ -1,12 +1,12 @@
-# NoorAI Backend
+# DeenAI Backend
 
-NoorAI Backend API built with NestJS, TypeORM, and PostgreSQL.
+DeenAI Backend API built with NestJS, TypeORM, and PostgreSQL.
 
-## 📖 About NoorAI
+## 📖 About DeenAI
 
-**NoorAI – Your Intelligent Qur'an-Centered Spiritual Companion**
+**DeenAI – Your Intelligent Qur'an-Centered Spiritual Companion**
 
-NoorAI is a warm, intelligent, and faith-centered digital companion designed to help Muslims build a peaceful, consistent, and emotionally supportive relationship with the Qur'an. It brings together AI-guided reflections, a clean Qur'an reading experience, and essential daily worship tools—all in one calming, distraction-free space.
+DeenAI is a warm, intelligent, and faith-centered digital companion designed to help Muslims build a peaceful, consistent, and emotionally supportive relationship with the Qur'an. It brings together AI-guided reflections, a clean Qur'an reading experience, and essential daily worship tools—all in one calming, distraction-free space.
 
 ### Key Features
 
@@ -39,8 +39,8 @@ NoorAI is a warm, intelligent, and faith-centered digital companion designed to 
 
 1. **Clone the repository**
    ```bash
-   git clone git@github.com:hngprojects/noorAI-BE.git
-   cd noorAI-BE
+   git clone git@github.com:hngprojects/deenAI-BE.git
+   cd deenAI-BE
    ```
 
 2. **Install dependencies**
