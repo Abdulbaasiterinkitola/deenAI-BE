@@ -5,6 +5,8 @@ import { RegisterBodyValidator } from './validators/register.validator';
 import { RegisterDocs } from './docs/register.doc';
 import { ForgotPasswordBodyValidator } from './validators/forgotPassword.validator';
 import { ForgotPasswordDocs } from './docs/forgotPassword.doc';
+import { LoginDocs } from './docs/login.doc';
+import { LoginBodyValidator } from './validators/login.validator';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -27,5 +29,11 @@ export class AuthController {
     @Req() req: Request,
   ) {
     return await this.authService.forgotPassword(body, req.headers['referer']);
+  }
+
+  @Post('/login')
+  @LoginDocs.login()
+  async login(@Body() user: LoginBodyValidator) {
+    return await this.authService.login(user);
   }
 }

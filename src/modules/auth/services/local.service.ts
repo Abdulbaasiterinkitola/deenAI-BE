@@ -5,17 +5,25 @@ import { UserType } from '@modules/users/types/user';
 import RegisterDto from '../dtos/register.dto';
 import { ForgotPasswordDto } from '../dtos/forgotPassword.dto';
 import { getFrontendUrlFromRefererOrEnv } from '@shared/url.utils';
+import { LoginDto } from '../dtos/login.dto';
+import { CustomHttpException } from '@shared/custom.exception';
+import * as bcrypt from 'bcrypt';
+import { EmailService } from '@modules/email/email.service';
 
 @Injectable()
 export class LocalAuthService {
   private readonly logger = new Logger(LocalAuthService.name);
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly emailService: EmailService,
+  ) {}
 
   async register(dto: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     const userData: UserType = {
       name: dto.name,
       email: dto.email,
-      password: dto.password,
+      password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: false,
     };
@@ -61,18 +69,12 @@ export class LocalAuthService {
 
     // 3) Send email (if emailService is configured). Don't propagate provider errors to client.
     try {
-      // if (this.emailService?.isConfigured?.()) {
-      //   await this.emailService.sendResetPassword({
-      //     to: email,
-      //     name: user.name || undefined,
-      //     resetLink,
-      //     expiresIn: '1 hour',
-      //   });
-      // } else {
-      this.logger.warn(
-        `Email service not configured; skipping sending reset email. Reset link: ${resetLink}`,
+      await this.emailService.sendEmail(
+        email,
+        'DeenAI - Password Reset Request',
+        'forgot-password', // Template name
+        { name: user.name || 'User', resetLink }, // Context for the template
       );
-      // }
     } catch (err) {
       this.logger.error('Failed to send password reset email', err);
     }
@@ -83,5 +85,28 @@ export class LocalAuthService {
       message:
         'If an account with that email exists, a password reset link has been sent.',
     };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.usersService.getUserByEmail(dto.email);
+
+    if (!user) {
+      throw new CustomHttpException('Invalid login credentials', 401);
+    }
+
+    if (user.authProvider !== AuthProvider.LOCAL) {
+      throw new CustomHttpException(
+        `This account uses ${user.authProvider} authentication. Please sign in with your ${user.authProvider} account.`,
+        401,
+      );
+    }
+
+    const isPasswordMatch = await bcrypt.compare(dto.password, user.password);
+
+    if (!isPasswordMatch) {
+      throw new CustomHttpException('Invalid login credentials', 401);
+    }
+
+    return user;
   }
 }

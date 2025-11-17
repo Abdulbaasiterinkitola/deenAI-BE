@@ -25,4 +25,3 @@ export class CustomHttpException extends HttpException {
     };
   }
 }
-
