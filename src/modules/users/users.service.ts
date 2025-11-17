@@ -9,4 +9,8 @@ export class UsersService {
   async createUser(user: UserType) {
     return await this.userCoreService.createUser(user);
   }
+
+  async getUserByEmail(email: string) {
+    return await this.userCoreService.getUserByEmail(email);
+  }
 }

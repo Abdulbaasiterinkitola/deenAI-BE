@@ -22,6 +22,12 @@ const buildAuthConfig = (): AuthConfig => ({
   jwtExpiry: process.env.JWT_TIMEFRAME || '3d',
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   appleClientId: process.env.APPLE_CLIENT_ID,
+<<<<<<< HEAD
 });
 
 export default registerAs<AuthConfig>('auth', buildAuthConfig);
+=======
+});
+
+export default registerAs<AuthConfig>('auth', buildAuthConfig);
+>>>>>>> 5846935 (feat: implement local user login endpoint)

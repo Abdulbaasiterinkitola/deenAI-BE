@@ -21,4 +21,8 @@ export default class UserCoreService {
       message: 'User created successfully.',
     };
   }
+
+  async getUserByEmail(email: string) {
+    return await this.userModelAction.get({ email });
+  }
 }
