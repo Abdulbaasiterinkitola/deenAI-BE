@@ -4,11 +4,11 @@ import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
 import RegisterDto from '../dtos/register.dto';
 import { LoginDto } from '../dtos/login.dto';
-import { CustomHttpException } from '@shared/custom.exception';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserResponseDto } from '../../users/dtos/user-response.dto';
+import UserValidationService from '../../users/services/user-validation.service';
 
 @Injectable()
 export class LocalAuthService {
@@ -16,6 +16,7 @@ export class LocalAuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly userValidationService: UserValidationService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -33,24 +34,10 @@ export class LocalAuthService {
   async login(
     dto: LoginDto,
   ): Promise<{ success: boolean; message: string; data: { token: string; user: UserResponseDto } }> {
-    const user = await this.usersService.getUserByEmail(dto.email);
-
-    if (!user) {
-      throw new CustomHttpException('Invalid login credentials', 401);
-    }
-
-    if (user.authProvider !== AuthProvider.LOCAL) {
-      throw new CustomHttpException(
-        `This account uses ${user.authProvider} authentication. Please sign in with your ${user.authProvider} account.`,
-        401,
-      );
-    }
-
-    const isPasswordMatch = await bcrypt.compare(dto.password, user.password);
-
-    if (!isPasswordMatch) {
-      throw new CustomHttpException('Invalid login credentials', 401);
-    }
+    const user = await this.userValidationService.validateUserForLogin(
+      dto.email,
+      dto.password,
+    );
 
     const token = this.jwtService.sign(
       { sub: user.id, email: user.email },
