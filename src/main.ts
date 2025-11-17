@@ -38,8 +38,8 @@ async function bootstrap() {
 
   // Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle('NoorAI API Documentation')
-    .setDescription('NoorAI Backend API Documentation')
+    .setTitle('DeenAI API Documentation')
+    .setDescription('DeenAI Backend API Documentation')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
