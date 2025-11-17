@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Logger } from '@nestjs/common';
-import { Waitlist } from '../entities/waitlist.entity';
 
 config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
@@ -13,8 +12,8 @@ const dataSource = new DataSource({
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT!,
   database: process.env.DB_NAME,
-  entities: [Waitlist],
-  migrations: [__dirname + '/migrations/*{.ts,.js}'],
+  entities: [process.env.DB_ENTITIES!],
+  migrations: [process.env.DB_MIGRATIONS!],
   namingStrategy: new SnakeNamingStrategy(), // Converts camelCase to snake_case
   synchronize: false, // Always false in production - use migrations
   migrationsTableName: 'migrations',
