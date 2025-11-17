@@ -7,4 +7,3 @@ export default registerAs('auth', () => ({
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   appleClientId: process.env.APPLE_CLIENT_ID,
 }));
-
