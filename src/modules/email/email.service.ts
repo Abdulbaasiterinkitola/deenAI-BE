@@ -13,10 +13,11 @@ export class EmailService {
   ) {}
 
   async sendEmail(
-    email: string,
-    subject: string,
-    template: string,
-  ): Promise<void> {
+  email: string,
+  subject: string,
+  template: string,
+  context: Record<string, string>, // 4th argument is now context
+): Promise<void> {
     if (this.emailQueue) {
       const timeout = 3000; // 3s timeout
 
@@ -42,7 +43,7 @@ export class EmailService {
             'email',
             {
               email,
-              name,
+              name: context.name,
               subject,
               template,
             },
@@ -88,7 +89,7 @@ export class EmailService {
         // Call the processor's sendEmail method directly
         await this.processMail.sendEmailDirectly({
           email,
-          name,
+          name: context.name,
           subject,
           template,
         });

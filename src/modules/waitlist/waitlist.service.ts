@@ -30,12 +30,9 @@ export class WaitlistService {
 
     process.nextTick(() => {
       this.emailService
-        .sendEmail(
-          entry.email,
+        .sendEmail(entry.email, 'Welcome to the DeenAI waitlist', 'waitlist', {
           name,
-          'Welcome to the DeenAI waitlist',
-          'waitlist',
-        )
+        })
         .catch((error) => {
           this.logger.error(
             `Failed to queue waitlist email for ${entry.email}: ${

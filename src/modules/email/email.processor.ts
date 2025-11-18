@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { render } from '@react-email/render';
 import { WaitlistEmail } from './templates/waitlist-email';
 import React from 'react';
+import ForgotPasswordEmail from './templates/ForgotPasswordEmail';
 
 type MailTransporter = {
   sendMail(
@@ -27,6 +28,7 @@ type EmailTemplate =
 const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   waitlist: WaitlistEmail, // Use custom DeenAI design
   welcome: WaitlistEmail, // Use custom DeenAI design for welcome emails too
+  'forgot-password': ForgotPasswordEmail
 };
 
 @Processor('email')
@@ -143,7 +145,7 @@ export class ProcessMail {
     );
     this.logger.log(`[QUEUE PROCESSOR] Job data: ${JSON.stringify(job.data)}`);
 
-    const { subject, email, name, template } = job.data as {
+    const { subject, email, context, template } = job.data as {
       subject: string;
       email: string;
       template: string;
@@ -151,13 +153,13 @@ export class ProcessMail {
     };
 
     this.logger.log(
-      `[QUEUE PROCESSOR] Email job data - email: ${email}, name: ${name}, template: ${template}, subject: ${subject}`,
+      `[QUEUE PROCESSOR] Email job data - email: ${email}, name: ${context.name}, template: ${template}, subject: ${subject}`,
     );
 
     try {
       // Render HNG SDK email template to HTML
       this.logger.log(`Starting template rendering for ${email}...`);
-      const htmlContent = await this.renderHngTemplate(template, { name });
+      const htmlContent = await this.renderHngTemplate(template, { name: context.name });
       this.logger.log(`Template rendered successfully for ${email}`);
 
       this.logger.log(`Sending email to ${email} via SMTP...`);
