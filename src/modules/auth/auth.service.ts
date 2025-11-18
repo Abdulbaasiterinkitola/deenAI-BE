@@ -2,11 +2,12 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
 import RegisterDto from './dtos/register.dto';
-import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CustomHttpException } from '@shared/custom.exception';
+import { ForgotPasswordDto } from './dtos/forgot-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,6 +25,10 @@ export class AuthService {
     const payload = { email: dto.email, purpose: 'reset-password' };
     const token = this.jwtService.sign(payload, { expiresIn: '1h' });
     return await this.localAuthService.forgotPassword(dto, token, referer);
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    return await this.localAuthService.resetPassword(dto);
   }
   async login(dto: LoginDto) {
     return await this.localAuthService.login(dto);

@@ -14,6 +14,13 @@ export class UsersService {
   async getUserByEmail(email: string) {
     return await this.userCoreService.getUserByEmail(email);
   }
+  async getUserById(id: string) {
+    return await this.userCoreService.getUserById(id);
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string) {
+    return await this.userCoreService.updateUserPassword(id, hashedPassword);
+  }
 
   async updateUserAuthProvider(
     email: string,

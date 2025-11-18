@@ -3,16 +3,17 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
 import RegisterDto from '../dtos/register.dto';
-import { ForgotPasswordDto } from '../dtos/forgotPassword.dto';
 import { getFrontendUrlFromRefererOrEnv } from '@shared/url.utils';
 import { LoginDto } from '../dtos/login.dto';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '@modules/email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { StringValue } from 'ms'; // Assuming this is imported from 'ms' package for time strings
+import { StringValue } from 'ms';
 import { UserResponseDto } from '../../users/dtos/user-response.dto';
 import UserValidationService from '../../users/services/user-validation.service';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
 
 @Injectable()
 export class LocalAuthService {
@@ -75,7 +76,7 @@ export class LocalAuthService {
         email,
         'DeenAI - Password Reset Request',
         'forgot-password',
-        { name: user.name || 'User', resetLink }, 
+        { name: user.name || 'User', resetLink },
       );
     } catch (err) {
       this.logger.error('Failed to send password reset email', err);
@@ -85,6 +86,35 @@ export class LocalAuthService {
       success: true,
       message:
         'If an account with that email exists, a password reset link has been sent.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const { token, newPassword } = dto;
+
+    let payload: { sub: string; email: string };
+
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('auth.jwtSecret'),
+      });
+    } catch {
+      throw new BadRequestException('Invalid or expired reset token.');
+    }
+
+    const user = await this.usersService.getUserById(payload.sub);
+
+    if (!user) {
+      throw new BadRequestException('Invalid token or user no longer exists.');
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await this.usersService.updateUserPassword(user.id, hashed);
+
+    return {
+      success: true,
+      message: 'Password has been successfully reset.',
     };
   }
 
@@ -106,6 +136,7 @@ export class LocalAuthService {
       },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 
     return {

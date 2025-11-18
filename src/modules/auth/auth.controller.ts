@@ -9,6 +9,8 @@ import { LoginDocs } from './docs/login.doc';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
 import { GoogleAuthDocs } from './docs/google-auth.doc';
+import { ResetPasswordBodyValidator } from './validators/reset-password.validator';
+import { ResetPasswordDocs } from './docs/reset-password.doc';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -44,5 +46,11 @@ export class AuthController {
   @GoogleAuthDocs.googleAuth()
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
     return await this.authService.googleLogin(googleAuthDto.idToken);
+  }
+  @HttpCode(200)
+  @Post('/reset-password')
+  @ResetPasswordDocs.resetPassword()
+  async resetPassword(@Body() body: ResetPasswordBodyValidator) {
+    return await this.authService.resetPassword(body);
   }
 }
