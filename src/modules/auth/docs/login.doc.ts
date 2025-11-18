@@ -47,38 +47,3 @@ export class LoginDocs {
     );
   }
 }
-<<<<<<< HEAD
-=======
-
-class LoginData {
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT token for the user',
-  })
-  token: string;
-
-  @ApiProperty({
-    type: () => User,
-  })
-  user: User;
-}
-
-export class LoginResponseDto {
-  @ApiProperty({
-    example: true,
-    description: 'Indicates if the operation was successful',
-  })
-  success: boolean;
-
-  @ApiProperty({
-    example: 'User logged in successfully.',
-    description: 'Response message',
-  })
-  message: string;
-
-  @ApiProperty({
-    type: () => LoginData,
-  })
-  data: LoginData;
-}
->>>>>>> 7b5622d97bcab8e39188d86b8dfa5e08e04dbdf4

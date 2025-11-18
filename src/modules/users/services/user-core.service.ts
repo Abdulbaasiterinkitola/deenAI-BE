@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserModelAction } from '../action-models/user.action-model';
 import { UserType } from '../types/user';
 import UserValidationService from './user-validation.service';
+import { AuthProvider } from '../enums';
 
 @Injectable()
 export default class UserCoreService {
@@ -24,5 +25,19 @@ export default class UserCoreService {
 
   async getUserByEmail(email: string) {
     return await this.userModelAction.get({ email });
+  }
+
+  async updateUserAuthProvider(
+    email: string,
+    authProvider: AuthProvider,
+    isEmailVerified: boolean,
+  ) {
+    return await this.userModelAction.update({
+      updatePayload: {
+        authProvider,
+        isEmailVerified,
+      },
+      identifierOptions: { email },
+    });
   }
 }

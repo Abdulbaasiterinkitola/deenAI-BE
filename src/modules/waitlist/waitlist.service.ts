@@ -1,12 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WaitlistCoreService } from './services/waitlist-core.service';
 import { WaitlistValidationService } from './services/waitlist-validation.service';
-<<<<<<< HEAD
 import { EmailService } from '@modules/email/email.service';
 import { Waitlist } from './models/waitlist.model';
-import { WaitlistDto } from './dtos/waitlist.dto';
-=======
->>>>>>> 7b5622d97bcab8e39188d86b8dfa5e08e04dbdf4
 
 @Injectable()
 export class WaitlistService {
@@ -19,7 +15,7 @@ export class WaitlistService {
   ) {}
 
   async register(payload) {
-    const existing = await this.core.findByEmail(payload.email);
+    const existing = await this.core.findByEmail(payload.email as string);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);
     await this.queueWelcomeEmail(entry);
