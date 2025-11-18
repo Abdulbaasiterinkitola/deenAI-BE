@@ -35,5 +35,6 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
           cd /home/ottoman/deenai-backend-dev
+          git pull origin dev
           npm ci --only=production
           pm2 restart deenai-backend
