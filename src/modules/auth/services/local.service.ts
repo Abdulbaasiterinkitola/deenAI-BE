@@ -6,7 +6,6 @@ import RegisterDto from '../dtos/register.dto';
 import { ForgotPasswordDto } from '../dtos/forgotPassword.dto';
 import { getFrontendUrlFromRefererOrEnv } from '@shared/url.utils';
 import { LoginDto } from '../dtos/login.dto';
-import { CustomHttpException } from '@shared/custom.exception';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '@modules/email/email.service';
 
@@ -16,6 +15,19 @@ export class LocalAuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly emailService: EmailService,
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { StringValue } from 'ms';
+import { UserResponseDto } from '../../users/dtos/user-response.dto';
+import UserValidationService from '../../users/services/user-validation.service';
+
+@Injectable()
+export class LocalAuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly userValidationService: UserValidationService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -89,24 +101,34 @@ export class LocalAuthService {
 
   async login(dto: LoginDto) {
     const user = await this.usersService.getUserByEmail(dto.email);
+  async login(dto: LoginDto): Promise<{
+    success: boolean;
+    message: string;
+    data: { token: string; user: UserResponseDto };
+  }> {
+    const user = await this.userValidationService.validateUserForLogin(
+      dto.email,
+      dto.password,
+    );
 
-    if (!user) {
-      throw new CustomHttpException('Invalid login credentials', 401);
-    }
+    const token = this.jwtService.sign(
+      { sub: user.id, email: user.email },
+      {
+        secret: this.configService.get<string>('auth.jwtSecret'),
+        expiresIn: this.configService.get<StringValue>('auth.jwtExpiry'),
+      },
+    );
 
-    if (user.authProvider !== AuthProvider.LOCAL) {
-      throw new CustomHttpException(
-        `This account uses ${user.authProvider} authentication. Please sign in with your ${user.authProvider} account.`,
-        401,
-      );
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
 
-    const isPasswordMatch = await bcrypt.compare(dto.password, user.password);
-
-    if (!isPasswordMatch) {
-      throw new CustomHttpException('Invalid login credentials', 401);
-    }
-
-    return user;
+    return {
+      success: true,
+      message: 'Login successful',
+      data: {
+        token,
+        user: userWithoutPassword,
+      },
+    };
   }
 }

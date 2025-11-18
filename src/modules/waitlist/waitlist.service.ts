@@ -4,6 +4,7 @@ import { WaitlistValidationService } from './services/waitlist-validation.servic
 import { EmailService } from '@modules/email/email.service';
 import { Waitlist } from './models/waitlist.model';
 import { WaitlistDto } from './dtos/waitlist.dto';
+import { EmailService } from '@modules/email/email.service';
 
 @Injectable()
 export class WaitlistService {

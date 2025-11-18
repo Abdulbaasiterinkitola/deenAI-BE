@@ -8,10 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 import { EmailServiceModule } from '@modules/email/email.module';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService, GoogleAuthService],
+  providers: [AuthService, LocalAuthService, AuthGuard, GoogleAuthService],
   imports: [
     EmailServiceModule,
     UsersModule,
@@ -26,5 +27,6 @@ import { EmailServiceModule } from '@modules/email/email.module';
       inject: [ConfigService],
     }),
   ],
+  exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}
