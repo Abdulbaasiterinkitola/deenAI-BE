@@ -9,6 +9,7 @@ import authConfig from '@config/auth.config';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
 import { WaitlistModule } from '@modules/waitlist/waitlist.module';
+import { ReflectionsModule } from '@modules/reflections/reflections.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { WaitlistModule } from '@modules/waitlist/waitlist.module';
     AuthModule,
     UsersModule,
     WaitlistModule,
+    ReflectionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
