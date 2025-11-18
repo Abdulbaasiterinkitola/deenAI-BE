@@ -1,42 +1,36 @@
 import { applyDecorators } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiOperation,
+  ApiProperty,
   ApiResponse,
   ApiUnauthorizedResponse,
-  ApiBadRequestResponse,
 } from '@nestjs/swagger';
-import { LoginBodyValidator } from '../validators/login.validator';
+import { GoogleAuthValidator } from '../validators/google-auth.validator';
 import {
-  DocsResponseDto,
+  BadResponseDto,
   UnauthorizedResponseDto,
   ValidationResponseDto,
-  BadResponseDto,
 } from '@shared/docs-response.dto';
-import { UserResponseDto } from '../../users/dtos/user-response.dto';
+import { User } from '@modules/users/models/user.model';
 
-export class LoginDocs {
-  static login() {
+export class GoogleAuthDocs {
+  static googleAuth() {
     return applyDecorators(
-      ApiOperation({
-        summary: 'User login with email and password',
-        description:
-          'Authenticates a user with LOCAL auth provider using email and password, returning a JWT token and user information.',
-      }),
-      ApiBody({ type: LoginBodyValidator }),
+      ApiOperation({ summary: 'User Authentication with Google OAuth2' }),
+      ApiBody({ type: GoogleAuthValidator }),
       ApiResponse({
         status: 200,
-        description: 'Successful login',
-        type: DocsResponseDto(UserResponseDto, {
-          token: 'string',
-        }),
+        description: 'User authenticated successfully with Google.',
+        type: GoogleAuthResponseDto,
       }),
       ApiUnauthorizedResponse({
-        description: 'Invalid credentials or non-LOCAL provider',
+        description: 'Invalid Google ID token or authentication failed',
         type: UnauthorizedResponseDto,
       }),
       ApiBadRequestResponse({
-        description: 'Validation failed',
+        description: 'Invalid request parameters',
         type: BadResponseDto,
       }),
       ApiResponse({
@@ -47,10 +41,8 @@ export class LoginDocs {
     );
   }
 }
-<<<<<<< HEAD
-=======
 
-class LoginData {
+class GoogleAuthData {
   @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     description: 'JWT token for the user',
@@ -63,7 +55,7 @@ class LoginData {
   user: User;
 }
 
-export class LoginResponseDto {
+export class GoogleAuthResponseDto {
   @ApiProperty({
     example: true,
     description: 'Indicates if the operation was successful',
@@ -71,14 +63,13 @@ export class LoginResponseDto {
   success: boolean;
 
   @ApiProperty({
-    example: 'User logged in successfully.',
+    example: 'Google authentication successful',
     description: 'Response message',
   })
   message: string;
 
   @ApiProperty({
-    type: () => LoginData,
+    type: () => GoogleAuthData,
   })
-  data: LoginData;
+  data: GoogleAuthData;
 }
->>>>>>> 7b5622d97bcab8e39188d86b8dfa5e08e04dbdf4

@@ -4,6 +4,7 @@ import { WaitlistValidationService } from './services/waitlist-validation.servic
 import { EmailService } from '@modules/email/email.service';
 import { Waitlist } from './models/waitlist.model';
 import { WaitlistDto } from './dtos/waitlist.dto';
+import { EmailService } from '@modules/email/email.service';
 
 @Injectable()
 export class WaitlistService {
@@ -15,7 +16,7 @@ export class WaitlistService {
     private readonly emailService: EmailService,
   ) {}
 
-  async register(payload: WaitlistDto) {
+  async register(payload) {
     const existing = await this.core.findByEmail(payload.email);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);
