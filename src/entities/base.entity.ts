@@ -12,10 +12,10 @@ export class AbstractBaseEntity {
   @PrimaryColumn({ type: 'text' })
   id: string;
 
-  @CreateDateColumn({ name: 'created_at', type: 'date' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'date' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
   @BeforeInsert()

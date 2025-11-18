@@ -11,7 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService, GoogleAuthService],
+  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthGuard],
   imports: [
     UsersModule,
     JwtModule.registerAsync({

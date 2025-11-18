@@ -29,19 +29,19 @@ export class ProcessMail {
       587;
     const user =
       this.configService.get<string>('SMTP_USER') ||
-      this.configService.get<string>('MAIL_USERNAME');
+      this.configService.get<string>('MAIL_USER');
     const pass =
       this.configService.get<string>('SMTP_PASS') ||
-      this.configService.get<string>('MAIL_PASSWORD');
-    const mailFromName = this.configService.get<string>('MAIL_FROM_NAME');
-    const mailFromAddress = this.configService.get<string>('MAIL_FROM_ADDRESS');
+      this.configService.get<string>('MAIL_PASS');
+    const mailFromName = this.configService.get<string>('MAIL_NAME');
+    const mailFromAddress = this.configService.get<string>('MAIL_FROM');
 
     const from =
       this.configService.get<string>('SMTP_FROM') ||
       (mailFromName && mailFromAddress
         ? `${mailFromName} <${mailFromAddress}>`
         : mailFromAddress) ||
-      'DeenAI <no-reply@deenai.com>';
+      'Deen AI <no-reply@deenai.com>';
 
     this.defaultFrom = from;
 
