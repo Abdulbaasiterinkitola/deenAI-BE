@@ -1,467 +1,128 @@
-import * as React from 'react';
-import {
-  Html,
-  Head,
-  Body,
-  Container,
-  Section,
-  Text,
-  Heading,
-  Link,
-  Row,
-  Column,
-} from '@react-email/components';
+// src/components/emails/WelcomeEmail.tsx
+import React from 'react';
 
-interface WaitlistEmailProps {
-  name?: string;
-  username?: string;
+interface WelcomeEmailProps {
+  name: string;
+  supportEmail?: string;
 }
 
-export const WaitlistEmail: React.FC<WaitlistEmailProps> = ({
+const WaitlistEmail: React.FC<WelcomeEmailProps> = ({
   name,
-  username,
+  supportEmail = 'email@deenai.com',
 }) => {
-  const displayName = name || username || 'friend';
-
   return (
-    <Html lang="en">
-      <Head>
-        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        {/*[if mso]>
-          <style type="text/css">
-            body, table, td {
-              font-family: Arial, Helvetica, sans-serif !important;
+    <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Welcome to Deen AI</title>
+
+        <style>
+          {`
+            body {
+              font-family: 'Inter', sans-serif;
+              background: #f5f3f1;
+              color: #333;
+              margin: 0;
+              padding: 0;
             }
-          </style>
-        <![endif]*/}
-      </Head>
-      <Body
-        style={{
-          margin: 0,
-          padding: 0,
-          backgroundColor: '#fafafa',
-          fontFamily:
-            "'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-        }}
-      >
-        <Container
-          style={{
-            backgroundColor: '#fafafa',
-            width: '100%',
-          }}
-        >
-          <Section
-            style={{
-              padding: '40px 20px',
-            }}
-          >
-            {/* Email Content Container */}
-            <Section
-              style={{
-                maxWidth: '600px',
-                width: '100%',
-                backgroundColor: '#ffffff',
-                borderRadius: '16px',
-                border: '1px solid #e5d4bd',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                margin: '0 auto',
-              }}
-            >
-              {/* Header with Logo */}
-              <Section
-                style={{
-                  padding: '40px 40px 20px 40px',
-                  backgroundColor: '#fafafa',
-                  borderRadius: '16px 16px 0 0',
-                  textAlign: 'center',
-                }}
-              >
-                <Heading
-                  style={{
-                    margin: 0,
-                    color: '#942e00',
-                    fontSize: '32px',
-                    fontWeight: 700,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    letterSpacing: '-0.5px',
-                  }}
-                >
-                  Deen AI
-                </Heading>
-              </Section>
 
-              {/* Main Content */}
-              <Section
-                style={{
-                  padding: '40px 40px 30px 40px',
-                }}
-              >
-                {/* Greeting */}
-                <Heading
-                  style={{
-                    margin: '0 0 20px 0',
-                    color: '#393025',
-                    fontSize: '28px',
-                    fontWeight: 700,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.3,
-                  }}
-                >
-                  Welcome to Your Spiritual Journey! 🌙
-                </Heading>
+            .card {
+              background: #fff;
+              padding: 48px 56px;
+              border-radius: 16px;
+              max-width: 680px;
+              margin: auto;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
 
-                {/* Body Text */}
-                <Text
-                  style={{
-                    margin: '0 0 20px 0',
-                    color: '#393025',
-                    fontSize: '16px',
-                    fontWeight: 500,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  Assalamu Alaikum {displayName},
-                </Text>
+            h1 {
+              font-weight: 600;
+              font-size: 28px;
+              margin: 0 0 12px;
+              text-align: left;
+            }
 
-                <Text
-                  style={{
-                    margin: '0 0 20px 0',
-                    color: '#393025',
-                    fontSize: '16px',
-                    fontWeight: 500,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  Thank you for joining the{' '}
-                  <strong style={{ fontWeight: 700, color: '#942e00' }}>
-                    Deen AI waitlist
-                  </strong>
-                  ! We're thrilled to have you as part of our growing community.
-                </Text>
+            .steps-title {
+              color: #9a4a00;
+              font-weight: 600;
+              margin-top: 24px;
+              margin-bottom: 16px;
+            }
 
-                <Text
-                  style={{
-                    margin: '0 0 20px 0',
-                    color: '#393025',
-                    fontSize: '16px',
-                    fontWeight: 500,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  Deen AI is designed to bring you closer to your faith through
-                  AI-powered guidance rooted in the Quran and Hadith. Whether
-                  you're seeking clarity, comfort, or spiritual growth, we're
-                  here to support you every step of the way.
-                </Text>
+            .steps-list {
+              list-style: none;
+              margin: 0;
+              padding: 0;
+            }
 
-                {/* Features Box */}
-                <Section
-                  style={{
-                    margin: '30px 0',
-                    backgroundColor: '#fafafa',
-                    borderRadius: '12px',
-                    border: '1px solid #e5d4bd',
-                    padding: '25px',
-                  }}
-                >
-                  <Text
-                    style={{
-                      margin: '0 0 15px 0',
-                      color: '#942e00',
-                      fontSize: '18px',
-                      fontWeight: 700,
-                      fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    }}
-                  >
-                    What to Expect:
-                  </Text>
+            .steps-list li {
+              display: flex;
+              gap: 12px;
+              font-size: 15px;
+              color: #333;
+              margin-bottom: 8px;
+            }
 
-                  <Text
-                    style={{
-                      margin: '8px 0',
-                      color: '#393025',
-                      fontSize: '15px',
-                      fontWeight: 500,
-                      fontFamily: "'Nunito Sans', Arial, sans-serif",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: '#942e00',
-                        fontSize: '16px',
-                        marginRight: '8px',
-                      }}
-                    >
-                      ✓
-                    </span>
-                    AI-powered guidance based on Quran and Hadith
-                  </Text>
+            .check {
+              color: #4a9b5c;
+              font-weight: 700;
+            }
 
-                  <Text
-                    style={{
-                      margin: '8px 0',
-                      color: '#393025',
-                      fontSize: '15px',
-                      fontWeight: 500,
-                      fontFamily: "'Nunito Sans', Arial, sans-serif",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: '#942e00',
-                        fontSize: '16px',
-                        marginRight: '8px',
-                      }}
-                    >
-                      ✓
-                    </span>
-                    Read and reflect on Quranic verses
-                  </Text>
+            a {
+              color: #9a4a00;
+              text-decoration: none;
+            }
 
-                  <Text
-                    style={{
-                      margin: '8px 0',
-                      color: '#393025',
-                      fontSize: '15px',
-                      fontWeight: 500,
-                      fontFamily: "'Nunito Sans', Arial, sans-serif",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: '#942e00',
-                        fontSize: '16px',
-                        marginRight: '8px',
-                      }}
-                    >
-                      ✓
-                    </span>
-                    Track your spiritual growth with personal reflections
-                  </Text>
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 1px solid #ddd;
+              text-align: center;
+              color: #777;
+              font-size: 13px;
+            }
+          `}
+        </style>
+      </head>
 
-                  <Text
-                    style={{
-                      margin: '8px 0',
-                      color: '#393025',
-                      fontSize: '15px',
-                      fontWeight: 500,
-                      fontFamily: "'Nunito Sans', Arial, sans-serif",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: '#942e00',
-                        fontSize: '16px',
-                        marginRight: '8px',
-                      }}
-                    >
-                      ✓
-                    </span>
-                    Tasbih counter and prayer time reminders
-                  </Text>
-                </Section>
+      <body>
+        <div className="card">
 
-                <Text
-                  style={{
-                    margin: '0 0 20px 0',
-                    color: '#393025',
-                    fontSize: '16px',
-                    fontWeight: 500,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  We'll keep you updated on our launch date and send you
-                  exclusive early access when we're ready. Stay tuned!
-                </Text>
+          <h1>Welcome <strong>{name}</strong>,</h1>
 
-                {/* CTA Button */}
-                <Section
-                  style={{
-                    margin: '30px 0',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Link
-                    href="https://linktr.ee/thedeenai"
-                    style={{
-                      display: 'inline-block',
-                      padding: '16px 32px',
-                      fontFamily: "'Nunito Sans', Arial, sans-serif",
-                      fontSize: '16px',
-                      fontWeight: 700,
-                      color: '#fafafa',
-                      textDecoration: 'none',
-                      borderRadius: '10px',
-                      backgroundColor: '#942e00',
-                    }}
-                  >
-                    Learn More About Deen AI
-                  </Link>
-                </Section>
+          <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#6b6b6b' }}>
+            Welcome to DeenAI! Your account has been successfully created, and you're all set to get started.
+          </p>
 
-                <Text
-                  style={{
-                    margin: 0,
-                    color: '#393025',
-                    fontSize: '16px',
-                    fontWeight: 500,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  JazakAllah Khair for your trust and patience.
-                </Text>
+          <h3 className="steps-title">Next steps:</h3>
 
-                <Text
-                  style={{
-                    margin: '15px 0 0 0',
-                    color: '#393025',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  With peace,
-                  <br />
-                  <span style={{ color: '#942e00', fontWeight: 700 }}>
-                    The Deen AI Team
-                  </span>
-                </Text>
-              </Section>
+          <ul className="steps-list">
+            <li><span className="check">✓</span>Open the DeenAI app</li>
+            <li><span className="check">✓</span>Log in with your new account</li>
+            <li><span className="check">✓</span>Start using all your personalized tools and features</li>
+          </ul>
 
-              {/* Footer */}
-              <Section
-                style={{
-                  padding: '30px 40px',
-                  backgroundColor: '#fafafa',
-                  borderRadius: '0 0 16px 16px',
-                  borderTop: '1px solid #e5d4bd',
-                  textAlign: 'center',
-                }}
-              >
-                <Text
-                  style={{
-                    margin: '0 0 10px 0',
-                    color: '#737373',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  Questions? We'd love to hear from you.
-                </Text>
+          <p style={{ marginTop: '24px', fontSize: '14px', color: '#6b6b6b' }}>
+            Need help? Contact us anytime at 
+            <a href={`mailto:${supportEmail}`}> {supportEmail}</a>.
+          </p>
 
-                <Link
-                  href="mailto:buddy.deenai@gmail.com"
-                  style={{
-                    color: '#942e00',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    textDecoration: 'none',
-                    display: 'block',
-                    margin: '0 0 20px 0',
-                  }}
-                >
-                  buddy.deenai@gmail.com
-                </Link>
+          <p style={{ fontSize: '15px', marginTop: '24px', color: '#6b6b6b' }}>
+            Thanks for joining Deen AI — we're excited to have you onboard!
+          </p>
 
-                {/* Social Links */}
-                <Row
-                  style={{ margin: '0 auto 20px auto', width: 'fit-content' }}
-                >
-                  <Column style={{ padding: '0 10px' }}>
-                    <Link
-                      href="https://instagram.com/thedeenai"
-                      style={{
-                        color: '#942e00',
-                        textDecoration: 'none',
-                        fontSize: '20px',
-                      }}
-                    >
-                      📷
-                    </Link>
-                  </Column>
-                  <Column style={{ padding: '0 10px' }}>
-                    <Link
-                      href="https://youtube.com/@thedeenai"
-                      style={{
-                        color: '#942e00',
-                        textDecoration: 'none',
-                        fontSize: '20px',
-                      }}
-                    >
-                      ▶️
-                    </Link>
-                  </Column>
-                  <Column style={{ padding: '0 10px' }}>
-                    <Link
-                      href="https://tiktok.com/@thedeenai"
-                      style={{
-                        color: '#942e00',
-                        textDecoration: 'none',
-                        fontSize: '20px',
-                      }}
-                    >
-                      🎵
-                    </Link>
-                  </Column>
-                  <Column style={{ padding: '0 10px' }}>
-                    <Link
-                      href="https://linktr.ee/thedeenai"
-                      style={{
-                        color: '#942e00',
-                        textDecoration: 'none',
-                        fontSize: '20px',
-                      }}
-                    >
-                      🔗
-                    </Link>
-                  </Column>
-                </Row>
+          <p style={{ fontSize: '15px', marginTop: '12px', color: '#6b6b6b' }}>
+            The Deen AI Team
+          </p>
 
-                <Text
-                  style={{
-                    margin: 0,
-                    color: '#737373',
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  © 2025 Deen AI. All rights reserved.
-                </Text>
+          <div className="footer">
+            © {new Date().getFullYear()} Deen AI — All rights reserved
+          </div>
 
-                <Text
-                  style={{
-                    margin: '5px 0 0 0',
-                    color: '#737373',
-                    fontSize: '11px',
-                    fontWeight: 400,
-                    fontFamily: "'Nunito Sans', Arial, sans-serif",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  You're receiving this email because you signed up for the Deen
-                  AI waitlist.
-                </Text>
-              </Section>
-            </Section>
-          </Section>
-        </Container>
-      </Body>
-    </Html>
+        </div>
+      </body>
+    </html>
   );
 };
 

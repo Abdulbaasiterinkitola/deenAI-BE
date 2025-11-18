@@ -6,8 +6,7 @@ import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CustomHttpException } from '@shared/custom.exception';
-import { ForgotPasswordDto } from './dtos/forgot-password.dto';
-import { ResetPasswordDto } from './dtos/reset-password.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -21,41 +20,36 @@ export class AuthService {
     return await this.localAuthService.register(dto);
   }
 
-  async forgotPassword(dto: ForgotPasswordDto, referer?: string) {
-    const payload = { email: dto.email, purpose: 'reset-password' };
-    const token = this.jwtService.sign(payload, { expiresIn: '1h' });
-    return await this.localAuthService.forgotPassword(dto, token, referer);
+  async requestOtp(dto: { email: string }) {
+    return await this.localAuthService.requestPasswordReset(dto);
   }
 
-  async resetPassword(dto: ResetPasswordDto) {
-    return await this.localAuthService.resetPassword(dto);
+  async verifyOtp(dto: { email: string; otp: string }) {
+    return await this.localAuthService.verifyOtp(dto);
   }
+
+  async resetPassword(dto: { email: string; otp: string; newPassword: string }) {
+    return await this.localAuthService.resetPasswordWithOtp(dto);
+  }
+
   async login(dto: LoginDto) {
     return await this.localAuthService.login(dto);
   }
 
   async googleLogin(idToken: string) {
     const user = await this.googleAuthService.authenticate(idToken);
-
     if (!user) {
       throw new CustomHttpException(
         'Failed to authenticate with Google',
         HttpStatus.UNAUTHORIZED,
       );
     }
-
-    const token = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-    });
+    const token = this.jwtService.sign({ sub: user.id, email: user.email });
 
     return {
       success: true,
       message: 'Google login successful',
-      data: {
-        token,
-        user,
-      },
+      data: { token, user },
     };
   }
 }

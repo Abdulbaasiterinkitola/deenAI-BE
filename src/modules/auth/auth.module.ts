@@ -8,24 +8,28 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailServiceModule } from '@modules/email/email.module';
 import { AuthGuard } from './guards/auth.guard';
+import { OtpService } from './services/otp.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PasswordResetOtp } from './models/otp.model';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthGuard],
-  imports: [
-    EmailServiceModule,
-    UsersModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('auth.jwtSecret'),
-        signOptions: {
-          expiresIn: configService.get<string>('auth.jwtExpiry') as any,
-        },
-      }),
-      inject: [ConfigService],
+  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthGuard, OtpService],
+imports: [
+  EmailServiceModule,
+  UsersModule,
+  TypeOrmModule.forFeature([PasswordResetOtp]),  
+  JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: (configService: ConfigService) => ({
+      secret: configService.get<string>('auth.jwtSecret'),
+      signOptions: {
+        expiresIn: configService.get<string>('auth.jwtExpiry') as any,
+      },
     }),
-  ],
+    inject: [ConfigService],
+  }),
+],
   exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}

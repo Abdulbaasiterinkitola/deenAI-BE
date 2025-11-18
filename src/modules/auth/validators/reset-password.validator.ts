@@ -1,16 +1,16 @@
-import { IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsEmail } from 'class-validator';
 
 export class ResetPasswordBodyValidator {
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
-  token: string;
+  email: string;
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(8)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message:
-      'Password must contain uppercase, lowercase, and a number or symbol.',
-  })
+  otp: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 128)
   newPassword: string;
 }

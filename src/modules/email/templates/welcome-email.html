@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Welcome to Deen AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5f3f1;
+        --muted: #6b6b6b;
+        --accent: #9a4a00;
+        --card-border: #e7e7e7;
+        --card-bg: #fff;
+        --check-bg: #fff6ef;
+        --text-dark: #333;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text-dark);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 24px;
+        box-sizing: border-box;
+      }
+      .wrapper {
+        width: 100%;
+        max-width: 680px;
+      }
+      .card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 48px 56px;
+        box-sizing: border-box;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+      .logo-header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .logo-header img {
+        width: 180px;
+        height: auto;
+      }
+      .avatar-section {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+      .avatar-section img {
+        width: 180px;
+        height: auto;
+        margin: 0 auto;
+      }
+      h1 {
+        font-weight: 600;
+        font-size: 28px;
+        line-height: 1.3;
+        margin: 0 0 8px;
+        text-align: left;
+        color: var(--text-dark);
+      }
+      h1 .name {
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+      .welcome-text {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 0 0 24px;
+        text-align: left;
+      }
+      .steps-section {
+        margin: 28px 0;
+      }
+      .steps-title {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--accent);
+        margin: 0 0 16px;
+        text-align: left;
+      }
+      .steps-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 12px;
+      }
+      .steps-list li {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        color: var(--text-dark);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      .check {
+        min-width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #4a9b5c;
+        flex-shrink: 0;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .help-text {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 24px 0 8px;
+        text-align: left;
+      }
+      .help-text a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      .help-text a:hover {
+        text-decoration: underline;
+      }
+      .closing-text {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 16px 0 12px;
+        text-align: left;
+      }
+      .signature {
+        color: var(--muted);
+        font-size: 15px;
+        margin: 12px 0 0;
+        text-align: left;
+      }
+      .footer {
+        margin-top: 48px;
+        text-align: center;
+        padding-top: 28px;
+        border-top: 1px solid var(--card-border);
+      }
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .footer-logo img {
+        width: 140px;
+        height: auto;
+      }
+      .socials {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        margin: 16px 0;
+      }
+      .socials a {
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        text-decoration: none;
+        transition: transform 0.2s;
+      }
+      .socials a:hover {
+        transform: scale(1.1);
+      }
+      .socials img {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+      }
+      .footer-note {
+        font-size: 12px;
+        color: #999;
+        margin-top: 16px;
+        line-height: 1.5;
+      }
+      .footer-links {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin: 12px 0;
+        font-size: 13px;
+      }
+      .footer-links a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .footer-links a:hover {
+        text-decoration: underline;
+      }
+      .app-badges {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 20px 0 16px;
+      }
+      .app-badges img {
+        height: 40px;
+        width: auto;
+      }
+      .copyright {
+        font-size: 12px;
+        margin-top: 12px;
+        color: #999;
+      }
+
+      /* Responsive */
+      @media (max-width: 640px) {
+        .card {
+          padding: 32px 24px;
+          border-radius: 12px;
+        }
+        h1 {
+          font-size: 22px;
+        }
+        .avatar-section img {
+          width: 140px;
+        }
+        .welcome-text,
+        .closing-text {
+          font-size: 14px;
+        }
+        .steps-list li {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="wrapper">
+        <div class="card" role="main">
+          <div class="logo-header">
+            <img
+              src="https://ottoman.emerj.net/icons/logo-svg.svg"
+              alt="Deen AI Logo"
+            />
+          </div>
+
+          <div class="avatar-section">
+            <img
+              src="/Desktop Email template.png"
+              alt="Welcome illustration"
+              onerror="this.style.display='none'"
+            />
+          </div>
+
+          <h1>Welcome <span class="name">Ismail,</span></h1>
+
+          <p class="welcome-text">
+            Welcome to DeenAI! Your account has been successfully created, and
+            you're all set to get started.
+          </p>
+
+          <div class="steps-section">
+            <h3 class="steps-title">Next steps:</h3>
+            <ul class="steps-list">
+              <li>
+                <span class="check">✓</span>
+                <span>Open the Deen AI app</span>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <span>Log in with your new account</span>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <span>Start using your personalized tools and features</span>
+              </li>
+            </ul>
+          </div>
+
+          <p class="help-text">
+            If you ever need help, reach us anytime at
+            <a href="mailto:email@deenai.com">email@deenai.com</a>
+          </p>
+
+          <p class="closing-text">
+            Thanks for joining Deen AI — we're excited to have you onboard!
+          </p>
+
+          <p class="signature">The Deen AI Team</p>
+
+          <div class="footer">
+            <div class="footer-logo">
+              <img
+                src="https://ottoman.emerj.net/icons/logo-svg.svg"
+                alt="Deen AI"
+              />
+            </div>
+
+            <div class="socials">
+              <!-- <a
+                href="https://www.facebook.com/thedeenai"
+                aria-label="facebook"
+                target="_blank"
+              >
+                <img
+                  src="https://ottoman.emerj.net/icons/fb.svg"
+                  alt="Facebook"
+                />
+              </a> -->
+              <a href="https://x.com/thedeenai" aria-label="x" target="_blank">
+                <img src="https://ottoman.emerj.net/icons/x.svg" alt="X" />
+              </a>
+              <a
+                href="https://instagram.com/thedeenai"
+                aria-label="instagram"
+                target="_blank"
+              >
+                <img
+                  src="https://ottoman.emerj.net/icons/insta.svg"
+                  alt="Instagram"
+                />
+              </a>
+              <a
+                href="https://youtube.com/@thedeenai"
+                aria-label="youtube"
+                target="_blank"
+              >
+                <img
+                  src="https://ottoman.emerj.net/icons/yt.svg"
+                  alt="YouTube"
+                />
+              </a>
+              <!-- <a
+                href="https://www.linkedin.com/company/thedeenai"
+                aria-label="linkedin"
+                target="_blank"
+              >
+                <img
+                  src="https://ottoman.emerj.net/icons/linked.svg"
+                  alt="LinkedIn"
+                />
+              </a> -->
+            </div>
+
+            <div class="footer-note">All rights reserved © 2025</div>
+
+            <div class="footer-links">
+              <a href="#">Privacy Policy</a>
+              <span>•</span>
+              <a href="#">Unsubscribe</a>
+            </div>
+
+            <div class="app-badges">
+              <a href="#" target="_blank">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                  alt="Get it on Google Play"
+                />
+              </a>
+              <a href="#" target="_blank">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                  alt="Download on the App Store"
+                />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

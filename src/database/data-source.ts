@@ -1,4 +1,4 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Logger } from '@nestjs/common';
@@ -11,46 +11,46 @@ const dataSourceConfig: any = {
   type: dbType,
   entities: [process.env.DB_ENTITIES!],
   migrations: [process.env.DB_MIGRATIONS!],
-  namingStrategy: new SnakeNamingStrategy(), // Converts camelCase to snake_case
-  synchronize: false, // Always false in production - use migrations
+  namingStrategy: new SnakeNamingStrategy(),
+  synchronize: false,
   migrationsTableName: 'migrations',
 };
 
-// Configure based on database type
+// SQLIte config
 if (dbType === 'sqlite') {
   dataSourceConfig.database = process.env.DB_NAME;
 } else {
-  // PostgreSQL configuration
+  // Postgres config
   dataSourceConfig.username = process.env.DB_USERNAME;
   dataSourceConfig.password = process.env.DB_PASSWORD;
   dataSourceConfig.host = process.env.DB_HOST;
-  dataSourceConfig.port = +process.env.DB_PORT!;
+  dataSourceConfig.port = Number(process.env.DB_PORT!);
   dataSourceConfig.database = process.env.DB_NAME;
   dataSourceConfig.ssl = process.env.DB_SSL === 'true';
 }
 
-const dataSource = new DataSource(dataSourceConfig as DataSourceOptions);
+// IMPORTANT — MUST EXPORT THE DATA SOURCE DIRECTLY FOR CLI
+const dataSource = new DataSource(dataSourceConfig);
 
+// Optional helper (Nest uses)
 export async function initializeDataSource() {
   const logger = new Logger('Database');
 
   if (!dataSource.isInitialized) {
     await dataSource.initialize();
-
     try {
       const migrations = await dataSource.runMigrations();
       if (migrations.length > 0) {
-        logger.log(
-          `Ran ${migrations.length} pending migration(s) successfully`,
-        );
+        logger.log(`Ran ${migrations.length} migration(s)`);
       } else {
-        logger.log('No pending migrations to run');
+        logger.log('No pending migrations.');
       }
     } catch (error) {
       logger.error('Error running migrations:', error);
       throw error;
     }
   }
+
   return dataSource;
 }
 
