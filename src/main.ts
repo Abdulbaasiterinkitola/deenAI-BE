@@ -9,6 +9,25 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationExceptionFilter } from '@shared/validation-exception.filter';
 
 async function bootstrap() {
+  // Handle uncaught Redis connection errors gracefully (only log, no crash)
+  process.on('unhandledRejection', (reason: any) => {
+    const isRedisError =
+      (reason?.code === 'ECONNREFUSED' && reason?.port === 6379) ||
+      reason?.errors?.some?.(
+        (e: any) => e?.code === 'ECONNREFUSED' && e?.port === 6379,
+      );
+
+    if (isRedisError) {
+      const logger = new Logger('Bootstrap');
+      logger.error(
+        'Redis connection refused. Email queue will be unavailable. Emails will be sent directly.',
+      );
+      return;
+    }
+    const logger = new Logger('Bootstrap');
+    logger.error('Unhandled Rejection:', reason);
+  });
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
