@@ -24,4 +24,4 @@ const buildAuthConfig = (): AuthConfig => ({
   appleClientId: process.env.APPLE_CLIENT_ID,
 });
 
-export default registerAs<AuthConfig>('auth', buildAuthConfig);
+export default registerAs('auth', buildAuthConfig);

@@ -4,7 +4,12 @@ import { ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { RegisterDocs } from './docs/register.doc';
 import { LoginDocs } from './docs/login.doc';
+<<<<<<< HEAD
 import { LoginBodyValidator } from './validators/login.validator';
+=======
+import { GoogleAuthValidator } from './validators/google-auth.validator';
+import { GoogleAuthDocs } from './docs/google-auth.doc';
+>>>>>>> 7b5622d97bcab8e39188d86b8dfa5e08e04dbdf4
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -24,5 +29,12 @@ export class AuthController {
   @LoginDocs.login()
   async login(@Body() user: LoginBodyValidator) {
     return await this.authService.login(user);
+  }
+
+  @HttpCode(200)
+  @Post('google')
+  @GoogleAuthDocs.googleAuth()
+  async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
+    return await this.authService.googleLogin(googleAuthDto.idToken);
   }
 }

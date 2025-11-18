@@ -64,3 +64,5 @@ guide.txt
 
 # KiloCode configuration
 .kilocode
+.kilocode/rules
+.kilocode.md
