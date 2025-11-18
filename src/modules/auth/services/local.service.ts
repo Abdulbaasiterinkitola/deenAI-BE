@@ -4,7 +4,7 @@ import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
 import RegisterDto from '../dtos/register.dto';
 import { LoginDto } from '../dtos/login.dto';
-import { CustomHttpException } from '@shared/custom.exception';
+
 import { AuthValidationService } from './auth-validation.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';

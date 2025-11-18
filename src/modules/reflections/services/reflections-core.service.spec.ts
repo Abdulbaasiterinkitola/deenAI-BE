@@ -6,8 +6,7 @@ import { Reflection } from '../models/reflection.model';
 import { User } from '@modules/users/models/user.model';
 import { AuthProvider } from '@modules/users/enums';
 import { CreateReflectionType, UpdateReflectionType, ReflectionQueryType } from '../types/reflection';
-import { CustomHttpException } from '@shared/custom.exception';
-import { HttpStatus } from '@nestjs/common';
+
 
 describe('ReflectionsCoreService', () => {
   let service: ReflectionsCoreService;
