@@ -11,7 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService, GoogleAuthService],
+  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthGuard],
   imports: [
     EmailServiceModule,
     UsersModule,
@@ -20,7 +20,7 @@ import { AuthGuard } from './guards/auth.guard';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('auth.jwtSecret'),
         signOptions: {
-          expiresIn: configService.get<string>('auth.jwtExpiry'),
+          expiresIn: configService.get<string>('auth.jwtExpiry') as any,
         },
       }),
       inject: [ConfigService],

@@ -8,23 +8,19 @@ import { getFrontendUrlFromRefererOrEnv } from '@shared/url.utils';
 import { LoginDto } from '../dtos/login.dto';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '@modules/email/email.service';
-
-@Injectable()
-export class LocalAuthService {
-  private readonly logger = new Logger(LocalAuthService.name);
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly emailService: EmailService,
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { StringValue } from 'ms';
+import { StringValue } from 'ms'; // Assuming this is imported from 'ms' package for time strings
 import { UserResponseDto } from '../../users/dtos/user-response.dto';
 import UserValidationService from '../../users/services/user-validation.service';
 
 @Injectable()
 export class LocalAuthService {
+  private readonly logger = new Logger(LocalAuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
+    private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userValidationService: UserValidationService,
@@ -48,10 +44,8 @@ export class LocalAuthService {
     referer?: string,
   ): Promise<{ success: boolean; message: string }> {
     const { email } = dto;
-    // 1) Attempt to find user
     const user = await this.usersService.getUserByEmail(email);
 
-    // If user not found --> do NOT reveal. Return generic success (prevents enumeration).
     if (!user) {
       return {
         success: true,
@@ -60,7 +54,6 @@ export class LocalAuthService {
       };
     }
 
-    // If user exists but uses OAuth, return 400 with helpful message
     const provider = (user.authProvider || '').toString().toLowerCase();
     if (provider !== 'local') {
       throw new BadRequestException(
@@ -68,10 +61,8 @@ export class LocalAuthService {
       );
     }
 
-    // 2) Build frontend URL (prefer referer header, fallback env FRONTEND_URL)
     const frontend = getFrontendUrlFromRefererOrEnv(referer) || null;
     if (!frontend) {
-      // We log an error so ops can fix missing FRONTEND_URL, but still return success to avoid leaking info.
       this.logger.error('FRONTEND_URL not configured and no referer provided.');
     }
 
@@ -79,19 +70,17 @@ export class LocalAuthService {
       ? `${frontend}/reset-password?token=${encodeURIComponent(token)}`
       : `?token=${encodeURIComponent(token)}`;
 
-    // 3) Send email (if emailService is configured). Don't propagate provider errors to client.
     try {
       await this.emailService.sendEmail(
         email,
         'DeenAI - Password Reset Request',
-        'forgot-password', // Template name
-        { name: user.name || 'User', resetLink }, // Context for the template
+        'forgot-password',
+        { name: user.name || 'User', resetLink }, 
       );
     } catch (err) {
       this.logger.error('Failed to send password reset email', err);
     }
 
-    // 4) Return success message (do not reveal whether token/email was valid)
     return {
       success: true,
       message:
@@ -99,8 +88,6 @@ export class LocalAuthService {
     };
   }
 
-  async login(dto: LoginDto) {
-    const user = await this.usersService.getUserByEmail(dto.email);
   async login(dto: LoginDto): Promise<{
     success: boolean;
     message: string;
@@ -119,7 +106,6 @@ export class LocalAuthService {
       },
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 
     return {
