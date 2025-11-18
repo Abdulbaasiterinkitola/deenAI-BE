@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
 import RegisterDto from './dtos/register.dto';
@@ -6,6 +6,7 @@ import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { CustomHttpException } from '@shared/custom.exception';
 @Injectable()
 export class AuthService {
   constructor(
@@ -32,7 +33,10 @@ export class AuthService {
     const user = await this.googleAuthService.authenticate(idToken);
 
     if (!user) {
-      throw new Error('Failed to authenticate with Google');
+      throw new CustomHttpException(
+        'Failed to authenticate with Google',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const token = this.jwtService.sign({

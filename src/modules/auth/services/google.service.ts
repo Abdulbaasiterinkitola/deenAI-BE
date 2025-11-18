@@ -1,5 +1,6 @@
 import { UsersService } from '@modules/users/users.service';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
 import { CustomHttpException } from '@shared/custom.exception';
@@ -8,6 +9,7 @@ import { User } from '@modules/users/models/user.model';
 interface GoogleTokenResponse {
   email?: string;
   name?: string;
+  aud?: string; // Audience (Client ID)
   error?: string;
   [key: string]: unknown;
 }
@@ -19,7 +21,10 @@ interface GoogleUserData {
 
 @Injectable()
 export class GoogleAuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async authenticate(token: string): Promise<User | null> {
     const googleUserData = await this.verifyGoogleToken(token);
@@ -44,6 +49,17 @@ export class GoogleAuthService {
       if (!data.email) {
         throw new CustomHttpException(
           'Invalid Google token: missing email',
+          401,
+        );
+      }
+
+      // Validate client ID if configured
+      const googleClientId = this.configService.get<string>(
+        'auth.googleClientId',
+      );
+      if (googleClientId && data.aud && data.aud !== googleClientId) {
+        throw new CustomHttpException(
+          'Invalid Google token: client ID mismatch',
           401,
         );
       }
