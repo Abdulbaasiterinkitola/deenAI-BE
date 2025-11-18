@@ -5,6 +5,7 @@ import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
 import { CustomHttpException } from '@shared/custom.exception';
 import { User } from '@modules/users/models/user.model';
+import { AuthValidationService } from './auth-validation.service';
 
 interface GoogleTokenResponse {
   email?: string;
@@ -24,6 +25,7 @@ export class GoogleAuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly authValidationService: AuthValidationService,
   ) {}
 
   async authenticate(token: string): Promise<User | null> {
@@ -42,9 +44,8 @@ export class GoogleAuthService {
 
       const data = (await response.json()) as GoogleTokenResponse;
 
-      if (!data || data.error) {
-        throw new CustomHttpException('Invalid Google token', 401);
-      }
+      // Validate token structure using validation service
+      this.authValidationService.validateGoogleTokenResponse(data);
 
       if (!data.email) {
         throw new CustomHttpException(
@@ -80,10 +81,16 @@ export class GoogleAuthService {
     googleUserData: GoogleUserData,
   ): Promise<User | null> {
     const { email, name } = googleUserData;
+    
+    // Validate email using validation service
+    this.authValidationService.validateUserEmail(email);
 
     const existingUser = await this.usersService.getUserByEmail(email);
 
     if (!existingUser) {
+      // Validate user creation using validation service
+      this.authValidationService.validateUserCreation(email, AuthProvider.GOOGLE, null);
+      
       // Create new user with Google auth
       const userData: UserType = {
         name: name || email.split('@')[0], // Use name from Google or email prefix
@@ -97,8 +104,14 @@ export class GoogleAuthService {
       return await this.usersService.getUserByEmail(email);
     }
 
+    // Check for auth provider conflicts using validation service
+    this.authValidationService.validateAuthProviderConflict(existingUser, AuthProvider.GOOGLE);
+
     // Update existing user if they were using LOCAL auth before
     if (existingUser.authProvider === AuthProvider.LOCAL) {
+      // Validate auth provider update using validation service
+      this.authValidationService.validateAuthProviderUpdate(existingUser, AuthProvider.GOOGLE);
+      
       // Update auth provider to GOOGLE
       await this.usersService.updateUserAuthProvider(
         email,
@@ -115,7 +128,7 @@ export class GoogleAuthService {
       return existingUser;
     }
 
-    // If user exists with another provider (like APPLE), throw error
+    // This should theoretically never be reached due to the validateAuthProviderConflict check above
     throw new CustomHttpException(
       `This account uses ${existingUser.authProvider} authentication. Please sign in with your ${existingUser.authProvider} account.`,
       401,

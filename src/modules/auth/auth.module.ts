@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '@modules/users/users.module';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
+import { AuthValidationService } from './services/auth-validation.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
@@ -11,7 +12,8 @@ import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthGuard],
+
+  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthValidationService, AuthGuard],
   imports: [
     UsersModule,
     JwtModule.registerAsync({
