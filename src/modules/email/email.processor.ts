@@ -1,19 +1,19 @@
 import { Processor, Process } from '@nestjs/bull';
-import { Job } from 'bull';
 import * as nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
-import { WelcomeEmail } from '@hng-sdk/email';
 import { render } from '@react-email/render';
+import { WelcomeEmail } from '@hng-sdk/email';
 
 type MailTransporter = {
   sendMail(
     mailOptions: SMTPTransport.MailOptions,
   ): Promise<SMTPTransport.SentMessageInfo>;
 };
+
 
 @Processor('email')
 export class ProcessMail {
@@ -51,27 +51,22 @@ export class ProcessMail {
     const transportOptions: SMTPTransport.Options = {
       host,
       port,
-      secure: false, // True for 465, false for other ports
-      auth: {
-        user,
-        pass,
-      },
+      secure: false, // true for 465
+      auth: { user, pass },
     };
 
     const nodemailerModule = nodemailer as unknown as {
       createTransport(options: SMTPTransport.Options): MailTransporter;
     };
-
     this.transport = nodemailerModule.createTransport(transportOptions);
   }
 
-  // template loader
-  // Loads the template file and replaces variables with provided values
-  // templateName: The name of the template file (without extension)
-  // variables: An object containing key-value pairs to replace in the template
+  /**
+   * Load HTML template and replace variables.
+   */
   private loadTemplate(
     templateName: string,
-    variables: Record<string, string>,
+    variables: Record<string, string> = {},
   ): string {
     const templatePath = path.join(
       __dirname,
@@ -80,35 +75,33 @@ export class ProcessMail {
     );
     let template = fs.readFileSync(templatePath, 'utf8');
 
-    // Replace variables in template
-    Object.keys(variables).forEach((key) => {
+    Object.entries(variables).forEach(([key, value]) => {
       const regex = new RegExp(`{{${key}}}`, 'g');
-      template = template.replace(regex, variables[key]);
+      template = template.replace(regex, value);
     });
 
     return template;
   }
-  // Sends a welcome email to the user for waitlist
-  // job: The Bull job containing email, name, and subject
+
+  /**
+   * Process Bull job to send email
+   */
   @Process('email')
-  async sendEmail(job: Job): Promise<void> {
-    const { subject, email, name, template } = job.data as {
-      subject: string;
-      email: string;
-      name: string;
-      template: string;
-    };
-
+  async sendEmail(
+    email: string,
+    name: string,
+    subject: string,
+    template: string,
+    variables: Record<string, string> = {},
+  ): Promise<void> {
     try {
-      // Generate HNG SDK content for compliance
-      await render(
-        WelcomeEmail({
-          username: name,
-        }),
-      );
+      // HNG SDK compliance rendering for welcome emails
+      if (template === 'welcome-email') {
+        await render(WelcomeEmail({ username: name }));
+      }
 
-      // Use custom DeenAI template as primary content
-      const htmlContent = this.loadTemplate(template, { name });
+      // Merge `name` with other variables for template rendering
+      const htmlContent = this.loadTemplate(template, { name, ...variables });
 
       await this.transport.sendMail({
         from: this.defaultFrom,
@@ -118,11 +111,11 @@ export class ProcessMail {
       });
 
       this.logger.log(
-        `Email sent to ${email} using HNG SDK + custom template: ${template}`,
+        `Email sent successfully to ${email} using template "${template}"`,
       );
     } catch (error) {
       this.logger.error(
-        `Email failed for ${email}: ${(error as Error).message}`,
+        `Failed to send email to ${email}: ${(error as Error).message}`,
       );
       throw error;
     }
