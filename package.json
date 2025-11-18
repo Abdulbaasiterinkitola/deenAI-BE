@@ -24,6 +24,7 @@
     "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js"
   },
   "dependencies": {
+    "@hng-sdk/email": "^0.0.0",
     "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -33,6 +34,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@react-email/render": "^2.0.0",
     "@types/uuid": "^10.0.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",

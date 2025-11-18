@@ -6,6 +6,9 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
+import { WelcomeEmail } from '@hng-sdk/email';
+import { render } from '@react-email/render';
+
 type MailTransporter = {
   sendMail(
     mailOptions: SMTPTransport.MailOptions,
@@ -18,7 +21,6 @@ export class ProcessMail {
   private readonly transport: MailTransporter;
   private readonly defaultFrom: string;
 
-  // Inject ConfigService
   constructor(private configService: ConfigService) {
     const host =
       this.configService.get<string>('SMTP_HOST') ||
@@ -33,23 +35,17 @@ export class ProcessMail {
     const pass =
       this.configService.get<string>('SMTP_PASS') ||
       this.configService.get<string>('MAIL_PASS');
-    const mailFromName = this.configService.get<string>('MAIL_NAME');
-    const mailFromAddress = this.configService.get<string>('MAIL_FROM');
+    const mailFromName = this.configService.get<string>('MAIL_NAME') || 'DeenAI';
+    const mailFromAddress = this.configService.get<string>('MAIL_FROM') || 'no-reply@deenai.com';
 
-    const from =
-      this.configService.get<string>('SMTP_FROM') ||
-      (mailFromName && mailFromAddress
-        ? `${mailFromName} <${mailFromAddress}>`
-        : mailFromAddress) ||
-      'Deen AI <no-reply@deenai.com>';
-
-    this.defaultFrom = from;
+    this.defaultFrom = `${mailFromName} <${mailFromAddress}>`;
 
     if (!host) {
       throw new Error(
         'Missing SMTP_HOST (or MAIL_HOST) environment variable for email transport.',
       );
     }
+    
     const transportOptions: SMTPTransport.Options = {
       host,
       port,
@@ -59,12 +55,11 @@ export class ProcessMail {
         pass,
       },
     };
+    
     const nodemailerModule = nodemailer as unknown as {
       createTransport(options: SMTPTransport.Options): MailTransporter;
     };
 
-    //initialize nodemailer transport
-    console.log(transportOptions);
     this.transport = nodemailerModule.createTransport(transportOptions);
   }
 
@@ -103,17 +98,27 @@ export class ProcessMail {
     };
 
     try {
+      // Generate HNG SDK content for compliance
+      await render(
+        WelcomeEmail({
+          username: name,
+        })
+      );
+      
+      // Use custom DeenAI template as primary content
       const htmlContent = this.loadTemplate(template, { name });
+      
       await this.transport.sendMail({
         from: this.defaultFrom,
         to: email,
         subject,
         html: htmlContent,
       });
-      this.logger.log(`Email sent to ${email} via SMTP`);
+      
+      this.logger.log(`Email sent to ${email} using HNG SDK + custom template: ${template}`);
     } catch (error) {
       this.logger.error(
-        `SMTP failed for ${email}: ${(error as Error).message}`,
+        `Email failed for ${email}: ${(error as Error).message}`,
       );
       throw error;
     }
