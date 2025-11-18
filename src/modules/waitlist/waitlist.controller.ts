@@ -1,10 +1,12 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { WaitlistService } from './waitlist.service';
 import { WaitlistDto } from './dtos/waitlist.dto';
 import { ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @Controller('waitlist')
 export class WaitlistController {
+  private readonly logger = new Logger(WaitlistController.name);
+
   constructor(private readonly service: WaitlistService) {}
 
   @Post()
@@ -58,11 +60,22 @@ export class WaitlistController {
     },
   })
   async register(@Body() body: WaitlistDto) {
-    const data = await this.service.register(body);
-    return {
-      success: true,
-      message: 'Waitlist registration successful',
-      data,
-    };
+    this.logger.log(
+      `Waitlist registration request received for: ${body.email}`,
+    );
+    try {
+      const data = await this.service.register(body);
+      return {
+        success: true,
+        message: 'Waitlist registration successful',
+        data,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error in register endpoint: ${(error as Error).message}`,
+      );
+      this.logger.error(`Stack: ${(error as Error).stack}`);
+      throw error;
+    }
   }
 }

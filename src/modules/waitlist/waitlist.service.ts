@@ -18,27 +18,32 @@ export class WaitlistService {
     const existing = await this.core.findByEmail(payload.email as string);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);
-    await this.queueWelcomeEmail(entry);
+    this.queueWelcomeEmail(entry); // Don't await - fire and forget
+
+    this.logger.log(`Registration complete for: ${payload.email}`);
     return entry;
   }
 
-  private async queueWelcomeEmail(entry: Waitlist) {
+  private queueWelcomeEmail(entry: Waitlist) {
     const fallbackName = entry.email?.split('@')[0] ?? 'friend';
     const name = entry.name ?? fallbackName;
-    try {
-      await this.emailService.sendEmail(
-        entry.email,
-        'Welcome to the DeenAI waitlist',
-        'waitlist',
-        { name },
-      );
-      this.logger.log(`Queued waitlist welcome email for ${entry.email}`);
-    } catch (error) {
-      this.logger.error(
-        `Failed to queue waitlist email for ${entry.email}: ${
-          (error as Error).message
-        }`,
-      );
-    }
+
+    process.nextTick(() => {
+      this.emailService
+        .sendEmail(
+          entry.email,
+          name,
+          'Welcome to the DeenAI waitlist',
+          'waitlist',
+        )
+        .catch((error) => {
+          this.logger.error(
+            `Failed to queue waitlist email for ${entry.email}: ${
+              (error as Error).message
+            }`,
+          );
+          this.logger.error(`Error stack: ${(error as Error).stack}`);
+        });
+    });
   }
 }
