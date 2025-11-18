@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { WaitlistActionModel } from '../action-models/waitlist.action-model';
-import { WaitlistDto } from '../dtos/waitlist.dto';
+import { Waitlist } from '../models/waitlist.model';
 
 @Injectable()
 export class WaitlistCoreService {
   constructor(private readonly action: WaitlistActionModel) {}
 
-  async create(payload: WaitlistDto) {
+  async create(payload: Partial<Waitlist>) {
     return this.action.createEntry(payload);
   }
 

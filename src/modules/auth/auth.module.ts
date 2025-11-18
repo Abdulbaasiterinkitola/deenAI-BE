@@ -5,7 +5,6 @@ import { UsersModule } from '@modules/users/users.module';
 import { LocalAuthService } from './services/local.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { StringValue } from 'ms';
 import { EmailServiceModule } from '@modules/email/email.module';
 
 @Module({
@@ -19,7 +18,7 @@ import { EmailServiceModule } from '@modules/email/email.module';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('auth.jwtSecret'),
         signOptions: {
-          expiresIn: configService.get<StringValue>('auth.jwtExpiry'),
+          expiresIn: configService.get<string>('auth.jwtExpiry'),
         },
       }),
       inject: [ConfigService],

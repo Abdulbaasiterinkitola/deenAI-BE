@@ -64,8 +64,8 @@ export class ProcessMail {
     };
 
     //initialize nodemailer transport
-    console.log(transportOptions);
     this.transport = nodemailerModule.createTransport(transportOptions);
+    this.logger.debug('Nodemailer transport configured', transportOptions);
   }
 
   // template loader
