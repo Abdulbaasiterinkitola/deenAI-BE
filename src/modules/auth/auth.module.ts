@@ -9,6 +9,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 import { AuthGuard } from './guards/auth.guard';
+import { ResetPasswordService } from './services/reset-password.service';
+import { User } from '@modules/users/models/user.model';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PasswordResetOtp } from './entities/password-reset-otp.entity';
+import { EmailServiceModule } from '@modules/email/email.module';
 
 @Module({
   controllers: [AuthController],
@@ -18,10 +23,13 @@ import { AuthGuard } from './guards/auth.guard';
     LocalAuthService,
     GoogleAuthService,
     AuthValidationService,
+    ResetPasswordService,
     AuthGuard,
   ],
   imports: [
+     TypeOrmModule.forFeature([User, PasswordResetOtp]),
     UsersModule,
+    EmailServiceModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
