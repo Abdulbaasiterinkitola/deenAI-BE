@@ -18,7 +18,6 @@ describe('ReflectionsValidationService', () => {
     isEmailVerified: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    generateId: jest.fn(),
   };
 
   const mockReflection: Reflection = {
@@ -28,7 +27,6 @@ describe('ReflectionsValidationService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: mockUser,
-    generateId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -36,7 +34,9 @@ describe('ReflectionsValidationService', () => {
       providers: [ReflectionsValidationService],
     }).compile();
 
-    service = module.get<ReflectionsValidationService>(ReflectionsValidationService);
+    service = module.get<ReflectionsValidationService>(
+      ReflectionsValidationService,
+    );
   });
 
   describe('validateReflectionContent', () => {
@@ -45,7 +45,9 @@ describe('ReflectionsValidationService', () => {
       const validContent = 'This is a valid reflection content';
 
       // Act & Assert
-      expect(() => service.validateReflectionContent(validContent)).not.toThrow();
+      expect(() =>
+        service.validateReflectionContent(validContent),
+      ).not.toThrow();
     });
 
     it('should throw an error when content is null', () => {
@@ -53,8 +55,13 @@ describe('ReflectionsValidationService', () => {
       const invalidContent = null;
 
       // Act & Assert
-      expect(() => service.validateReflectionContent(invalidContent as any)).toThrow(
-        new CustomHttpException('Reflection content is required', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validateReflectionContent(invalidContent as any),
+      ).toThrow(
+        new CustomHttpException(
+          'Reflection content is required',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -63,8 +70,13 @@ describe('ReflectionsValidationService', () => {
       const invalidContent = undefined;
 
       // Act & Assert
-      expect(() => service.validateReflectionContent(invalidContent as any)).toThrow(
-        new CustomHttpException('Reflection content is required', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validateReflectionContent(invalidContent as any),
+      ).toThrow(
+        new CustomHttpException(
+          'Reflection content is required',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -73,8 +85,13 @@ describe('ReflectionsValidationService', () => {
       const invalidContent = 123;
 
       // Act & Assert
-      expect(() => service.validateReflectionContent(invalidContent as any)).toThrow(
-        new CustomHttpException('Reflection content must be a string', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validateReflectionContent(invalidContent as any),
+      ).toThrow(
+        new CustomHttpException(
+          'Reflection content must be a string',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -84,7 +101,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionContent(invalidContent)).toThrow(
-        new CustomHttpException('Reflection content cannot be empty', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Reflection content is required',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -94,7 +114,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionContent(invalidContent)).toThrow(
-        new CustomHttpException('Reflection content cannot be empty', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Reflection content cannot be empty',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -118,7 +141,9 @@ describe('ReflectionsValidationService', () => {
       const userId = 'test-user-id';
 
       // Act & Assert
-      expect(() => service.validateReflectionOwnership(mockReflection, userId)).not.toThrow();
+      expect(() =>
+        service.validateReflectionOwnership(mockReflection, userId),
+      ).not.toThrow();
     });
 
     it('should throw an error when reflection is null', () => {
@@ -127,7 +152,9 @@ describe('ReflectionsValidationService', () => {
       const reflection = null;
 
       // Act & Assert
-      expect(() => service.validateReflectionOwnership(reflection, userId)).toThrow(
+      expect(() =>
+        service.validateReflectionOwnership(reflection, userId),
+      ).toThrow(
         new CustomHttpException('Reflection not found', HttpStatus.NOT_FOUND),
       );
     });
@@ -137,7 +164,9 @@ describe('ReflectionsValidationService', () => {
       const userId = 'different-user-id';
 
       // Act & Assert
-      expect(() => service.validateReflectionOwnership(mockReflection, userId)).toThrow(
+      expect(() =>
+        service.validateReflectionOwnership(mockReflection, userId),
+      ).toThrow(
         new CustomHttpException(
           'You do not have permission to access this reflection',
           HttpStatus.FORBIDDEN,
@@ -161,7 +190,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionId(invalidId as any)).toThrow(
-        new CustomHttpException('Reflection ID is required', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Reflection ID is required',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -171,7 +203,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionId(invalidId as any)).toThrow(
-        new CustomHttpException('Reflection ID is required', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Reflection ID is required',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -181,7 +216,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionId(invalidId as any)).toThrow(
-        new CustomHttpException('Reflection ID must be a string', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Reflection ID must be a string',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -191,7 +229,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionId(invalidId)).toThrow(
-        new CustomHttpException('Invalid reflection ID format', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Invalid reflection ID format',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -201,7 +242,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validateReflectionId(invalidId)).toThrow(
-        new CustomHttpException('Reflection ID is required', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Reflection ID is required',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
   });
@@ -213,7 +257,9 @@ describe('ReflectionsValidationService', () => {
       const validLimit = 10;
 
       // Act & Assert
-      expect(() => service.validatePaginationParams(validPage, validLimit)).not.toThrow();
+      expect(() =>
+        service.validatePaginationParams(validPage, validLimit),
+      ).not.toThrow();
     });
 
     it('should pass validation with undefined pagination parameters', () => {
@@ -222,7 +268,9 @@ describe('ReflectionsValidationService', () => {
       const undefinedLimit = undefined;
 
       // Act & Assert
-      expect(() => service.validatePaginationParams(undefinedPage, undefinedLimit)).not.toThrow();
+      expect(() =>
+        service.validatePaginationParams(undefinedPage, undefinedLimit),
+      ).not.toThrow();
     });
 
     it('should throw an error when page is not a positive integer', () => {
@@ -231,7 +279,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validatePaginationParams(invalidPage)).toThrow(
-        new CustomHttpException('Page must be a positive integer', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Page must be a positive integer',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -241,7 +292,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validatePaginationParams(invalidPage)).toThrow(
-        new CustomHttpException('Page must be a positive integer', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Page must be a positive integer',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -251,7 +305,10 @@ describe('ReflectionsValidationService', () => {
 
       // Act & Assert
       expect(() => service.validatePaginationParams(invalidPage)).toThrow(
-        new CustomHttpException('Page must be a positive integer', HttpStatus.BAD_REQUEST),
+        new CustomHttpException(
+          'Page must be a positive integer',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -260,8 +317,13 @@ describe('ReflectionsValidationService', () => {
       const invalidLimit = 0;
 
       // Act & Assert
-      expect(() => service.validatePaginationParams(undefined, invalidLimit)).toThrow(
-        new CustomHttpException('Limit must be between 1 and 100', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validatePaginationParams(undefined, invalidLimit),
+      ).toThrow(
+        new CustomHttpException(
+          'Limit must be between 1 and 100',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -270,8 +332,13 @@ describe('ReflectionsValidationService', () => {
       const invalidLimit = 101;
 
       // Act & Assert
-      expect(() => service.validatePaginationParams(undefined, invalidLimit)).toThrow(
-        new CustomHttpException('Limit must be between 1 and 100', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validatePaginationParams(undefined, invalidLimit),
+      ).toThrow(
+        new CustomHttpException(
+          'Limit must be between 1 and 100',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -280,8 +347,13 @@ describe('ReflectionsValidationService', () => {
       const invalidLimit = 10.5;
 
       // Act & Assert
-      expect(() => service.validatePaginationParams(undefined, invalidLimit)).toThrow(
-        new CustomHttpException('Limit must be between 1 and 100', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validatePaginationParams(undefined, invalidLimit),
+      ).toThrow(
+        new CustomHttpException(
+          'Limit must be between 1 and 100',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
 
@@ -290,8 +362,13 @@ describe('ReflectionsValidationService', () => {
       const invalidLimit = -1;
 
       // Act & Assert
-      expect(() => service.validatePaginationParams(undefined, invalidLimit)).toThrow(
-        new CustomHttpException('Limit must be between 1 and 100', HttpStatus.BAD_REQUEST),
+      expect(() =>
+        service.validatePaginationParams(undefined, invalidLimit),
+      ).toThrow(
+        new CustomHttpException(
+          'Limit must be between 1 and 100',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
   });

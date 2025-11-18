@@ -7,7 +7,8 @@ export const DeleteReflectionDoc = {
   operation: () =>
     ApiOperation({
       summary: 'Delete a reflection',
-      description: 'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
+      description:
+        'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
     }),
 
   param: () =>
@@ -92,7 +93,8 @@ export const CreateReflectionDoc = {
           message: 'Reflection created successfully',
           data: {
             id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-            content: 'Today I learned about the importance of patience in software development.',
+            content:
+              'Today I learned about the importance of patience in software development.',
             userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
             createdAt: '2025-01-01T12:00:00.000Z',
             updatedAt: '2025-01-01T12:00:00.000Z',
@@ -125,7 +127,8 @@ export const GetUserReflectionsDoc = {
   operation: () =>
     ApiOperation({
       summary: 'Get user reflections',
-      description: 'Retrieves all reflections for the authenticated user with pagination.',
+      description:
+        'Retrieves all reflections for the authenticated user with pagination.',
     }),
 
   successResponse: () =>
@@ -140,7 +143,8 @@ export const GetUserReflectionsDoc = {
             payload: [
               {
                 id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-                content: 'Today I learned about the importance of patience in software development.',
+                content:
+                  'Today I learned about the importance of patience in software development.',
                 userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
                 createdAt: '2025-01-01T12:00:00.000Z',
                 updatedAt: '2025-01-01T12:00:00.000Z',
@@ -167,7 +171,8 @@ export const GetReflectionByIdDoc = {
   operation: () =>
     ApiOperation({
       summary: 'Get a reflection by ID',
-      description: 'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
+      description:
+        'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
     }),
 
   param: () =>
@@ -187,7 +192,8 @@ export const GetReflectionByIdDoc = {
           message: 'Reflection retrieved successfully',
           data: {
             id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-            content: 'Today I learned about the importance of patience in software development.',
+            content:
+              'Today I learned about the importance of patience in software development.',
             userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
             createdAt: '2025-01-01T12:00:00.000Z',
             updatedAt: '2025-01-01T12:00:00.000Z',
@@ -204,7 +210,8 @@ export const UpdateReflectionDoc = {
   operation: () =>
     ApiOperation({
       summary: 'Update a reflection',
-      description: 'Updates a reflection by its ID. Only the owner of the reflection can update it.',
+      description:
+        'Updates a reflection by its ID. Only the owner of the reflection can update it.',
     }),
 
   param: () =>

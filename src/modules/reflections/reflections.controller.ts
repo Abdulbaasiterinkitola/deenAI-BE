@@ -9,9 +9,20 @@ import {
   Query,
   Request,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { ReflectionsService } from './reflections.service';
-import { CreateReflectionDto, UpdateReflectionDto, ReflectionQueryDto, ReflectionIdDto } from './dtos/reflection.dto';
+import {
+  CreateReflectionDto,
+  UpdateReflectionDto,
+  ReflectionQueryDto,
+  ReflectionIdDto,
+} from './dtos/reflection.dto';
 
 @ApiTags('reflections')
 @ApiBearerAuth()
@@ -31,7 +42,8 @@ export class ReflectionsController {
   })
   @ApiOperation({
     summary: 'Delete a reflection',
-    description: 'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
+    description:
+      'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
   })
   @ApiResponse({
     status: 200,
@@ -110,7 +122,8 @@ export class ReflectionsController {
         message: 'Reflection created successfully',
         data: {
           id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-          content: 'Today I learned about the importance of patience in software development.',
+          content:
+            'Today I learned about the importance of patience in software development.',
           userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
           createdAt: '2025-01-01T12:00:00.000Z',
           updatedAt: '2025-01-01T12:00:00.000Z',
@@ -159,7 +172,8 @@ export class ReflectionsController {
   @Get()
   @ApiOperation({
     summary: 'Get user reflections',
-    description: 'Retrieves all reflections for the authenticated user with pagination.',
+    description:
+      'Retrieves all reflections for the authenticated user with pagination.',
   })
   @ApiResponse({
     status: 200,
@@ -172,7 +186,8 @@ export class ReflectionsController {
           payload: [
             {
               id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-              content: 'Today I learned about the importance of patience in software development.',
+              content:
+                'Today I learned about the importance of patience in software development.',
               userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
               createdAt: '2025-01-01T12:00:00.000Z',
               updatedAt: '2025-01-01T12:00:00.000Z',
@@ -195,7 +210,10 @@ export class ReflectionsController {
     @Request() req: any,
   ): Promise<any> {
     const userId = req.user?.id;
-    const result = await this.reflectionsService.getUserReflections(userId, query);
+    const result = await this.reflectionsService.getUserReflections(
+      userId,
+      query,
+    );
 
     return {
       success: true,
@@ -216,7 +234,8 @@ export class ReflectionsController {
   })
   @ApiOperation({
     summary: 'Get a reflection by ID',
-    description: 'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
+    description:
+      'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
   })
   @ApiResponse({
     status: 200,
@@ -227,7 +246,8 @@ export class ReflectionsController {
         message: 'Reflection retrieved successfully',
         data: {
           id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-          content: 'Today I learned about the importance of patience in software development.',
+          content:
+            'Today I learned about the importance of patience in software development.',
           userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
           createdAt: '2025-01-01T12:00:00.000Z',
           updatedAt: '2025-01-01T12:00:00.000Z',
@@ -240,7 +260,10 @@ export class ReflectionsController {
     @Request() req: any,
   ): Promise<any> {
     const userId = req.user?.id;
-    const reflection = await this.reflectionsService.getReflectionById(params.id, userId);
+    const reflection = await this.reflectionsService.getReflectionById(
+      params.id,
+      userId,
+    );
 
     return {
       success: true,
@@ -261,7 +284,8 @@ export class ReflectionsController {
   })
   @ApiOperation({
     summary: 'Update a reflection',
-    description: 'Updates a reflection by its ID. Only the owner of the reflection can update it.',
+    description:
+      'Updates a reflection by its ID. Only the owner of the reflection can update it.',
   })
   @ApiResponse({
     status: 200,

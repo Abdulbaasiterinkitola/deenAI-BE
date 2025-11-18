@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsOptional, IsUUID, MinLength, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsUUID,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 
 /**
  * DTO for creating a new reflection
@@ -7,12 +14,15 @@ import { IsNotEmpty, IsString, IsOptional, IsUUID, MinLength, MaxLength } from '
 export class CreateReflectionDto {
   @ApiProperty({
     description: 'The content of the reflection',
-    example: 'Today I learned about the importance of patience in software development.',
+    example:
+      'Today I learned about the importance of patience in software development.',
   })
   @IsNotEmpty()
   @IsString()
   @MinLength(1, { message: 'Reflection content cannot be empty' })
-  @MaxLength(10000, { message: 'Reflection content cannot exceed 10,000 characters' })
+  @MaxLength(10000, {
+    message: 'Reflection content cannot exceed 10,000 characters',
+  })
   content: string;
 }
 
@@ -28,7 +38,9 @@ export class UpdateReflectionDto {
   @IsOptional()
   @IsString()
   @MinLength(1, { message: 'Reflection content cannot be empty' })
-  @MaxLength(10000, { message: 'Reflection content cannot exceed 10,000 characters' })
+  @MaxLength(10000, {
+    message: 'Reflection content cannot exceed 10,000 characters',
+  })
   content?: string;
 }
 

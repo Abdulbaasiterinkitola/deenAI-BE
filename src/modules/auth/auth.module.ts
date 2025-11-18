@@ -13,7 +13,13 @@ import { AuthGuard } from './guards/auth.guard';
 @Module({
   controllers: [AuthController],
 
-  providers: [AuthService, LocalAuthService, GoogleAuthService, AuthValidationService, AuthGuard],
+  providers: [
+    AuthService,
+    LocalAuthService,
+    GoogleAuthService,
+    AuthValidationService,
+    AuthGuard,
+  ],
   imports: [
     UsersModule,
     JwtModule.registerAsync({
