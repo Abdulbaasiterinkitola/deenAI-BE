@@ -13,9 +13,8 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: npm
     
-    - run: npm ci
+    - run: npm install
     - run: npm run build
     
     - name: Deploy
@@ -37,4 +36,5 @@ jobs:
           cd /home/ottoman/deenai-backend-dev
           git pull origin dev
           npm ci --only=production
+          npm run migration:run
           pm2 restart deenai-backend
