@@ -81,7 +81,7 @@ export class GoogleAuthService {
     googleUserData: GoogleUserData,
   ): Promise<User | null> {
     const { email, name } = googleUserData;
-    
+
     // Validate email using validation service
     this.authValidationService.validateUserEmail(email);
 
@@ -89,8 +89,12 @@ export class GoogleAuthService {
 
     if (!existingUser) {
       // Validate user creation using validation service
-      this.authValidationService.validateUserCreation(email, AuthProvider.GOOGLE, null);
-      
+      this.authValidationService.validateUserCreation(
+        email,
+        AuthProvider.GOOGLE,
+        null,
+      );
+
       // Create new user with Google auth
       const userData: UserType = {
         name: name || email.split('@')[0], // Use name from Google or email prefix
@@ -105,13 +109,19 @@ export class GoogleAuthService {
     }
 
     // Check for auth provider conflicts using validation service
-    this.authValidationService.validateAuthProviderConflict(existingUser, AuthProvider.GOOGLE);
+    this.authValidationService.validateAuthProviderConflict(
+      existingUser,
+      AuthProvider.GOOGLE,
+    );
 
     // Update existing user if they were using LOCAL auth before
     if (existingUser.authProvider === AuthProvider.LOCAL) {
       // Validate auth provider update using validation service
-      this.authValidationService.validateAuthProviderUpdate(existingUser, AuthProvider.GOOGLE);
-      
+      this.authValidationService.validateAuthProviderUpdate(
+        existingUser,
+        AuthProvider.GOOGLE,
+      );
+
       // Update auth provider to GOOGLE
       await this.usersService.updateUserAuthProvider(
         email,

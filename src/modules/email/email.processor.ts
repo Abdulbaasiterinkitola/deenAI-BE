@@ -35,8 +35,10 @@ export class ProcessMail {
     const pass =
       this.configService.get<string>('SMTP_PASS') ||
       this.configService.get<string>('MAIL_PASS');
-    const mailFromName = this.configService.get<string>('MAIL_NAME') || 'DeenAI';
-    const mailFromAddress = this.configService.get<string>('MAIL_FROM') || 'no-reply@deenai.com';
+    const mailFromName =
+      this.configService.get<string>('MAIL_NAME') || 'DeenAI';
+    const mailFromAddress =
+      this.configService.get<string>('MAIL_FROM') || 'no-reply@deenai.com';
 
     this.defaultFrom = `${mailFromName} <${mailFromAddress}>`;
 
@@ -45,7 +47,7 @@ export class ProcessMail {
         'Missing SMTP_HOST (or MAIL_HOST) environment variable for email transport.',
       );
     }
-    
+
     const transportOptions: SMTPTransport.Options = {
       host,
       port,
@@ -55,7 +57,7 @@ export class ProcessMail {
         pass,
       },
     };
-    
+
     const nodemailerModule = nodemailer as unknown as {
       createTransport(options: SMTPTransport.Options): MailTransporter;
     };
@@ -102,20 +104,22 @@ export class ProcessMail {
       await render(
         WelcomeEmail({
           username: name,
-        })
+        }),
       );
-      
+
       // Use custom DeenAI template as primary content
       const htmlContent = this.loadTemplate(template, { name });
-      
+
       await this.transport.sendMail({
         from: this.defaultFrom,
         to: email,
         subject,
         html: htmlContent,
       });
-      
-      this.logger.log(`Email sent to ${email} using HNG SDK + custom template: ${template}`);
+
+      this.logger.log(
+        `Email sent to ${email} using HNG SDK + custom template: ${template}`,
+      );
     } catch (error) {
       this.logger.error(
         `Email failed for ${email}: ${(error as Error).message}`,

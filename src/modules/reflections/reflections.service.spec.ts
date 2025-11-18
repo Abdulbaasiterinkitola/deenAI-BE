@@ -4,7 +4,11 @@ import { ReflectionsCoreService } from './services/reflections-core.service';
 import { Reflection } from './models/reflection.model';
 import { User } from '@modules/users/models/user.model';
 import { AuthProvider } from '@modules/users/enums';
-import { CreateReflectionType, UpdateReflectionType, ReflectionQueryType } from './types/reflection';
+import {
+  CreateReflectionType,
+  UpdateReflectionType,
+  ReflectionQueryType,
+} from './types/reflection';
 
 describe('ReflectionsService', () => {
   let service: ReflectionsService;
@@ -52,7 +56,7 @@ describe('ReflectionsService', () => {
     }).compile();
 
     service = module.get<ReflectionsService>(ReflectionsService);
-    reflectionsCoreService = module.get(ReflectionsCoreService) as jest.Mocked<ReflectionsCoreService>;
+    reflectionsCoreService = module.get(ReflectionsCoreService);
   });
 
   afterEach(() => {
@@ -73,7 +77,10 @@ describe('ReflectionsService', () => {
       const result = await service.createReflection(createPayload, userId);
 
       // Assert
-      expect(reflectionsCoreService.createReflection).toHaveBeenCalledWith(createPayload, userId);
+      expect(reflectionsCoreService.createReflection).toHaveBeenCalledWith(
+        createPayload,
+        userId,
+      );
       expect(result).toEqual(mockReflection);
     });
   });
@@ -83,13 +90,18 @@ describe('ReflectionsService', () => {
       // Arrange
       const id = 'test-reflection-id';
       const userId = 'test-user-id';
-      reflectionsCoreService.getReflectionById.mockResolvedValue(mockReflection);
+      reflectionsCoreService.getReflectionById.mockResolvedValue(
+        mockReflection,
+      );
 
       // Act
       const result = await service.getReflectionById(id, userId);
 
       // Assert
-      expect(reflectionsCoreService.getReflectionById).toHaveBeenCalledWith(id, userId);
+      expect(reflectionsCoreService.getReflectionById).toHaveBeenCalledWith(
+        id,
+        userId,
+      );
       expect(result).toEqual(mockReflection);
     });
   });
@@ -107,13 +119,19 @@ describe('ReflectionsService', () => {
         content: updatePayload.content || mockReflection.content,
         generateId: jest.fn(),
       };
-      reflectionsCoreService.updateReflection.mockResolvedValue(updatedReflection);
+      reflectionsCoreService.updateReflection.mockResolvedValue(
+        updatedReflection,
+      );
 
       // Act
       const result = await service.updateReflection(id, updatePayload, userId);
 
       // Assert
-      expect(reflectionsCoreService.updateReflection).toHaveBeenCalledWith(id, updatePayload, userId);
+      expect(reflectionsCoreService.updateReflection).toHaveBeenCalledWith(
+        id,
+        updatePayload,
+        userId,
+      );
       expect(result).toEqual(updatedReflection);
     });
   });
@@ -129,7 +147,10 @@ describe('ReflectionsService', () => {
       await service.deleteReflection(id, userId);
 
       // Assert
-      expect(reflectionsCoreService.deleteReflection).toHaveBeenCalledWith(id, userId);
+      expect(reflectionsCoreService.deleteReflection).toHaveBeenCalledWith(
+        id,
+        userId,
+      );
     });
   });
 
@@ -153,13 +174,18 @@ describe('ReflectionsService', () => {
           hasPrevious: false,
         },
       };
-      reflectionsCoreService.getUserReflections.mockResolvedValue(expectedResult);
+      reflectionsCoreService.getUserReflections.mockResolvedValue(
+        expectedResult,
+      );
 
       // Act
       const result = await service.getUserReflections(userId, query);
 
       // Assert
-      expect(reflectionsCoreService.getUserReflections).toHaveBeenCalledWith(userId, query);
+      expect(reflectionsCoreService.getUserReflections).toHaveBeenCalledWith(
+        userId,
+        query,
+      );
       expect(result).toEqual(expectedResult);
     });
   });

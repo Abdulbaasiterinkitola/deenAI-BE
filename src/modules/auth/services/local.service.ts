@@ -26,13 +26,17 @@ export class LocalAuthService {
   async register(dto: RegisterDto) {
     // Validate email using validation service
     this.authValidationService.validateUserEmail(dto.email);
-    
+
     // Check if user already exists
     const existingUser = await this.usersService.getUserByEmail(dto.email);
-    
+
     // Validate user creation using validation service
-    this.authValidationService.validateUserCreation(dto.email, AuthProvider.LOCAL, existingUser);
-    
+    this.authValidationService.validateUserCreation(
+      dto.email,
+      AuthProvider.LOCAL,
+      existingUser,
+    );
+
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const userData: UserType = {
       name: dto.name,
@@ -51,7 +55,7 @@ export class LocalAuthService {
   }> {
     // Validate email using validation service
     this.authValidationService.validateUserEmail(dto.email);
-    
+
     const user = await this.userValidationService.validateUserForLogin(
       dto.email,
       dto.password,
@@ -66,8 +70,11 @@ export class LocalAuthService {
     );
 
     // Check for auth provider conflicts using validation service
-    this.authValidationService.validateAuthProviderConflict(user, AuthProvider.LOCAL);
-    
+    this.authValidationService.validateAuthProviderConflict(
+      user,
+      AuthProvider.LOCAL,
+    );
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 

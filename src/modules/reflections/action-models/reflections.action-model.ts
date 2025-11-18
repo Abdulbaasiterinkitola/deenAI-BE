@@ -19,7 +19,10 @@ export class ReflectionsActionModel extends AbstractModelAction<Reflection> {
    * @param userId - The user ID
    * @returns The reflection if found, null otherwise
    */
-  async findByIdAndUserId(id: string, userId: string): Promise<Reflection | null> {
+  async findByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<Reflection | null> {
     return await this.get({ id, userId });
   }
 

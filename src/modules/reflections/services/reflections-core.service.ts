@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ReflectionsActionModel } from '../action-models/reflections.action-model';
-import { CreateReflectionType, UpdateReflectionType, ReflectionQueryType } from '../types/reflection';
+import {
+  CreateReflectionType,
+  UpdateReflectionType,
+  ReflectionQueryType,
+} from '../types/reflection';
 import { ReflectionsValidationService } from './reflections-validation.service';
 import { Reflection } from '../models/reflection.model';
 
@@ -21,9 +25,14 @@ export class ReflectionsCoreService {
    * @param userId - The ID of the user creating the reflection
    * @returns The created reflection
    */
-  async createReflection(createPayload: CreateReflectionType, userId: string): Promise<Reflection> {
+  async createReflection(
+    createPayload: CreateReflectionType,
+    userId: string,
+  ): Promise<Reflection> {
     // Validate the reflection content
-    this.reflectionsValidationService.validateReflectionContent(createPayload.content);
+    this.reflectionsValidationService.validateReflectionContent(
+      createPayload.content,
+    );
 
     // Create the reflection with the user ID
     const reflectionData = {
@@ -53,10 +62,16 @@ export class ReflectionsCoreService {
     this.reflectionsValidationService.validateReflectionId(id);
 
     // Get the reflection
-    const reflection = await this.reflectionsActionModel.findByIdAndUserId(id, userId);
+    const reflection = await this.reflectionsActionModel.findByIdAndUserId(
+      id,
+      userId,
+    );
 
     // Validate that the reflection exists and belongs to the user
-    this.reflectionsValidationService.validateReflectionOwnership(reflection, userId);
+    this.reflectionsValidationService.validateReflectionOwnership(
+      reflection,
+      userId,
+    );
 
     return reflection;
   }
@@ -78,12 +93,18 @@ export class ReflectionsCoreService {
 
     // Validate the content if provided
     if (updatePayload.content) {
-      this.reflectionsValidationService.validateReflectionContent(updatePayload.content);
+      this.reflectionsValidationService.validateReflectionContent(
+        updatePayload.content,
+      );
     }
 
     // Check if the reflection exists and belongs to the user
-    const existingReflection = await this.reflectionsActionModel.findByIdAndUserId(id, userId);
-    this.reflectionsValidationService.validateReflectionOwnership(existingReflection, userId);
+    const existingReflection =
+      await this.reflectionsActionModel.findByIdAndUserId(id, userId);
+    this.reflectionsValidationService.validateReflectionOwnership(
+      existingReflection,
+      userId,
+    );
 
     // Update the reflection
     const updatedReflection = await this.reflectionsActionModel.update({
@@ -108,8 +129,12 @@ export class ReflectionsCoreService {
     this.reflectionsValidationService.validateReflectionId(id);
 
     // Check if the reflection exists and belongs to the user
-    const existingReflection = await this.reflectionsActionModel.findByIdAndUserId(id, userId);
-    this.reflectionsValidationService.validateReflectionOwnership(existingReflection, userId);
+    const existingReflection =
+      await this.reflectionsActionModel.findByIdAndUserId(id, userId);
+    this.reflectionsValidationService.validateReflectionOwnership(
+      existingReflection,
+      userId,
+    );
 
     // Delete the reflection
     await this.reflectionsActionModel.delete({
@@ -128,7 +153,10 @@ export class ReflectionsCoreService {
     query: ReflectionQueryType,
   ): Promise<{ payload: Reflection[]; paginationMeta: any }> {
     // Validate pagination parameters
-    this.reflectionsValidationService.validatePaginationParams(query.page, query.limit);
+    this.reflectionsValidationService.validatePaginationParams(
+      query.page,
+      query.limit,
+    );
 
     // Set default values if not provided
     const page = query.page || 1;

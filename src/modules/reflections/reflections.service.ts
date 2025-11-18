@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ReflectionsCoreService } from './services/reflections-core.service';
-import { CreateReflectionType, UpdateReflectionType, ReflectionQueryType } from './types/reflection';
+import {
+  CreateReflectionType,
+  UpdateReflectionType,
+  ReflectionQueryType,
+} from './types/reflection';
 import { Reflection } from './models/reflection.model';
 
 /**
@@ -9,7 +13,9 @@ import { Reflection } from './models/reflection.model';
  */
 @Injectable()
 export class ReflectionsService {
-  constructor(private readonly reflectionsCoreService: ReflectionsCoreService) {}
+  constructor(
+    private readonly reflectionsCoreService: ReflectionsCoreService,
+  ) {}
 
   /**
    * Creates a new reflection for a user
@@ -17,8 +23,14 @@ export class ReflectionsService {
    * @param userId - The ID of the user creating the reflection
    * @returns The created reflection
    */
-  async createReflection(createPayload: CreateReflectionType, userId: string): Promise<Reflection> {
-    return await this.reflectionsCoreService.createReflection(createPayload, userId);
+  async createReflection(
+    createPayload: CreateReflectionType,
+    userId: string,
+  ): Promise<Reflection> {
+    return await this.reflectionsCoreService.createReflection(
+      createPayload,
+      userId,
+    );
   }
 
   /**
@@ -43,7 +55,11 @@ export class ReflectionsService {
     updatePayload: UpdateReflectionType,
     userId: string,
   ): Promise<Reflection> {
-    return await this.reflectionsCoreService.updateReflection(id, updatePayload, userId);
+    return await this.reflectionsCoreService.updateReflection(
+      id,
+      updatePayload,
+      userId,
+    );
   }
 
   /**

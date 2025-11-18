@@ -94,11 +94,14 @@ describe('ReflectionsController (e2e)', () => {
           .expect(200)
           .expect((res) => {
             expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Reflection deleted successfully');
+            expect(res.body).toHaveProperty(
+              'message',
+              'Reflection deleted successfully',
+            );
           });
       });
 
-      it('should return 403 when user tries to delete another user\'s reflection', async () => {
+      it("should return 403 when user tries to delete another user's reflection", async () => {
         // Arrange
         const anotherUser = await userRepository.save({
           name: 'Another User',
@@ -123,7 +126,7 @@ describe('ReflectionsController (e2e)', () => {
             expect(res.body).toHaveProperty('message');
             expect(res.body).toHaveProperty('status_code', 403);
           })
-          .finally(async () => {
+          .then(async () => {
             // Clean up
             await reflectionRepository.delete({ id: anotherReflection.id });
             await userRepository.delete({ id: anotherUser.id });
@@ -153,7 +156,10 @@ describe('ReflectionsController (e2e)', () => {
           .expect(200)
           .expect((res) => {
             expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Reflection deleted successfully');
+            expect(res.body).toHaveProperty(
+              'message',
+              'Reflection deleted successfully',
+            );
             expect(res.body).not.toHaveProperty('data'); // DELETE endpoint should not return data
           });
       });

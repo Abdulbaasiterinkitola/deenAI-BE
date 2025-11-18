@@ -5,8 +5,11 @@ import { ReflectionsValidationService } from './reflections-validation.service';
 import { Reflection } from '../models/reflection.model';
 import { User } from '@modules/users/models/user.model';
 import { AuthProvider } from '@modules/users/enums';
-import { CreateReflectionType, UpdateReflectionType, ReflectionQueryType } from '../types/reflection';
-
+import {
+  CreateReflectionType,
+  UpdateReflectionType,
+  ReflectionQueryType,
+} from '../types/reflection';
 
 describe('ReflectionsCoreService', () => {
   let service: ReflectionsCoreService;
@@ -66,8 +69,8 @@ describe('ReflectionsCoreService', () => {
     }).compile();
 
     service = module.get<ReflectionsCoreService>(ReflectionsCoreService);
-    reflectionsActionModel = module.get(ReflectionsActionModel) as jest.Mocked<ReflectionsActionModel>;
-    reflectionsValidationService = module.get(ReflectionsValidationService) as jest.Mocked<ReflectionsValidationService>;
+    reflectionsActionModel = module.get(ReflectionsActionModel);
+    reflectionsValidationService = module.get(ReflectionsValidationService);
   });
 
   afterEach(() => {
@@ -82,14 +85,18 @@ describe('ReflectionsCoreService', () => {
         userId: 'test-user-id',
       };
       const userId = 'test-user-id';
-      reflectionsValidationService.validateReflectionContent.mockImplementation(() => {});
+      reflectionsValidationService.validateReflectionContent.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.create.mockResolvedValue(mockReflection);
 
       // Act
       const result = await service.createReflection(createPayload, userId);
 
       // Assert
-      expect(reflectionsValidationService.validateReflectionContent).toHaveBeenCalledWith(createPayload.content);
+      expect(
+        reflectionsValidationService.validateReflectionContent,
+      ).toHaveBeenCalledWith(createPayload.content);
       expect(reflectionsActionModel.create).toHaveBeenCalledWith({
         createPayload: {
           ...createPayload,
@@ -106,11 +113,15 @@ describe('ReflectionsCoreService', () => {
         userId: 'test-user-id',
       };
       const userId = 'test-user-id';
-      reflectionsValidationService.validateReflectionContent.mockImplementation(() => {});
+      reflectionsValidationService.validateReflectionContent.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.create.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.createReflection(createPayload, userId)).rejects.toThrow('Failed to create reflection');
+      await expect(
+        service.createReflection(createPayload, userId),
+      ).rejects.toThrow('Failed to create reflection');
     });
   });
 
@@ -119,17 +130,30 @@ describe('ReflectionsCoreService', () => {
       // Arrange
       const id = 'test-reflection-id';
       const userId = 'test-user-id';
-      reflectionsValidationService.validateReflectionId.mockImplementation(() => {});
-      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(mockReflection);
-      reflectionsValidationService.validateReflectionOwnership.mockImplementation(() => {});
+      reflectionsValidationService.validateReflectionId.mockImplementation(
+        () => {},
+      );
+      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(
+        mockReflection,
+      );
+      reflectionsValidationService.validateReflectionOwnership.mockImplementation(
+        () => {},
+      );
 
       // Act
       const result = await service.getReflectionById(id, userId);
 
       // Assert
-      expect(reflectionsValidationService.validateReflectionId).toHaveBeenCalledWith(id);
-      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(id, userId);
-      expect(reflectionsValidationService.validateReflectionOwnership).toHaveBeenCalledWith(mockReflection, userId);
+      expect(
+        reflectionsValidationService.validateReflectionId,
+      ).toHaveBeenCalledWith(id);
+      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(
+        id,
+        userId,
+      );
+      expect(
+        reflectionsValidationService.validateReflectionOwnership,
+      ).toHaveBeenCalledWith(mockReflection, userId);
       expect(result).toEqual(mockReflection);
     });
   });
@@ -147,21 +171,38 @@ describe('ReflectionsCoreService', () => {
         content: updatePayload.content || mockReflection.content,
         generateId: jest.fn(),
       };
-      
-      reflectionsValidationService.validateReflectionId.mockImplementation(() => {});
-      reflectionsValidationService.validateReflectionContent.mockImplementation(() => {});
-      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(mockReflection);
-      reflectionsValidationService.validateReflectionOwnership.mockImplementation(() => {});
+
+      reflectionsValidationService.validateReflectionId.mockImplementation(
+        () => {},
+      );
+      reflectionsValidationService.validateReflectionContent.mockImplementation(
+        () => {},
+      );
+      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(
+        mockReflection,
+      );
+      reflectionsValidationService.validateReflectionOwnership.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.update.mockResolvedValue(updatedReflection);
 
       // Act
       const result = await service.updateReflection(id, updatePayload, userId);
 
       // Assert
-      expect(reflectionsValidationService.validateReflectionId).toHaveBeenCalledWith(id);
-      expect(reflectionsValidationService.validateReflectionContent).toHaveBeenCalledWith(updatePayload.content);
-      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(id, userId);
-      expect(reflectionsValidationService.validateReflectionOwnership).toHaveBeenCalledWith(mockReflection, userId);
+      expect(
+        reflectionsValidationService.validateReflectionId,
+      ).toHaveBeenCalledWith(id);
+      expect(
+        reflectionsValidationService.validateReflectionContent,
+      ).toHaveBeenCalledWith(updatePayload.content);
+      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(
+        id,
+        userId,
+      );
+      expect(
+        reflectionsValidationService.validateReflectionOwnership,
+      ).toHaveBeenCalledWith(mockReflection, userId);
       expect(reflectionsActionModel.update).toHaveBeenCalledWith({
         updatePayload,
         identifierOptions: { id },
@@ -178,20 +219,35 @@ describe('ReflectionsCoreService', () => {
         ...mockReflection,
         generateId: jest.fn(),
       };
-      
-      reflectionsValidationService.validateReflectionId.mockImplementation(() => {});
-      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(mockReflection);
-      reflectionsValidationService.validateReflectionOwnership.mockImplementation(() => {});
+
+      reflectionsValidationService.validateReflectionId.mockImplementation(
+        () => {},
+      );
+      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(
+        mockReflection,
+      );
+      reflectionsValidationService.validateReflectionOwnership.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.update.mockResolvedValue(updatedReflection);
 
       // Act
       const result = await service.updateReflection(id, updatePayload, userId);
 
       // Assert
-      expect(reflectionsValidationService.validateReflectionId).toHaveBeenCalledWith(id);
-      expect(reflectionsValidationService.validateReflectionContent).not.toHaveBeenCalled();
-      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(id, userId);
-      expect(reflectionsValidationService.validateReflectionOwnership).toHaveBeenCalledWith(mockReflection, userId);
+      expect(
+        reflectionsValidationService.validateReflectionId,
+      ).toHaveBeenCalledWith(id);
+      expect(
+        reflectionsValidationService.validateReflectionContent,
+      ).not.toHaveBeenCalled();
+      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(
+        id,
+        userId,
+      );
+      expect(
+        reflectionsValidationService.validateReflectionOwnership,
+      ).toHaveBeenCalledWith(mockReflection, userId);
       expect(reflectionsActionModel.update).toHaveBeenCalledWith({
         updatePayload,
         identifierOptions: { id },
@@ -206,15 +262,25 @@ describe('ReflectionsCoreService', () => {
         content: 'Updated reflection content',
       };
       const userId = 'test-user-id';
-      
-      reflectionsValidationService.validateReflectionId.mockImplementation(() => {});
-      reflectionsValidationService.validateReflectionContent.mockImplementation(() => {});
-      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(mockReflection);
-      reflectionsValidationService.validateReflectionOwnership.mockImplementation(() => {});
+
+      reflectionsValidationService.validateReflectionId.mockImplementation(
+        () => {},
+      );
+      reflectionsValidationService.validateReflectionContent.mockImplementation(
+        () => {},
+      );
+      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(
+        mockReflection,
+      );
+      reflectionsValidationService.validateReflectionOwnership.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.update.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.updateReflection(id, updatePayload, userId)).rejects.toThrow('Failed to update reflection');
+      await expect(
+        service.updateReflection(id, updatePayload, userId),
+      ).rejects.toThrow('Failed to update reflection');
     });
   });
 
@@ -223,18 +289,31 @@ describe('ReflectionsCoreService', () => {
       // Arrange
       const id = 'test-reflection-id';
       const userId = 'test-user-id';
-      reflectionsValidationService.validateReflectionId.mockImplementation(() => {});
-      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(mockReflection);
-      reflectionsValidationService.validateReflectionOwnership.mockImplementation(() => {});
+      reflectionsValidationService.validateReflectionId.mockImplementation(
+        () => {},
+      );
+      reflectionsActionModel.findByIdAndUserId.mockResolvedValue(
+        mockReflection,
+      );
+      reflectionsValidationService.validateReflectionOwnership.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.delete.mockImplementation(async () => {});
 
       // Act
       await service.deleteReflection(id, userId);
 
       // Assert
-      expect(reflectionsValidationService.validateReflectionId).toHaveBeenCalledWith(id);
-      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(id, userId);
-      expect(reflectionsValidationService.validateReflectionOwnership).toHaveBeenCalledWith(mockReflection, userId);
+      expect(
+        reflectionsValidationService.validateReflectionId,
+      ).toHaveBeenCalledWith(id);
+      expect(reflectionsActionModel.findByIdAndUserId).toHaveBeenCalledWith(
+        id,
+        userId,
+      );
+      expect(
+        reflectionsValidationService.validateReflectionOwnership,
+      ).toHaveBeenCalledWith(mockReflection, userId);
       expect(reflectionsActionModel.delete).toHaveBeenCalledWith({
         identifierOptions: { id },
       });
@@ -257,15 +336,19 @@ describe('ReflectionsCoreService', () => {
           hasPrevious: false,
         },
       };
-      
-      reflectionsValidationService.validatePaginationParams.mockImplementation(() => {});
+
+      reflectionsValidationService.validatePaginationParams.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.findByUserId.mockResolvedValue(expectedResult);
 
       // Act
       const result = await service.getUserReflections(userId, query);
 
       // Assert
-      expect(reflectionsValidationService.validatePaginationParams).toHaveBeenCalledWith(undefined, undefined);
+      expect(
+        reflectionsValidationService.validatePaginationParams,
+      ).toHaveBeenCalledWith(undefined, undefined);
       expect(reflectionsActionModel.findByUserId).toHaveBeenCalledWith(userId, {
         paginationPayload: { page: 1, limit: 10 },
         order: { createdAt: 'DESC' },
@@ -292,15 +375,19 @@ describe('ReflectionsCoreService', () => {
           hasPrevious: true,
         },
       };
-      
-      reflectionsValidationService.validatePaginationParams.mockImplementation(() => {});
+
+      reflectionsValidationService.validatePaginationParams.mockImplementation(
+        () => {},
+      );
       reflectionsActionModel.findByUserId.mockResolvedValue(expectedResult);
 
       // Act
       const result = await service.getUserReflections(userId, query);
 
       // Assert
-      expect(reflectionsValidationService.validatePaginationParams).toHaveBeenCalledWith(2, 5);
+      expect(
+        reflectionsValidationService.validatePaginationParams,
+      ).toHaveBeenCalledWith(2, 5);
       expect(reflectionsActionModel.findByUserId).toHaveBeenCalledWith(userId, {
         paginationPayload: { page: 2, limit: 5 },
         order: { createdAt: 'ASC' },
