@@ -15,7 +15,7 @@ export class WaitlistService {
     private readonly emailService: EmailService,
   ) {}
 
-  async register(payload: WaitlistDto) {
+  async register(payload) {
     const existing = await this.core.findByEmail(payload.email);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);

@@ -5,20 +5,31 @@ import { Logger } from '@nestjs/common';
 
 config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
-const dataSource = new DataSource({
-  type: (process.env.DB_TYPE as 'postgres') || 'postgres',
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: +process.env.DB_PORT!,
-  database: process.env.DB_NAME,
+const dbType = process.env.DB_TYPE as 'postgres' | 'sqlite' || 'postgres';
+
+const dataSourceConfig: any = {
+  type: dbType,
   entities: [process.env.DB_ENTITIES!],
   migrations: [process.env.DB_MIGRATIONS!],
   namingStrategy: new SnakeNamingStrategy(), // Converts camelCase to snake_case
   synchronize: false, // Always false in production - use migrations
   migrationsTableName: 'migrations',
-  ssl: process.env.DB_SSL === 'true',
-});
+};
+
+// Configure based on database type
+if (dbType === 'sqlite') {
+  dataSourceConfig.database = process.env.DB_NAME;
+} else {
+  // PostgreSQL configuration
+  dataSourceConfig.username = process.env.DB_USERNAME;
+  dataSourceConfig.password = process.env.DB_PASSWORD;
+  dataSourceConfig.host = process.env.DB_HOST;
+  dataSourceConfig.port = +process.env.DB_PORT!;
+  dataSourceConfig.database = process.env.DB_NAME;
+  dataSourceConfig.ssl = process.env.DB_SSL === 'true';
+}
+
+const dataSource = new DataSource(dataSourceConfig);
 
 export async function initializeDataSource() {
   const logger = new Logger('Database');

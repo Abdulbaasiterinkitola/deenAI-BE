@@ -1,5 +1,5 @@
 export class WaitlistValidator {
-  static validateDomain() {
-    return true;
-  }
+static validateDomain(email: string) {
+return true;
+}
 }

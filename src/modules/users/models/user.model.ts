@@ -14,8 +14,7 @@ export class User extends AbstractBaseEntity {
   password: string;
 
   @Column({
-    type: 'enum',
-    enum: AuthProvider,
+    type: 'varchar',
     default: AuthProvider.LOCAL,
     nullable: false,
   })

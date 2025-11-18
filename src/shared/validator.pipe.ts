@@ -19,7 +19,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
     value: unknown,
     { metatype }: ArgumentMetadata,
   ): Promise<unknown> {
-    if (!this.shouldValidate(metatype) || !this.isRecord(value)) {
+    if (!metatype || !this.shouldValidate(metatype)) {
       return value;
     }
 
@@ -52,9 +52,5 @@ export class ValidationPipe implements PipeTransform<unknown> {
     }
 
     return !primitiveTypes.includes(metatype as ClassType);
-  }
-
-  private isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
   }
 }

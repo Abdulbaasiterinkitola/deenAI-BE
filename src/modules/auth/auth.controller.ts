@@ -7,6 +7,8 @@ import { ForgotPasswordBodyValidator } from './validators/forgotPassword.validat
 import { ForgotPasswordDocs } from './docs/forgotPassword.doc';
 import { LoginDocs } from './docs/login.doc';
 import { LoginBodyValidator } from './validators/login.validator';
+import { GoogleAuthValidator } from './validators/google-auth.validator';
+import { GoogleAuthDocs } from './docs/google-auth.doc';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -35,5 +37,12 @@ export class AuthController {
   @LoginDocs.login()
   async login(@Body() user: LoginBodyValidator) {
     return await this.authService.login(user);
+  }
+
+  @HttpCode(200)
+  @Post('google')
+  @GoogleAuthDocs.googleAuth()
+  async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
+    return await this.authService.googleLogin(googleAuthDto.idToken);
   }
 }
