@@ -25,7 +25,6 @@ describe('ReflectionsCoreService', () => {
     isEmailVerified: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    generateId: jest.fn(),
   };
 
   const mockReflection: Reflection = {
@@ -35,7 +34,6 @@ describe('ReflectionsCoreService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: mockUser,
-    generateId: jest.fn(),
   };
 
   beforeEach(async () => {

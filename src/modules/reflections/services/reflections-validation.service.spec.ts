@@ -18,7 +18,6 @@ describe('ReflectionsValidationService', () => {
     isEmailVerified: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    generateId: jest.fn(),
   };
 
   const mockReflection: Reflection = {
@@ -28,7 +27,6 @@ describe('ReflectionsValidationService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: mockUser,
-    generateId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -104,7 +102,7 @@ describe('ReflectionsValidationService', () => {
       // Act & Assert
       expect(() => service.validateReflectionContent(invalidContent)).toThrow(
         new CustomHttpException(
-          'Reflection content cannot be empty',
+          'Reflection content is required',
           HttpStatus.BAD_REQUEST,
         ),
       );

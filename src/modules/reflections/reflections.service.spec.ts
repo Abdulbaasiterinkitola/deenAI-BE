@@ -23,7 +23,6 @@ describe('ReflectionsService', () => {
     isEmailVerified: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    generateId: jest.fn(),
   };
 
   const mockReflection: Reflection = {
@@ -33,7 +32,6 @@ describe('ReflectionsService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: mockUser,
-    generateId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -117,7 +115,6 @@ describe('ReflectionsService', () => {
       const updatedReflection = {
         ...mockReflection,
         content: updatePayload.content || mockReflection.content,
-        generateId: jest.fn(),
       };
       reflectionsCoreService.updateReflection.mockResolvedValue(
         updatedReflection,
