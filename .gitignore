@@ -69,3 +69,7 @@ guide.txt
 .kilocode.md
 rules/
 rules
+
+# Port files
+PORT=*
+PORT*
