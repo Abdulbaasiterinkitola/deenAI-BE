@@ -10,6 +10,7 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
 import { EmailServiceModule } from '@modules/email/email.module';
 import { WaitlistModule } from '@modules/waitlist/waitlist.module';
+import { ReflectionsModule } from '@modules/reflections/reflections.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { WaitlistModule } from '@modules/waitlist/waitlist.module';
     UsersModule,
     EmailServiceModule,
     WaitlistModule,
+    ReflectionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
