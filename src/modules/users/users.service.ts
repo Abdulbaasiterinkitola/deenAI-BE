@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
+import { AuthProvider } from './enums';
 
 @Injectable()
 export class UsersService {
@@ -12,5 +13,17 @@ export class UsersService {
 
   async getUserByEmail(email: string) {
     return await this.userCoreService.getUserByEmail(email);
+  }
+
+  async updateUserAuthProvider(
+    email: string,
+    authProvider: AuthProvider,
+    isEmailVerified: boolean,
+  ) {
+    return await this.userCoreService.updateUserAuthProvider(
+      email,
+      authProvider,
+      isEmailVerified,
+    );
   }
 }

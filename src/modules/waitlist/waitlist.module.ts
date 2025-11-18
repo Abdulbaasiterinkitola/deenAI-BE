@@ -8,7 +8,6 @@ import { WaitlistValidationService } from './services/waitlist-validation.servic
 import { WaitlistActionModel } from './action-models/waitlist.action-model';
 import { EmailServiceModule } from '@modules/email/email.module';
 
-
 @Module({
   imports: [TypeOrmModule.forFeature([Waitlist]), EmailServiceModule],
   controllers: [WaitlistController],

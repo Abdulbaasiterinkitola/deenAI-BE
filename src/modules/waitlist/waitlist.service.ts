@@ -15,7 +15,7 @@ export class WaitlistService {
   ) {}
 
   async register(payload) {
-    const existing = await this.core.findByEmail(payload.email);
+    const existing = await this.core.findByEmail(payload.email as string);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);
     await this.queueWelcomeEmail(entry);

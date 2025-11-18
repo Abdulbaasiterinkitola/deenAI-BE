@@ -1,11 +1,11 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Logger } from '@nestjs/common';
 
 config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
-const dbType = process.env.DB_TYPE as 'postgres' | 'sqlite' || 'postgres';
+const dbType = (process.env.DB_TYPE as 'postgres' | 'sqlite') || 'postgres';
 
 const dataSourceConfig: any = {
   type: dbType,
@@ -29,7 +29,7 @@ if (dbType === 'sqlite') {
   dataSourceConfig.ssl = process.env.DB_SSL === 'true';
 }
 
-const dataSource = new DataSource(dataSourceConfig);
+const dataSource = new DataSource(dataSourceConfig as DataSourceOptions);
 
 export async function initializeDataSource() {
   const logger = new Logger('Database');
