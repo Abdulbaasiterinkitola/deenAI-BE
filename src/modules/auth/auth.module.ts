@@ -11,7 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthService, AuthGuard, GoogleAuthService],
+  providers: [AuthService, LocalAuthService, GoogleAuthService],
   imports: [
     EmailServiceModule,
     UsersModule,

@@ -3,8 +3,6 @@ import { WaitlistCoreService } from './services/waitlist-core.service';
 import { WaitlistValidationService } from './services/waitlist-validation.service';
 import { EmailService } from '@modules/email/email.service';
 import { Waitlist } from './models/waitlist.model';
-import { WaitlistDto } from './dtos/waitlist.dto';
-import { EmailService } from '@modules/email/email.service';
 
 @Injectable()
 export class WaitlistService {
@@ -17,7 +15,7 @@ export class WaitlistService {
   ) {}
 
   async register(payload) {
-    const existing = await this.core.findByEmail(payload.email);
+    const existing = await this.core.findByEmail(payload.email as string);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);
     await this.queueWelcomeEmail(entry);

@@ -4,6 +4,8 @@ import { GoogleAuthService } from './services/google.service';
 import RegisterDto from './dtos/register.dto';
 import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { LoginDto } from './dtos/login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   constructor(
