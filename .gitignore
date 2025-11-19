@@ -64,5 +64,12 @@ guide.txt
 
 # KiloCode configuration
 .kilocode
+.kilocode/
 .kilocode/rules
 .kilocode.md
+rules/
+rules
+
+# Port files
+PORT=*
+PORT*

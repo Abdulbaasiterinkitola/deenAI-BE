@@ -28,7 +28,11 @@ export class AuthService {
     return await this.localAuthService.verifyOtp(dto);
   }
 
-  async resetPassword(dto: { email: string; otp: string; newPassword: string }) {
+  async resetPassword(dto: {
+    email: string;
+    otp: string;
+    newPassword: string;
+  }) {
     return await this.localAuthService.resetPasswordWithOtp(dto);
   }
 

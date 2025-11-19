@@ -1,15 +1,11 @@
 import {
   CreateDateColumn,
-  Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
-  BeforeInsert,
 } from 'typeorm';
-import { randomUUID } from 'crypto';
 
-@Entity()
 export class AbstractBaseEntity {
-  @PrimaryColumn({ type: 'text' })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
@@ -17,11 +13,4 @@ export class AbstractBaseEntity {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
-
-  @BeforeInsert()
-  generateId() {
-    if (!this.id) {
-      this.id = randomUUID();
-    }
-  }
 }

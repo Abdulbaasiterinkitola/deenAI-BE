@@ -1,41 +1,27 @@
 import { Body, Controller, HttpCode, Logger, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
+import { ResetPasswordService } from './services/reset-password.service';
 
 @Controller('auth')
 @ApiTags('Authentication')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly resetPasswordService: ResetPasswordService,
+  ) {}
 
   @HttpCode(201)
   @Post('/register')
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
-  }
-
-  @HttpCode(200)
-  @Post('/request-otp')
-  async requestOtp(@Body() body: RequestOtpDto) {
-    return await this.authService.requestOtp(body);
-  }
-
-  @HttpCode(200)
-  @Post('/verify-otp')
-  async verifyOtp(@Body() body: VerifyOtpDto) {
-    return await this.authService.verifyOtp(body);
-  }
-
-  @HttpCode(200)
-  @Post('/reset-password')
-  async resetPassword(@Body() body: ResetPasswordDto) {
-    return await this.authService.resetPassword(body);
   }
 
   @HttpCode(200)
@@ -48,5 +34,32 @@ export class AuthController {
   @Post('/google')
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
     return await this.authService.googleLogin(googleAuthDto.idToken);
+  }
+  @HttpCode(200)
+  @Post('request-otp')
+  @ApiOperation({ summary: 'Request OTP for password reset' })
+  @ApiResponse({ status: 200, description: 'OTP sent if account exists' })
+  async requestOtp(@Body() dto: RequestOtpDto) {
+    return this.resetPasswordService.requestOtp(dto.email);
+  }
+
+  @HttpCode(200)
+  @Post('verify-otp')
+  @ApiOperation({ summary: 'Verify OTP' })
+  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.resetPasswordService.verifyOtp(dto.email, dto.otp);
+  }
+
+  @HttpCode(200)
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password using OTP' })
+  @ApiResponse({ status: 200, description: 'Password successfully reset' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.resetPasswordService.resetPassword(
+      dto.email,
+      dto.otp,
+      dto.newPassword,
+    );
   }
 }

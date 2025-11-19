@@ -7,7 +7,7 @@ export class VerifyOtpDto {
     example: 'user@example.com',
   })
   @IsEmail()
-  @IsNotEmpty() 
+  @IsNotEmpty()
   email: string;
 
   @ApiProperty({

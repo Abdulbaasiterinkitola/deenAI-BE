@@ -13,11 +13,11 @@ export class EmailService {
   ) {}
 
   async sendEmail(
-  email: string,
-  subject: string,
-  template: string,
-  context: Record<string, string>, // 4th argument is now context
-): Promise<void> {
+    email: string,
+    subject: string,
+    template: string,
+    context: Record<string, any>, // Change to 'any' to accept any values
+  ): Promise<void> {
     if (this.emailQueue) {
       const timeout = 3000; // 3s timeout
 
@@ -43,9 +43,9 @@ export class EmailService {
             'email',
             {
               email,
-              name: context.name,
               subject,
               template,
+              context, // ✅ Pass entire context object
             },
             {
               attempts: 3,
@@ -78,7 +78,6 @@ export class EmailService {
         this.logger.warn(
           `Queue check failed for ${email}: ${(error as Error).message}. Falling back to direct send.`,
         );
-        // Fall through to direct send fallback
       }
     }
 
@@ -86,19 +85,17 @@ export class EmailService {
     if (this.processMail) {
       this.logger.log(`Sending email directly (bypassing queue) for ${email}`);
       try {
-        // Call the processor's sendEmail method directly
         await this.processMail.sendEmailDirectly({
           email,
-          name: context.name,
           subject,
           template,
+          ...context, // ✅ Spread entire context object
         });
         this.logger.log(`Email sent directly to ${email}`);
       } catch (error) {
         this.logger.error(
           `Failed to send email directly to ${email}: ${(error as Error).message}`,
         );
-        // Don't throw - we've tried both methods
       }
     } else {
       this.logger.error(

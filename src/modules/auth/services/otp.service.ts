@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PasswordResetOtp } from '../models/otp.model';
 import { v4 as uuidv4 } from 'uuid';
+import { PasswordResetOtp } from '../models/otp.model';
 
 @Injectable()
 export class OtpService {

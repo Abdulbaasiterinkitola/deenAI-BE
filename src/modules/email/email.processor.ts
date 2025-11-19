@@ -1,5 +1,4 @@
 import { Processor, Process } from '@nestjs/bull';
-import { Job } from 'bull';
 import * as nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Logger } from '@nestjs/common';
@@ -8,7 +7,8 @@ import { render } from '@react-email/render';
 import React from 'react';
 import WaitlistEmail from './templates/waitlist-email';
 import WelcomeEmail from './templates/welcome-email';
-import OtpEmail from './templates/verification-code';
+import { Job } from 'bull';
+import OtpEmail from './templates/otp-email';
 
 type MailTransporter = {
   sendMail(
@@ -56,17 +56,12 @@ export class ProcessMail {
     const pass =
       this.configService.get<string>('SMTP_PASS') ||
       this.configService.get<string>('MAIL_PASS');
-    const mailFromName = this.configService.get<string>('MAIL_NAME');
-    const mailFromAddress = this.configService.get<string>('MAIL_FROM');
+    const mailFromName =
+      this.configService.get<string>('MAIL_NAME') || 'DeenAI';
+    const mailFromAddress =
+      this.configService.get<string>('MAIL_FROM') || 'no-reply@deenai.com';
 
-    const from =
-      this.configService.get<string>('SMTP_FROM') ||
-      (mailFromName && mailFromAddress
-        ? `${mailFromName} <${mailFromAddress}>`
-        : mailFromAddress) ||
-      'Deen AI <no-reply@deenai.com>';
-
-    this.defaultFrom = from;
+    this.defaultFrom = `${mailFromName} <${mailFromAddress}>`;
 
     if (!host) {
       throw new Error(
@@ -148,11 +143,18 @@ export class ProcessMail {
     try {
       // Spread all context variables including OTP
       this.logger.log(`Starting template rendering for ${email}...`);
-      const htmlContent = await this.renderHngTemplate(template, { ...context });
+      const htmlContent = await this.renderHngTemplate(template, {
+        ...context,
+      });
       this.logger.log(`Template rendered successfully for ${email}`);
 
       this.logger.log(`Sending email to ${email} via SMTP...`);
-      await this.transport.sendMail({ from: this.defaultFrom, to: email, subject, html: htmlContent });
+      await this.transport.sendMail({
+        from: this.defaultFrom,
+        to: email,
+        subject,
+        html: htmlContent,
+      });
       this.logger.log(
         `Email sent successfully to ${email} via SMTP using template: ${template}`,
       );
@@ -166,12 +168,12 @@ export class ProcessMail {
   }
 
   // Direct send method (bypasses queue)
+  // Change the sendEmailDirectly method signature
   async sendEmailDirectly(data: {
     email: string;
-    name: string;
     subject: string;
     template: string;
-    [key: string]: any; // allow otp or other variables
+    [key: string]: any; // This allows any additional properties
   }): Promise<void> {
     const { subject, email, template, ...rest } = data;
 
@@ -181,12 +183,17 @@ export class ProcessMail {
 
     try {
       this.logger.log(`Starting template rendering for ${email}...`);
-      // Spread all variables including OTP
+      // Spread all variables including OTP, name, etc.
       const htmlContent = await this.renderHngTemplate(template, { ...rest });
       this.logger.log(`Template rendered successfully for ${email}`);
 
       this.logger.log(`Sending email to ${email} via SMTP...`);
-      await this.transport.sendMail({ from: this.defaultFrom, to: email, subject, html: htmlContent });
+      await this.transport.sendMail({
+        from: this.defaultFrom,
+        to: email,
+        subject,
+        html: htmlContent,
+      });
       this.logger.log(
         `Email sent successfully to ${email} via SMTP using template: ${template}`,
       );

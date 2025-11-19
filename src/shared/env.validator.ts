@@ -1,15 +1,11 @@
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   validateSync,
-  IsBoolean,
-  IsOptional,
 } from 'class-validator';
-import { Logger } from '@nestjs/common';
-
-const logger = new Logger('EnvValidator');
 
 enum Environment {
   Development = 'development',
@@ -17,15 +13,20 @@ enum Environment {
   Test = 'test',
 }
 
-class EnvVariables {
+class EnvironmentVariables {
   @IsEnum(Environment)
-  NODE_ENV: Environment;
+  NODE_ENV: Environment = Environment.Development;
 
   @IsNumber()
-  PORT: number;
+  @Transform(({ value }) => parseInt(value, 10))
+  PORT: number = 3000;
 
   @IsString()
-  DB_TYPE: string;
+  DB_HOST: string = 'localhost';
+
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10))
+  DB_PORT: number = 5432;
 
   @IsString()
   DB_USERNAME: string;
@@ -34,77 +35,51 @@ class EnvVariables {
   DB_PASSWORD: string;
 
   @IsString()
-  DB_HOST: string;
-
-  @IsNumber()
-  DB_PORT: number;
-
-  @IsString()
   DB_NAME: string;
-
-  @IsString()
-  DB_ENTITIES: string;
-
-  @IsString()
-  DB_MIGRATIONS: string;
-
-  @IsOptional()
-  @IsBoolean()
-  DB_SSL?: boolean;
 
   @IsString()
   JWT_SECRET: string;
 
   @IsString()
-  JWT_TIMEFRAME: string;
-
   @IsOptional()
+  JWT_TIMEFRAME?: string = '3d';
+
   @IsString()
+  @IsOptional()
   SMTP_HOST?: string;
 
-  @IsOptional()
   @IsNumber()
-  SMTP_PORT?: number;
-
+  @Transform(({ value }) => parseInt(value, 10))
   @IsOptional()
+  SMTP_PORT?: number = 587;
+
   @IsString()
+  @IsOptional()
   SMTP_USER?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   SMTP_PASS?: string;
 
-  @IsOptional()
   @IsString()
-  SMTP_FROM?: string;
-
   @IsOptional()
+  MAIL_FROM?: string;
+
   @IsString()
-  MAIL_HOST?: string;
-
   @IsOptional()
-  @IsNumber()
-  MAIL_PORT?: number;
+  MAIL_NAME?: string;
 
-  @IsOptional()
   @IsString()
-  MAIL_USERNAME?: string;
-
   @IsOptional()
-  @IsString()
-  MAIL_PASSWORD?: string;
+  GOOGLE_CLIENT_ID?: string;
 
-  @IsOptional()
   @IsString()
-  MAIL_FROM_NAME?: string;
-
   @IsOptional()
-  @IsString()
-  MAIL_FROM_ADDRESS?: string;
+  APPLE_CLIENT_ID?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvVariables, config, {
+  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
 
@@ -113,12 +88,7 @@ export function validateEnv(config: Record<string, unknown>) {
   });
 
   if (errors.length > 0) {
-    errors.forEach((error) => {
-      Object.values(error.constraints ?? {}).forEach((message) => {
-        logger.error(`❌ ENV Validation Error: ${message}`);
-      });
-    });
-    process.exit(1); // Exit if validation fails
+    throw new Error(errors.toString());
   }
 
   return validatedConfig;

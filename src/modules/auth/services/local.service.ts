@@ -7,6 +7,7 @@ import { LoginDto } from '../dtos/login.dto';
 import RegisterDto from '../dtos/register.dto';
 import { OtpService } from './otp.service';
 import UserValidationService from '@modules/users/services/user-validation.service';
+import { AuthValidationService } from './auth-validation.service';
 
 @Injectable()
 export class LocalAuthService {
@@ -16,10 +17,23 @@ export class LocalAuthService {
     private readonly usersService: UsersService,
     private readonly emailService: EmailService,
     private readonly userValidationService: UserValidationService,
+    private readonly authValidationService: AuthValidationService,
     private readonly otpService: OtpService,
   ) {}
 
   async register(dto: RegisterDto) {
+    // Validate email using validation service
+
+    // Check if user already exists
+    const existingUser = await this.usersService.getUserByEmail(dto.email);
+
+    // Validate user creation using validation service
+    this.authValidationService.validateUserCreation(
+      dto.email,
+      AuthProvider.LOCAL,
+      existingUser,
+    );
+
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const userData = {
       name: dto.name,
@@ -33,9 +47,9 @@ export class LocalAuthService {
       dto.email,
       'Welcome to DeenAI',
       'welcome',
-      { name: dto.name || 'User'},
+      { name: dto.name || 'User' },
     );
-    return {success: true, message: "User registered successfully"}
+    return { success: true, message: 'User registered successfully' };
   }
 
   async requestPasswordReset(dto: { email: string }) {
@@ -91,6 +105,7 @@ export class LocalAuthService {
       dto.email,
       dto.password,
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 
     return {

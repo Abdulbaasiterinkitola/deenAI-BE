@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('password_reset_otp')
 export class PasswordResetOtp {
@@ -11,9 +17,18 @@ export class PasswordResetOtp {
   @Column()
   otp: string;
 
-  @Column()
+  @Column({ name: 'expires_at', type: 'timestamp' })
   expiresAt: Date;
 
-  @CreateDateColumn()
+  @Column({ name: 'is_verified', default: false, select: true })
+  isVerified: boolean;
+
+  @Column({ name: 'used_at', type: 'timestamp', nullable: true })
+  usedAt: Date | null;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }

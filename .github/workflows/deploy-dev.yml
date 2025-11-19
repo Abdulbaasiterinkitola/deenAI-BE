@@ -17,16 +17,7 @@ jobs:
     - run: npm install
     - run: npm run build
     
-    - name: Deploy
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        password: ${{ secrets.SERVER_PASSWORD }}
-        source: "dist,package.json,package-lock.json"
-        target: "/home/ottoman/deenai-backend-dev"
-        
-    - name: Restart
+    - name: Deploy to Server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -34,7 +25,26 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
           cd /home/ottoman/deenai-backend-dev
+          
+          # Stash any local changes
+          git stash
+          
+          # Pull latest changes
           git pull origin dev
-          npm ci --only=production
-          npm run migration:run
-          pm2 restart deenai-backend
+          
+          # Only install if package.json changed
+          if git diff --name-only HEAD~1 HEAD | grep -q "package.json"; then
+            echo "Installing dependencies..."
+            npm install --only=production
+          else
+            echo "No package.json changes, skipping npm install"
+          fi
+          
+          # Build application
+          npm run build
+          
+          # Run migrations if needed
+          npm run migration:run || echo "Migration failed or not needed"
+          
+          # Restart application
+          pm2 restart deenai-backend || pm2 start dist/main.js --name deenai-backend
