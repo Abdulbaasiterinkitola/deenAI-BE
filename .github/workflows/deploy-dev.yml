@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: hng-13-runner
     steps:
     - uses: actions/checkout@v4
     
