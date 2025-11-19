@@ -64,7 +64,8 @@ export class HealthService {
       'https://api.ottoman.emerj.net/',
     );
 
-    const isHealthy = database === 'up' && redis === 'up' && smtp === 'up' && serverOk === true;
+    const isHealthy =
+      database === 'up' && redis === 'up' && smtp === 'up' && serverOk === true;
     return {
       status: isHealthy ? 'ok' : 'error',
       services: {

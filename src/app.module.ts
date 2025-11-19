@@ -13,6 +13,7 @@ import { WaitlistModule } from '@modules/waitlist/waitlist.module';
 import { ReflectionsModule } from '@modules/reflections/reflections.module';
 import { HealthModule } from '@modules/health/health.module';
 import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
+import { ContactModule } from '@modules/contact/contact.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { NotificationSettingsModule } from '@modules/notification-settings/notif
     ReflectionsModule,
     HealthModule,
     NotificationSettingsModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],
