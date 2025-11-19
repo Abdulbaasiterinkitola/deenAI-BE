@@ -13,6 +13,7 @@ export class Users1763284725895 implements MigrationInterface {
         password VARCHAR(255),
         auth_provider VARCHAR(50) NOT NULL DEFAULT 'local',
         is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+        current_refresh_token VARCHAR ,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );

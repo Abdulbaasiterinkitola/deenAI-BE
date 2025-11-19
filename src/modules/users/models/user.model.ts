@@ -22,4 +22,12 @@ export class User extends AbstractBaseEntity {
 
   @Column({ name: 'is_email_verified', default: false })
   isEmailVerified: boolean;
+
+  @Column({
+    name: 'current_refresh_token',
+    type: 'varchar',
+    nullable: true,
+    select: false,
+  })
+  currentRefreshToken: string | null;
 }

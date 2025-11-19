@@ -5,7 +5,7 @@ import { AuthProvider } from './enums';
 import { Repository } from 'typeorm';
 import { User } from './models/user.model';
 import { InjectRepository } from '@nestjs/typeorm';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
@@ -39,5 +39,35 @@ export class UsersService {
       authProvider,
       isEmailVerified,
     );
+  }
+
+  async setCurrentRefreshToken(refreshToken: string, userId: string) {
+    const currentRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userRepo.update(userId, {
+      currentRefreshToken,
+    });
+  }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: ['id', 'email', 'currentRefreshToken'], // Explicitly select the hidden column
+    });
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user?.currentRefreshToken || '',
+    );
+
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+    return null;
+  }
+
+  async removeRefreshToken(userId: string) {
+    return this.userRepo.update(userId, {
+      currentRefreshToken: null,
+    });
   }
 }

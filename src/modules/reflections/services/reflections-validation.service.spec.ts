@@ -16,6 +16,7 @@ describe('ReflectionsValidationService', () => {
     password: 'password',
     authProvider: AuthProvider.LOCAL,
     isEmailVerified: true,
+    currentRefreshToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

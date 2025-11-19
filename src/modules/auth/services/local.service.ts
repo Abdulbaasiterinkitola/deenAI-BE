@@ -10,7 +10,6 @@ import UserValidationService from '@modules/users/services/user-validation.servi
 import { AuthValidationService } from './auth-validation.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { StringValue } from 'ms';
 
 @Injectable()
 export class LocalAuthService {
@@ -111,30 +110,13 @@ export class LocalAuthService {
       dto.password,
     );
 
-    const token = this.jwtService.sign(
-      { sub: user.id, email: user.email },
-      {
-        secret: this.configService.get<string>('auth.jwtSecret'),
-        expiresIn: this.configService.get<StringValue>('auth.jwtExpiry'),
-      },
-    );
-
-    const refreshToken = this.jwtService.sign(
-      { sub: user.id, email: user.email },
-      {
-        secret: this.configService.get<string>('auth.refreshSecret'),
-        expiresIn: this.configService.get<StringValue>('auth.refreshExpiry'),
-      },
-    );
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 
     return {
       success: true,
-      message: 'Login successful',
+      message: 'User validated successfully',
       data: {
-        AccessToken: token,
-        RefreshToken: refreshToken,
         user: userWithoutPassword,
       },
     };
