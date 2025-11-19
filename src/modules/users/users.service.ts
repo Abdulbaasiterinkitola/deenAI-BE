@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { NotificationSettingsService } from '@modules/notification-settings/notification-settings.service';
 import { CustomHttpException } from '@shared/custom.exception';
+import { normalizeEmail } from '@helpers/email.helper';
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,8 +19,20 @@ export class UsersService {
   ) {}
 
   async createUser(user: UserType) {
+    const email = normalizeEmail(user.email);
+    if (!email) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const normalizedUser: UserType = { ...user, email };
+
     await this.userRepo.manager.transaction(async (manager) => {
-      const userCreated = await this.userCoreService.createUser(user, manager);
+      const userCreated = await this.userCoreService.createUser(
+        normalizedUser,
+        manager,
+      );
       const userId = userCreated.data?.id;
       if (!userId) {
         throw new CustomHttpException(
@@ -35,7 +48,14 @@ export class UsersService {
   }
 
   async getUserByEmail(email: string) {
-    return await this.userCoreService.getUserByEmail(email);
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.userCoreService.getUserByEmail(normalizedEmail);
   }
   async getUserById(id: string) {
     return await this.userCoreService.getUserById(id);
@@ -50,8 +70,15 @@ export class UsersService {
     authProvider: AuthProvider,
     isEmailVerified: boolean,
   ) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     return await this.userCoreService.updateUserAuthProvider(
-      email,
+      normalizedEmail,
       authProvider,
       isEmailVerified,
     );
