@@ -6,7 +6,6 @@ import { User } from '../models/user.model';
 import { AuthProvider } from '../enums';
 import * as bcrypt from 'bcrypt';
 import { EntityManager } from 'typeorm';
-import { normalizeEmail } from '@helpers/email.helper';
 
 @Injectable()
 export default class UserValidationService {
@@ -29,16 +28,7 @@ export default class UserValidationService {
     email: string,
     passwordAttempt: string,
   ): Promise<User> {
-    const normalizedEmail = normalizeEmail(email);
-
-    if (!normalizedEmail) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const user = await this.userModelAction.get({ email: normalizedEmail });
+    const user = await this.userModelAction.get({ email });
 
     if (!user) {
       throw new CustomHttpException(
