@@ -9,6 +9,7 @@ import WaitlistEmail from './templates/waitlist-email';
 import WelcomeEmail from './templates/welcome-email';
 import { Job } from 'bull';
 import OtpEmail from './templates/otp-email';
+import PasswordResetSuccessEmail from './templates/password-reset-success';
 
 type MailTransporter = {
   sendMail(
@@ -29,6 +30,7 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   waitlist: WaitlistEmail,
   welcome: WelcomeEmail,
   'forgot-password': OtpEmail,
+  'password-reset-success': PasswordResetSuccessEmail,
 };
 
 @Processor('email')
@@ -158,6 +160,10 @@ export class ProcessMail {
       this.logger.log(
         `Email sent successfully to ${email} via SMTP using template: ${template}`,
       );
+
+      // Remove job from Redis after successful completion
+      await job.remove();
+      this.logger.log(`Job ${job.id} removed from Redis queue`);
     } catch (error) {
       this.logger.error(
         `Failed to send email to ${email}: ${(error as Error).message}`,
