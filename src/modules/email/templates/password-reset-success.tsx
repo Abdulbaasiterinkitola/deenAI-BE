@@ -1,18 +1,16 @@
 import React from 'react';
 
-interface OtpEmailProps {
+interface PasswordResetSuccessEmailProps {
   name: string;
-  otp: string;
-  expiryMinutes?: number;
 }
 
-const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) => {
+const PasswordResetSuccessEmail: React.FC<PasswordResetSuccessEmailProps> = ({ name }) => {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Password Reset - Deen AI</title>
+        <title>Password Reset Successful - Deen AI</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -47,8 +45,8 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
 
               <div className="text-left mb-8">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534311/otp_fhtd44.svg"
-                  alt="Password Reset illustration"
+                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534286/hello_s31dgb.svg"
+                  alt="Password reset success illustration"
                   onError="this.style.display='none'"
                   className="w-[180px] h-auto"
                 />
@@ -57,11 +55,11 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
               <h1
                 className="text-[32px] sm:text-[36px] font-semibold leading-tight mb-4 text-left text-[#333]"
               >
-                Forgot Password
+                Password Reset Successful
               </h1>
 
               <p className="text-[#6b6b6b] text-[15px] leading-relaxed mb-6 text-left">
-                Your Deen AI Password Reset Code
+                Your Deen AI Password Has Been Changed
               </p>
 
               <p className="text-[#333] text-[15px] leading-relaxed mb-4 text-left">
@@ -69,34 +67,34 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
               </p>
 
               <p className="text-[#6b6b6b] text-[15px] leading-relaxed mb-6 text-left">
-                We received a request to reset your password for Deen AI.<br />
-                To continue, please enter the verification code below in the app:
+                This is a confirmation that your password for your Deen AI account
+                has been successfully reset. You can now log in to your account with
+                your new password.
+              </p>
+
+              <p className="text-[#6b6b6b] text-[15px] leading-relaxed mb-6 text-left">
+                If you made this change, no further action is required. You can
+                continue using Deen AI with your new password.
               </p>
 
               <div className="my-8">
                 <h3 className="font-semibold text-base text-[#9a4a00] mb-4 text-left">
-                  Your Reset Code:
+                  Didn't reset your password?
                 </h3>
-
-                <div className="bg-[#f8f8f8] rounded-xl py-8 px-6 my-6">
-                  <div className="text-center">
-                    <div
-                      className="text-[48px] sm:text-[56px] font-bold text-[#9a4a00] tracking-[0.15em] font-mono"
-                    >
-                      {otp}
-                    </div>
-                  </div>
-                </div>
+                <p
+                  className="text-[#6b6b6b] text-[15px] leading-relaxed mb-4 text-left"
+                >
+                  If you didn't make this change, your account may have been
+                  compromised. Please contact our support team immediately at
+                  <a
+                    href="mailto:buddy.deenai@gmail.com"
+                    className="text-[#9a4a00] no-underline hover:underline"
+                  > buddy.deenai@gmail.com</a>
+                </p>
               </div>
 
-              <p className="text-[#6b6b6b] text-[14px] leading-relaxed mb-6 text-left">
-                This code will expire in
-                <span className="text-[#9a4a00] font-semibold"> {expiryMinutes}</span> minutes.
-              </p>
-
-              <p className="text-[#6b6b6b] text-[14px] leading-relaxed mb-4 text-left">
-                If you didn't request this, you can safely ignore the message.<br />
-                Welcome to Deen AI!
+              <p className="text-[#6b6b6b] text-[15px] leading-relaxed mb-6 text-left">
+                Thank you for keeping your account secure.
               </p>
 
               <p className="text-[#6b6b6b] text-[15px] mt-6 mb-0 text-left">
@@ -110,4 +108,4 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
   );
 };
 
-export default OtpEmail;
+export default PasswordResetSuccessEmail;

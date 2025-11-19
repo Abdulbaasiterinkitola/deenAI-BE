@@ -139,6 +139,24 @@ export class ResetPasswordService {
       usedAt: () => 'NOW()',
     } as any);
 
+    // Send password reset success email
+    const fallbackName = user.name ?? user.email.split('@')[0];
+    try {
+      await this.emailService.sendEmail(
+        user.email,
+        'Password Reset Successful - Deen AI',
+        'password-reset-success',
+        {
+          name: fallbackName,
+        },
+      );
+      this.logger.log(`Password reset success email sent to ${user.email}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send password reset success email to ${user.email}: ${(error as Error).message}`,
+      );
+    }
+
     return { success: true, message: 'Password has been successfully reset' };
   }
 }
