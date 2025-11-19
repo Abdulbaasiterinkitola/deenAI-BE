@@ -160,7 +160,7 @@ export class ProcessMail {
       this.logger.log(
         `Email sent successfully to ${email} via SMTP using template: ${template}`,
       );
-      
+
       // Remove job from Redis after successful completion
       await job.remove();
       this.logger.log(`Job ${job.id} removed from Redis queue`);
