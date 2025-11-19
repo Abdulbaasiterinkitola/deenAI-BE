@@ -11,6 +11,7 @@ import { UsersModule } from '@modules/users/users.module';
 import { EmailServiceModule } from '@modules/email/email.module';
 import { WaitlistModule } from '@modules/waitlist/waitlist.module';
 import { ReflectionsModule } from '@modules/reflections/reflections.module';
+import { HealthModule } from '@modules/health/health.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ReflectionsModule } from '@modules/reflections/reflections.module';
     EmailServiceModule,
     WaitlistModule,
     ReflectionsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
