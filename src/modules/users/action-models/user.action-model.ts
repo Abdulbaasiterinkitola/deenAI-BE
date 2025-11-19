@@ -12,15 +12,4 @@ export class UserModelAction extends AbstractModelAction<User> {
   ) {
     super(repository, User);
   }
-
-  async getById(id: string) {
-    return await this.get({ id });
-  }
-
-  async updatePassword(id: string, password: string) {
-    return await this.update({
-      updatePayload: { password },
-      identifierOptions: { id },
-    });
-  }
 }
