@@ -37,8 +37,17 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    return await this.localAuthService.login(dto);
-  }
+
+    const result = await this.localAuthService.login(dto);
+    const user = result.data.user
+    const payload = { sub: user.id, email: user.email };
+    const token = this.jwtService.sign(payload);
+    return {
+      success: true,
+      message: 'Login successful',
+      data: { token, user },
+    };
+  } 
 
   async googleLogin(idToken: string) {
     const user = await this.googleAuthService.authenticate(idToken);
@@ -54,6 +63,13 @@ export class AuthService {
       success: true,
       message: 'Google login successful',
       data: { token, user },
+    };
+  }
+
+  async logout() {
+    return {
+      success: true,
+      message: 'Logged out successfully',
     };
   }
 }

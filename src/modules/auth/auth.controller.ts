@@ -1,6 +1,18 @@
-import { Body, Controller, HttpCode, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Logger,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
@@ -8,7 +20,7 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { ResetPasswordService } from './services/reset-password.service';
-
+import { AuthGuard } from './guards/auth.guard';
 @Controller('auth')
 @ApiTags('Authentication')
 export class AuthController {
@@ -61,5 +73,15 @@ export class AuthController {
       dto.otp,
       dto.newPassword,
     );
+  }
+
+  @HttpCode(200)
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 200, description: 'Successfully logged out' })
+  async logout() {
+    return this.authService.logout();
   }
 }
