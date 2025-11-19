@@ -17,5 +17,7 @@ export class DeletionCode412332432134 implements MigrationInterface {
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<any> {}
+  public async down(queryRunner: QueryRunner): Promise<any> {
+    await queryRunner.query(`DROP TABLE IF EXISTS deletion_codes`);
+  }
 }
