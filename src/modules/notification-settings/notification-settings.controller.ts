@@ -6,7 +6,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagg
 @ApiTags('notification-settings')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
-@Controller('api/v1/notification-settings')
+@Controller('notification-settings')
 export class NotificationSettingsController {
   constructor(
     private readonly notificationSettingsService: NotificationSettingsService,
