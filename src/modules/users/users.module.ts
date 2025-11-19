@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import UserCoreService from './services/user-core.service';
@@ -7,9 +7,13 @@ import { UserModelAction } from './action-models/user.action-model';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './models/user.model';
 import { PasswordResetOtp } from '@modules/auth/models/otp.model';
+import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, PasswordResetOtp])],
+  imports: [
+    TypeOrmModule.forFeature([User, PasswordResetOtp]),
+    forwardRef(() => NotificationSettingsModule),
+  ],
   controllers: [UsersController],
   providers: [
     UsersService,

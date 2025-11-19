@@ -6,16 +6,28 @@ import { Repository } from 'typeorm';
 import { User } from './models/user.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { NotificationSettingsService } from '@modules/notification-settings/notification-settings.service';
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userCoreService: UserCoreService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly notificationSettingsService: NotificationSettingsService,
   ) {}
 
   async createUser(user: UserType) {
-    return await this.userCoreService.createUser(user);
+    await this.userRepo.manager.transaction(async (manager) => {
+      const userCreated = await this.userCoreService.createUser(user, manager);
+      const userId = userCreated.data?.id;
+      if (!userId) {
+        throw new Error('Failed to retrieve newly created user ID');
+      }
+      await this.notificationSettingsService.createUserNotificationSettings(
+        userId,
+        manager,
+      );
+    });
   }
 
   async getUserByEmail(email: string) {
