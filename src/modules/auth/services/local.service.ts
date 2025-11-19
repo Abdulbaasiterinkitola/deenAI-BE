@@ -1,4 +1,4 @@
-import { Injectable, Logger, HttpStatus } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { UsersService } from '@modules/users/users.service';
 import { EmailService } from '@modules/email/email.service';
 import { AuthProvider } from '@modules/users/enums';
@@ -10,8 +10,6 @@ import UserValidationService from '@modules/users/services/user-validation.servi
 import { AuthValidationService } from './auth-validation.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { normalizeEmail } from '@helpers/email.helper';
-import { CustomHttpException } from '@shared/custom.exception';
 
 @Injectable()
 export class LocalAuthService {
@@ -28,19 +26,14 @@ export class LocalAuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const email = normalizeEmail(dto.email);
-    if (!email) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // Validate email using validation service
 
-    const existingUser = await this.usersService.getUserByEmail(email);
+    // Check if user already exists
+    const existingUser = await this.usersService.getUserByEmail(dto.email);
 
     // Validate user creation using validation service
     this.authValidationService.validateUserCreation(
-      email,
+      dto.email,
       AuthProvider.LOCAL,
       existingUser,
     );
@@ -48,35 +41,30 @@ export class LocalAuthService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const userData = {
       name: dto.name,
-      email,
+      email: dto.email,
       password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: false,
     };
     await this.usersService.createUser(userData);
-    await this.emailService.sendEmail(email, 'Welcome to DeenAI', 'welcome', {
-      name: dto.name || 'User',
-    });
+    await this.emailService.sendEmail(
+      dto.email,
+      'Welcome to DeenAI',
+      'welcome',
+      { name: dto.name || 'User' },
+    );
     return { success: true, message: 'User registered successfully' };
   }
 
   async requestPasswordReset(dto: { email: string }) {
-    const email = normalizeEmail(dto.email);
-    if (!email) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
+    const { email } = dto;
     const user = await this.usersService.getUserByEmail(email);
     if (!user)
       return { success: true, message: 'If an account exists, OTP sent' };
 
     if ((user.authProvider || '').toLowerCase() !== 'local') {
-      throw new CustomHttpException(
+      throw new BadRequestException(
         'Password reset only for email/password accounts',
-        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -93,21 +81,9 @@ export class LocalAuthService {
   }
 
   async verifyOtp(dto: { email: string; otp: string }) {
-    const email = normalizeEmail(dto.email);
-    if (!email) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const { otp } = dto;
+    const { email, otp } = dto;
     const valid = await this.otpService.validateOtp(email, otp);
-    if (!valid) {
-      throw new CustomHttpException(
-        'Invalid or expired OTP',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    if (!valid) throw new BadRequestException('Invalid or expired OTP');
 
     return { success: true, message: 'OTP is valid' };
   }
@@ -117,22 +93,10 @@ export class LocalAuthService {
     otp: string;
     newPassword: string;
   }) {
-    const email = normalizeEmail(dto.email);
-    if (!email) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const { otp, newPassword } = dto;
+    const { email, otp, newPassword } = dto;
 
     const valid = await this.otpService.validateOtp(email, otp);
-    if (!valid) {
-      throw new CustomHttpException(
-        'Invalid or expired OTP',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    if (!valid) throw new BadRequestException('Invalid or expired OTP');
 
     const hashed = await bcrypt.hash(newPassword, 10);
     await this.usersService.updateUserPassword(email, hashed);
@@ -141,15 +105,8 @@ export class LocalAuthService {
   }
 
   async login(dto: LoginDto) {
-    const email = normalizeEmail(dto.email);
-    if (!email) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const user = await this.userValidationService.validateUserForLogin(
-      email,
+      dto.email,
       dto.password,
     );
 

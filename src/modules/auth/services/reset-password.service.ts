@@ -1,12 +1,16 @@
 // src/modules/auth/services/reset-password.service.ts
-import { Injectable, Logger, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from '@modules/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '@modules/email/email.service';
 import { PasswordResetOtp } from '../models/otp.model';
-import { CustomHttpException } from '@shared/custom.exception';
 
 @Injectable()
 export class ResetPasswordService {
@@ -25,7 +29,7 @@ export class ResetPasswordService {
     const user = await this.usersService.getUserByEmail(email);
     if (!user) {
       this.logger.warn(`OTP requested for non-existing email: ${email}`);
-      throw new CustomHttpException('Email not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Email not found');
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -79,24 +83,13 @@ export class ResetPasswordService {
 
     this.logger.log(`Record found: ${JSON.stringify(record)}`);
 
-    if (!record) {
-      throw new CustomHttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
-    }
-    if (record.isVerified) {
-      throw new CustomHttpException(
-        'OTP has already been verified',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (record.usedAt) {
-      throw new CustomHttpException(
-        'OTP has already been used',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (record.expiresAt < new Date()) {
-      throw new CustomHttpException('OTP has expired', HttpStatus.BAD_REQUEST);
-    }
+    if (!record) throw new BadRequestException('Invalid OTP');
+    if (record.isVerified)
+      throw new BadRequestException('OTP has already been verified');
+    if (record.usedAt)
+      throw new BadRequestException('OTP has already been used');
+    if (record.expiresAt < new Date())
+      throw new BadRequestException('OTP has expired');
 
     // Use TypeORM update so metadata remains consistent
     await this.otpRepo.update({ id: record.id }, { isVerified: true });
@@ -130,27 +123,18 @@ export class ResetPasswordService {
 
     this.logger.log(`Found record: ${JSON.stringify(record)}`);
 
-    if (!record) {
-      throw new CustomHttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
-    }
+    if (!record) throw new BadRequestException('Invalid OTP');
     if (!record.isVerified) {
       this.logger.error(`OTP not verified. isVerified = ${record.isVerified}`);
-      throw new CustomHttpException('OTP not verified', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('OTP not verified');
     }
-    if (record.usedAt) {
-      throw new CustomHttpException(
-        'OTP has already been used',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (record.expiresAt < new Date()) {
-      throw new CustomHttpException('OTP has expired', HttpStatus.BAD_REQUEST);
-    }
+    if (record.usedAt)
+      throw new BadRequestException('OTP has already been used');
+    if (record.expiresAt < new Date())
+      throw new BadRequestException('OTP has expired');
 
     const user = await this.usersService.getUserByEmail(email);
-    if (!user) {
-      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+    if (!user) throw new BadRequestException('User not found');
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.usersService.updateUserPassword(user.id, hashedPassword);

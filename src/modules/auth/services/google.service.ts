@@ -6,7 +6,6 @@ import { UserType } from '@modules/users/types/user';
 import { CustomHttpException } from '@shared/custom.exception';
 import { User } from '@modules/users/models/user.model';
 import { AuthValidationService } from './auth-validation.service';
-import { normalizeEmail } from '@helpers/email.helper';
 
 interface GoogleTokenResponse {
   email?: string;
@@ -66,16 +65,8 @@ export class GoogleAuthService {
         );
       }
 
-      const email = normalizeEmail(data.email);
-      if (!email) {
-        throw new CustomHttpException(
-          'Invalid Google token: missing email',
-          401,
-        );
-      }
-
       return {
-        email,
+        email: data.email,
         name: data.name,
       };
     } catch (error) {
@@ -89,11 +80,7 @@ export class GoogleAuthService {
   private async createOrUpdateUser(
     googleUserData: GoogleUserData,
   ): Promise<User | null> {
-    const email = normalizeEmail(googleUserData.email);
-    if (!email) {
-      throw new CustomHttpException('Email is required', 400);
-    }
-    const { name } = googleUserData;
+    const { email, name } = googleUserData;
 
     // Validate email using validation service
     this.authValidationService.validateUserEmail(email);
