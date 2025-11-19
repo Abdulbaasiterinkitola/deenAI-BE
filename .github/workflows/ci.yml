@@ -6,7 +6,7 @@ on:
 
 jobs:
   ci-checks:
-    runs-on: self-hosted
+    runs-on: hng-13-runner
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
