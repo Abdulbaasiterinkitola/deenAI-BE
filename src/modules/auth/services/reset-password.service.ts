@@ -48,8 +48,8 @@ export class ResetPasswordService {
         'Your OTP for Password Reset',
         'forgot-password',
         {
-          name: fallbackName, // ✅ Add name here
-          otp, // ✅ Keep otp
+          name: fallbackName,
+          otp,
         },
       );
       this.logger.log(`OTP email sent to ${user.email}`);
