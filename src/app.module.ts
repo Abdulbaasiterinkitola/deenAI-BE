@@ -11,6 +11,7 @@ import { UsersModule } from '@modules/users/users.module';
 import { EmailServiceModule } from '@modules/email/email.module';
 import { WaitlistModule } from '@modules/waitlist/waitlist.module';
 import { ReflectionsModule } from '@modules/reflections/reflections.module';
+import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ReflectionsModule } from '@modules/reflections/reflections.module';
     EmailServiceModule,
     WaitlistModule,
     ReflectionsModule,
+    NotificationSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
