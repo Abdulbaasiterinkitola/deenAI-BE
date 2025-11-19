@@ -10,7 +10,6 @@ import UserValidationService from '@modules/users/services/user-validation.servi
 import { AuthValidationService } from './auth-validation.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { StringValue } from 'ms';
 
 @Injectable()
 export class LocalAuthService {

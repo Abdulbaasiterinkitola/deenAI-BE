@@ -130,7 +130,7 @@ export class AuthService {
         data: tokens,
       };
     } catch (e) {
-      throw new UnauthorizedException('Invalid or Expired Refresh Token');
+      throw new UnauthorizedException(`Invalid or Expired Refresh Token ${e}`);
     }
   }
 
