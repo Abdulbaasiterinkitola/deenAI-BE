@@ -27,6 +27,4 @@ export class PasswordResetOtp {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
-
- 
 }
