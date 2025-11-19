@@ -1,5 +1,5 @@
 // src/modules/auth/services/reset-password.service.ts
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from '@modules/users/users.service';
@@ -24,7 +24,7 @@ export class ResetPasswordService {
     const user = await this.usersService.getUserByEmail(email);
     if (!user) {
       this.logger.warn(`OTP requested for non-existing email: ${email}`);
-      return { success: true, message: 'If an account exists, OTP sent' };
+      throw new NotFoundException('Email not found');
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
