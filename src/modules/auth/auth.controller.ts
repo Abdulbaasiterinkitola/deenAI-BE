@@ -5,6 +5,7 @@ import {
   Logger,
   Post,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -21,6 +22,7 @@ import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { ResetPasswordService } from './services/reset-password.service';
 import { AuthGuard } from './guards/auth.guard';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
 @Controller('auth')
 @ApiTags('Authentication')
 export class AuthController {
@@ -76,12 +78,21 @@ export class AuthController {
   }
 
   @HttpCode(200)
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh Access Token' })
+  @ApiResponse({ status: 200, description: 'Tokens refreshed successfully' })
+  async refreshTokens(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshTokens(dto.refreshToken);
+  }
+
+  @HttpCode(200)
   @Post('logout')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user' })
   @ApiResponse({ status: 200, description: 'Successfully logged out' })
-  async logout() {
-    return this.authService.logout();
+  async logout(@Req() req: any) {
+    const user = req.user;
+    return this.authService.logout(user.id);
   }
 }
