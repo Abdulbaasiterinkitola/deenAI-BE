@@ -51,7 +51,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
                   <img
                     src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534286/hello_s31dgb.svg"
                     alt="Welcome illustration"
-                    onError="this.style.display='none'"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     className="w-[180px] h-auto mx-auto"
                   />
                 </div>

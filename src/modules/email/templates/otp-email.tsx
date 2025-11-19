@@ -49,7 +49,7 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
                 <img
                   src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534311/otp_fhtd44.svg"
                   alt="Password Reset illustration"
-                  onError="this.style.display='none'"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   className="w-[180px] h-auto"
                 />
               </div>
