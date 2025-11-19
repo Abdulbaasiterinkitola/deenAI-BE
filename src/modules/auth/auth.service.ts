@@ -71,10 +71,7 @@ export class AuthService {
     const result = await this.localAuthService.login(dto);
     const user = result.data.user;
     const tokens = await this.getTokens(user.id, user.email);
-    await this.userService.setCurrentRefreshToken(
-      tokens.refreshToken,
-      user.id,
-    );
+    await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
     return {
       success: true,
       message: 'Login successful',
@@ -134,7 +131,7 @@ export class AuthService {
     }
   }
 
-  async logout(userId:string) {
+  async logout(userId: string) {
     await this.userService.removeRefreshToken(userId);
     return {
       success: true,

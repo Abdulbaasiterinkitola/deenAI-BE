@@ -41,7 +41,9 @@ export class EmailService {
         return;
       }
     } catch (error) {
-      this.logger.warn(`Queue failed for ${email}, using direct send: ${(error as Error).message}`);
+      this.logger.warn(
+        `Queue failed for ${email}, using direct send: ${(error as Error).message}`,
+      );
     }
 
     // Direct fallback
@@ -54,7 +56,9 @@ export class EmailService {
       });
       this.logger.log(`Email sent directly to ${email}`);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${email}: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to send email to ${email}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
