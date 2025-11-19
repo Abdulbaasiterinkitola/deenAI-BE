@@ -59,7 +59,7 @@ export class ResetPasswordService {
       );
     }
 
-    return { success: true, message: 'If an account exists, OTP sent' };
+    return { success: true, message: 'OTP sent' };
   }
 
   // Verify OTP
