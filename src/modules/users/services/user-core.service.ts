@@ -13,6 +13,8 @@ export default class UserCoreService {
 
   async createUser(createPayload: UserType) {
     await this.userValidationService.createUserValidation(createPayload);
+
+    // ✅ FIXED — must wrap inside { createPayload: ... }
     await this.userModelAction.create({
       createPayload,
     });
@@ -25,6 +27,14 @@ export default class UserCoreService {
 
   async getUserByEmail(email: string) {
     return await this.userModelAction.get({ email });
+  }
+
+  async getUserById(id: string) {
+    return await this.userModelAction.getById(id);
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string) {
+    return await this.userModelAction.updatePassword(id, hashedPassword);
   }
 
   async updateUserAuthProvider(

@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from '@modules/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '@modules/email/email.service';
-import { PasswordResetOtp } from '../entities/password-reset-otp.entity';
+import { PasswordResetOtp } from '../models/otp.model';
 
 @Injectable()
 export class ResetPasswordService {
@@ -40,15 +40,17 @@ export class ResetPasswordService {
 
     await this.otpRepo.save(otpRecord);
 
-    // Directly send email
     const fallbackName = user.name ?? user.email.split('@')[0];
+
     try {
       await this.emailService.sendEmail(
         user.email,
-        fallbackName,
         'Your OTP for Password Reset',
-        'otp-email', // template name
-        { otp }, // variables for template
+        'forgot-password',
+        {
+          name: fallbackName, // ✅ Add name here
+          otp, // ✅ Keep otp
+        },
       );
       this.logger.log(`OTP email sent to ${user.email}`);
     } catch (error) {
@@ -61,8 +63,20 @@ export class ResetPasswordService {
   }
 
   // Verify OTP
+  // inside ResetPasswordService
+
   async verifyOtp(email: string, otp: string) {
-    const record = await this.otpRepo.findOne({ where: { email, otp } });
+    this.logger.log(`Verifying OTP for email: ${email}, otp: ${otp}`);
+
+    // explicitly select the boolean and used_at columns
+    const record = await this.otpRepo
+      .createQueryBuilder('otp')
+      .where('otp.email = :email', { email })
+      .andWhere('otp.otp = :otp', { otp })
+      .addSelect(['otp.is_verified', 'otp.used_at'])
+      .getOne();
+
+    this.logger.log(`Record found: ${JSON.stringify(record)}`);
 
     if (!record) throw new BadRequestException('Invalid OTP');
     if (record.isVerified)
@@ -72,28 +86,58 @@ export class ResetPasswordService {
     if (record.expiresAt < new Date())
       throw new BadRequestException('OTP has expired');
 
-    record.isVerified = true;
-    await this.otpRepo.save(record);
+    // Use TypeORM update so metadata remains consistent
+    await this.otpRepo.update({ id: record.id }, { isVerified: true });
+
+    this.logger.log(
+      `Updated isVerified using repository.update for id: ${record.id}`,
+    );
+
+    // Re-fetch and include the same explicit selects
+    const check = await this.otpRepo
+      .createQueryBuilder('otp')
+      .where('otp.id = :id', { id: record.id })
+      .addSelect(['otp.is_verified', 'otp.used_at'])
+      .getOne();
+
+    this.logger.log(`After update check: ${JSON.stringify(check)}`);
 
     return { success: true, message: 'OTP verified successfully' };
   }
 
-  // Reset password using OTP
   async resetPassword(email: string, otp: string, newPassword: string) {
-    const record = await this.otpRepo.findOne({ where: { email, otp } });
+    this.logger.log(`Reset password attempt for email: ${email}`);
+
+    // explicitly select is_verified and used_at
+    const record = await this.otpRepo
+      .createQueryBuilder('otp')
+      .where('otp.email = :email', { email })
+      .andWhere('otp.otp = :otp', { otp })
+      .addSelect(['otp.is_verified', 'otp.used_at'])
+      .getOne();
+
+    this.logger.log(`Found record: ${JSON.stringify(record)}`);
 
     if (!record) throw new BadRequestException('Invalid OTP');
-    if (!record.isVerified) throw new BadRequestException('OTP not verified');
+    if (!record.isVerified) {
+      this.logger.error(`OTP not verified. isVerified = ${record.isVerified}`);
+      throw new BadRequestException('OTP not verified');
+    }
     if (record.usedAt)
       throw new BadRequestException('OTP has already been used');
     if (record.expiresAt < new Date())
       throw new BadRequestException('OTP has expired');
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this.usersService.updateUserPassword(email, hashedPassword);
+    const user = await this.usersService.getUserByEmail(email);
+    if (!user) throw new BadRequestException('User not found');
 
-    record.usedAt = new Date();
-    await this.otpRepo.save(record);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.usersService.updateUserPassword(user.id, hashedPassword);
+
+    // Use repository.update for usedAt
+    await this.otpRepo.update({ id: record.id }, {
+      usedAt: () => 'NOW()',
+    } as any);
 
     return { success: true, message: 'Password has been successfully reset' };
   }

@@ -9,9 +9,9 @@ export class EmailServiceController {
   async sendEmail(@Body() dto: EmailDto) {
     await this.emailServiceService.sendEmail(
       dto.email,
-      dto.name,
       dto.subject,
       dto.template,
+      { name: dto.name },
     );
     return {
       success: true,

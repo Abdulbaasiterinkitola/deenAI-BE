@@ -3,10 +3,12 @@ import * as nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import * as path from 'path';
 import { render } from '@react-email/render';
-import { WelcomeEmail } from '@hng-sdk/email';
+import React from 'react';
+import WaitlistEmail from './templates/waitlist-email';
+import WelcomeEmail from './templates/welcome-email';
+import { Job } from 'bull';
+import OtpEmail from './templates/otp-email';
 
 type MailTransporter = {
   sendMail(
@@ -14,6 +16,20 @@ type MailTransporter = {
   ): Promise<SMTPTransport.SentMessageInfo>;
 };
 
+// Template mapping: maps template names to HNG SDK email components
+type TemplateProps = {
+  [key: string]: any;
+};
+
+type EmailTemplate =
+  | React.FC<TemplateProps>
+  | ((props: TemplateProps) => React.ReactElement);
+
+const TEMPLATE_MAP: Record<string, EmailTemplate> = {
+  waitlist: WaitlistEmail,
+  welcome: WelcomeEmail,
+  'forgot-password': OtpEmail,
+};
 
 @Processor('email')
 export class ProcessMail {
@@ -22,6 +38,11 @@ export class ProcessMail {
   private readonly defaultFrom: string;
 
   constructor(private configService: ConfigService) {
+    this.logger.log(
+      'ProcessMail processor initialized and ready to process email jobs',
+    );
+    this.logger.log('Processor is listening for jobs on queue: email');
+
     const host =
       this.configService.get<string>('SMTP_HOST') ||
       this.configService.get<string>('MAIL_HOST');
@@ -51,72 +72,136 @@ export class ProcessMail {
     const transportOptions: SMTPTransport.Options = {
       host,
       port,
-      secure: false, // true for 465
+      secure: false, // True for 465, false for other ports
       auth: { user, pass },
     };
 
     const nodemailerModule = nodemailer as unknown as {
       createTransport(options: SMTPTransport.Options): MailTransporter;
     };
+
     this.transport = nodemailerModule.createTransport(transportOptions);
   }
 
-  /**
-   * Load HTML template and replace variables.
-   */
-  private loadTemplate(
+  // Renders HNG SDK email template to HTML
+  private async renderHngTemplate(
     templateName: string,
-    variables: Record<string, string> = {},
-  ): string {
-    const templatePath = path.join(
-      __dirname,
-      'templates',
-      `${templateName}.html`,
-    );
-    let template = fs.readFileSync(templatePath, 'utf8');
-
-    Object.entries(variables).forEach(([key, value]) => {
-      const regex = new RegExp(`{{${key}}}`, 'g');
-      template = template.replace(regex, value);
-    });
-
-    return template;
-  }
-
-  /**
-   * Process Bull job to send email
-   */
-  @Process('email')
-  async sendEmail(
-    email: string,
-    name: string,
-    subject: string,
-    template: string,
-    variables: Record<string, string> = {},
-  ): Promise<void> {
+    variables: Record<string, any>,
+  ): Promise<string> {
     try {
-      // HNG SDK compliance rendering for welcome emails
-      if (template === 'welcome-email') {
-        await render(WelcomeEmail({ username: name }));
+      this.logger.debug(`Rendering template: ${templateName}`);
+      const EmailComponent = TEMPLATE_MAP[templateName];
+
+      if (!EmailComponent) {
+        throw new Error(
+          `Template "${templateName}" not found. Available templates: ${Object.keys(
+            TEMPLATE_MAP,
+          ).join(', ')}`,
+        );
       }
 
-      // Merge `name` with other variables for template rendering
-      const htmlContent = this.loadTemplate(template, { name, ...variables });
+      // Pass all variables directly to the component
+      const props: TemplateProps = { ...variables };
 
+      this.logger.debug(
+        `Creating React element with props: ${JSON.stringify(props)}`,
+      );
+
+      const reactElement = React.createElement(EmailComponent, props);
+      const htmlContent = await render(reactElement);
+
+      this.logger.debug(
+        `Template rendered successfully, HTML length: ${htmlContent.length}`,
+      );
+      return htmlContent;
+    } catch (error) {
+      this.logger.error(
+        `Failed to render template "${templateName}": ${(error as Error).message}`,
+      );
+      this.logger.error(`Stack trace: ${(error as Error).stack}`);
+      throw error;
+    }
+  }
+
+  // Sends an email using the Bull queue
+  @Process('email')
+  async sendEmail(job: Job): Promise<void> {
+    this.logger.log(`[QUEUE PROCESSOR] Processing email job: ${job.id}`);
+    this.logger.log(`[QUEUE PROCESSOR] Job data: ${JSON.stringify(job.data)}`);
+
+    const { subject, email, context, template } = job.data as {
+      subject: string;
+      email: string;
+      template: string;
+      context: Record<string, any>;
+    };
+
+    this.logger.log(
+      `[QUEUE PROCESSOR] Email job data - email: ${email}, template: ${template}, subject: ${subject}`,
+    );
+
+    try {
+      // Spread all context variables including OTP
+      this.logger.log(`Starting template rendering for ${email}...`);
+      const htmlContent = await this.renderHngTemplate(template, {
+        ...context,
+      });
+      this.logger.log(`Template rendered successfully for ${email}`);
+
+      this.logger.log(`Sending email to ${email} via SMTP...`);
       await this.transport.sendMail({
         from: this.defaultFrom,
         to: email,
         subject,
         html: htmlContent,
       });
-
       this.logger.log(
-        `Email sent successfully to ${email} using template "${template}"`,
+        `Email sent successfully to ${email} via SMTP using template: ${template}`,
       );
     } catch (error) {
       this.logger.error(
         `Failed to send email to ${email}: ${(error as Error).message}`,
       );
+      this.logger.error(`Error stack: ${(error as Error).stack}`);
+      throw error;
+    }
+  }
+
+  // Direct send method (bypasses queue)
+  // Change the sendEmailDirectly method signature
+  async sendEmailDirectly(data: {
+    email: string;
+    subject: string;
+    template: string;
+    [key: string]: any; // This allows any additional properties
+  }): Promise<void> {
+    const { subject, email, template, ...rest } = data;
+
+    this.logger.log(
+      `Sending email directly - email: ${email}, template: ${template}, subject: ${subject}`,
+    );
+
+    try {
+      this.logger.log(`Starting template rendering for ${email}...`);
+      // Spread all variables including OTP, name, etc.
+      const htmlContent = await this.renderHngTemplate(template, { ...rest });
+      this.logger.log(`Template rendered successfully for ${email}`);
+
+      this.logger.log(`Sending email to ${email} via SMTP...`);
+      await this.transport.sendMail({
+        from: this.defaultFrom,
+        to: email,
+        subject,
+        html: htmlContent,
+      });
+      this.logger.log(
+        `Email sent successfully to ${email} via SMTP using template: ${template}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send email directly to ${email}: ${(error as Error).message}`,
+      );
+      this.logger.error(`Error stack: ${(error as Error).stack}`);
       throw error;
     }
   }

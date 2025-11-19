@@ -7,35 +7,34 @@ import { GoogleAuthService } from './services/google.service';
 import { AuthValidationService } from './services/auth-validation.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { StringValue } from 'ms';
-import { AuthGuard } from './guards/auth.guard';
-import { ResetPasswordService } from './services/reset-password.service';
-import { User } from '@modules/users/models/user.model';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PasswordResetOtp } from './entities/password-reset-otp.entity';
 import { EmailServiceModule } from '@modules/email/email.module';
+import { AuthGuard } from './guards/auth.guard';
+import { OtpService } from './services/otp.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ResetPasswordService } from './services/reset-password.service';
+import { PasswordResetOtp } from './models/otp.model';
 
 @Module({
   controllers: [AuthController],
-
   providers: [
     AuthService,
     LocalAuthService,
     GoogleAuthService,
-    AuthValidationService,
-    ResetPasswordService,
     AuthGuard,
+    OtpService,
+    ResetPasswordService,
+    AuthValidationService,
   ],
   imports: [
-     TypeOrmModule.forFeature([User, PasswordResetOtp]),
-    UsersModule,
     EmailServiceModule,
+    UsersModule,
+    TypeOrmModule.forFeature([PasswordResetOtp]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('auth.jwtSecret'),
         signOptions: {
-          expiresIn: configService.get<StringValue>('auth.jwtExpiry'),
+          expiresIn: configService.get<string>('auth.jwtExpiry') as any,
         },
       }),
       inject: [ConfigService],

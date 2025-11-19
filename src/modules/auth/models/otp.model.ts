@@ -17,18 +17,18 @@ export class PasswordResetOtp {
   @Column()
   otp: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ name: 'expires_at', type: 'timestamp' })
   expiresAt: Date;
 
-  @Column({ default: false })
+  @Column({ name: 'is_verified', default: false, select: true })
   isVerified: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'used_at', type: 'timestamp', nullable: true })
   usedAt: Date | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

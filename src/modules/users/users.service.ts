@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 export class UsersService {
   constructor(
     private readonly userCoreService: UserCoreService,
-     @InjectRepository(User)
+    @InjectRepository(User)
     private readonly userRepo: Repository<User>,
   ) {}
 
@@ -21,13 +21,12 @@ export class UsersService {
   async getUserByEmail(email: string) {
     return await this.userCoreService.getUserByEmail(email);
   }
-  async updateUserPassword(email: string, newPassword: string): Promise<void> {
-    const user = await this.getUserByEmail(email);
-    if (!user) throw new NotFoundException('User not found');
+  async getUserById(id: string) {
+    return await this.userCoreService.getUserById(id);
+  }
 
-    // If you want, you can hash here again, but ideally pass hashedPassword from service
-    user.password = newPassword;
-    await this.userRepo.save(user);
+  async updateUserPassword(id: string, hashedPassword: string) {
+    return await this.userCoreService.updateUserPassword(id, hashedPassword);
   }
 
   async updateUserAuthProvider(

@@ -2,13 +2,10 @@ import { Body, Controller, HttpCode, Logger, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
-import { RegisterDocs } from './docs/register.doc';
-import { LoginDocs } from './docs/login.doc';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
-import { GoogleAuthDocs } from './docs/google-auth.doc';
-import { RequestOtpDto } from './dtos/request-otp.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { ResetPasswordService } from './services/reset-password.service';
 
@@ -23,21 +20,18 @@ export class AuthController {
 
   @HttpCode(201)
   @Post('/register')
-  @RegisterDocs.register()
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
   }
 
   @HttpCode(200)
   @Post('/login')
-  @LoginDocs.login()
   async login(@Body() user: LoginBodyValidator) {
     return await this.authService.login(user);
   }
 
   @HttpCode(200)
-  @Post('google')
-  @GoogleAuthDocs.googleAuth()
+  @Post('/google')
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
     return await this.authService.googleLogin(googleAuthDto.idToken);
   }

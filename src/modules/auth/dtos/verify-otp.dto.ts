@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class VerifyOtpDto {
   @ApiProperty({
-    description: 'The email of the user',
+    description: 'Email of the user to verify OTP for',
     example: 'user@example.com',
   })
   @IsEmail()
@@ -11,7 +11,7 @@ export class VerifyOtpDto {
   email: string;
 
   @ApiProperty({
-    description: 'The OTP sent to the user email',
+    description: 'OTP to verify',
     example: '123456',
     minLength: 6,
     maxLength: 6,
