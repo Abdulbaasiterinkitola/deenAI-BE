@@ -8,9 +8,11 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 export interface Response<T> {
   success: boolean;
+  status: 'success' | 'error';
   message: string;
   data?: T;
   meta?: unknown;
+  status_code?: number;
 }
 
 const isResponsePayload = <T>(payload: unknown): payload is Response<T> => {
@@ -21,6 +23,8 @@ const isResponsePayload = <T>(payload: unknown): payload is Response<T> => {
   return (
     'success' in payload &&
     typeof (payload as Response<T>).success === 'boolean' &&
+    'status' in payload &&
+    typeof (payload as Response<T>).status === 'string' &&
     'message' in payload &&
     typeof (payload as Response<T>).message === 'string'
   );
@@ -38,10 +42,15 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
           return payload;
         }
 
+        const response = context.switchToHttp().getResponse();
+        const statusCode = response.statusCode || 200;
+        
         return {
           success: true,
+          status: 'success',
           message: 'Operation successful',
           data: payload,
+          status_code: statusCode,
         };
       }),
     );

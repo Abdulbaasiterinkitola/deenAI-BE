@@ -25,9 +25,11 @@ export class UsersController {
     const profileData = this.usersService.getUserProfile(user);
     return {
       success: true,
+      status: 'success',
       data: profileData,
       message: 'User profile retrieved successfully',
       meta: null,
+      status_code: 200,
     };
   }
 }

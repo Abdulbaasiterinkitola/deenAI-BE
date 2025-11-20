@@ -67,8 +67,10 @@ export class WaitlistController {
       const data = await this.service.register(body);
       return {
         success: true,
+        status: 'success',
         message: 'Waitlist registration successful',
         data,
+        status_code: 201,
       };
     } catch (error) {
       this.logger.error(
