@@ -18,14 +18,14 @@ class EnvironmentVariables {
   NODE_ENV: Environment = Environment.Development;
 
   @IsNumber()
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => parseInt(value as string, 10))
   PORT: number = 3000;
 
   @IsString()
   DB_HOST: string = 'localhost';
 
   @IsNumber()
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => parseInt(value as string, 10))
   DB_PORT: number = 5432;
 
   @IsString()
@@ -49,7 +49,7 @@ class EnvironmentVariables {
   SMTP_HOST?: string;
 
   @IsNumber()
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => parseInt(value as string, 10))
   @IsOptional()
   SMTP_PORT?: number = 587;
 

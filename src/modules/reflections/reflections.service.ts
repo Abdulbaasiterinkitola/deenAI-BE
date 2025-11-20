@@ -6,6 +6,7 @@ import {
   ReflectionQueryType,
 } from './types/reflection';
 import { Reflection } from './models/reflection.model';
+import { PaginationMeta } from '@shared/helpers/pagination.helper';
 
 /**
  * Service for handling reflection operations
@@ -27,10 +28,7 @@ export class ReflectionsService {
     createPayload: CreateReflectionType,
     userId: string,
   ): Promise<Reflection> {
-    return await this.reflectionsCoreService.createReflection(
-      createPayload,
-      userId,
-    );
+    return this.reflectionsCoreService.createReflection(createPayload, userId);
   }
 
   /**
@@ -40,7 +38,7 @@ export class ReflectionsService {
    * @returns The reflection if found and belongs to the user
    */
   async getReflectionById(id: string, userId: string): Promise<Reflection> {
-    return await this.reflectionsCoreService.getReflectionById(id, userId);
+    return this.reflectionsCoreService.getReflectionById(id, userId);
   }
 
   /**
@@ -55,7 +53,7 @@ export class ReflectionsService {
     updatePayload: UpdateReflectionType,
     userId: string,
   ): Promise<Reflection> {
-    return await this.reflectionsCoreService.updateReflection(
+    return this.reflectionsCoreService.updateReflection(
       id,
       updatePayload,
       userId,
@@ -68,7 +66,7 @@ export class ReflectionsService {
    * @param userId - The ID of the user deleting the reflection
    */
   async deleteReflection(id: string, userId: string): Promise<void> {
-    return await this.reflectionsCoreService.deleteReflection(id, userId);
+    return this.reflectionsCoreService.deleteReflection(id, userId);
   }
 
   /**
@@ -80,7 +78,10 @@ export class ReflectionsService {
   async getUserReflections(
     userId: string,
     query: ReflectionQueryType,
-  ): Promise<{ payload: Reflection[]; paginationMeta: any }> {
-    return await this.reflectionsCoreService.getUserReflections(userId, query);
+  ): Promise<{
+    payload: Reflection[];
+    paginationMeta: Partial<PaginationMeta>;
+  }> {
+    return this.reflectionsCoreService.getUserReflections(userId, query);
   }
 }
