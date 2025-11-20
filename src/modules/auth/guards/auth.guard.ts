@@ -62,6 +62,8 @@ export class AuthGuard implements CanActivate {
       throw new CustomHttpException('User not found', 404);
     }
 
+   
+
     request.user = user;
 
     return true;
