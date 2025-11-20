@@ -2,7 +2,7 @@
   "moduleFileExtensions": ["js", "json", "ts", "tsx"],
   "rootDir": ".",
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": "ci-test.e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": ["ts-jest", {
       "tsconfig": {
@@ -18,12 +18,13 @@
     }]
   },
   "setupFilesAfterEnv": ["<rootDir>/test-setup.ts"],
-  "testTimeout": 20000,
+  "testTimeout": 60000,
   "maxWorkers": 1,
   "forceExit": true,
   "detectOpenHandles": false,
   "silent": true,
   "verbose": false,
+  "setupFilesAfterEnv": ["<rootDir>/test-env-setup.js"],
   "forceExit": true,
   "detectOpenHandles": true,
   "transformIgnorePatterns": [

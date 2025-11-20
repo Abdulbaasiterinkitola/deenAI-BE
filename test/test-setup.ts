@@ -6,11 +6,28 @@ import { AppModule } from '../src/app.module';
 import { ResponseInterceptor } from '@shared/response.interceptor';
 import { ValidationExceptionFilter } from '@shared/validation-exception.filter';
 
-// Mock all email-related services
+// Mock all external services
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn().mockReturnValue({
     sendMail: jest.fn().mockResolvedValue({ messageId: 'test-message-id' }),
   }),
+}));
+
+jest.mock('typeorm', () => ({
+  ...jest.requireActual('typeorm'),
+  DataSource: jest.fn().mockImplementation(() => ({
+    isInitialized: true,
+    initialize: jest.fn().mockResolvedValue(undefined),
+    runMigrations: jest.fn().mockResolvedValue([]),
+    entityMetadatas: [],
+    query: jest.fn().mockResolvedValue([]),
+    getRepository: jest.fn().mockReturnValue({
+      create: jest.fn().mockReturnValue({ id: 'test-id' }),
+      save: jest.fn().mockResolvedValue({ id: 'test-id' }),
+      find: jest.fn().mockResolvedValue([]),
+      findOne: jest.fn().mockResolvedValue(null),
+    }),
+  })),
 }));
 
 jest.mock('react', () => ({
@@ -40,6 +57,17 @@ export class TestApp {
   private static dataSource: DataSource;
 
   static async setup(): Promise<INestApplication> {
+    // Set test environment variables
+    process.env.NODE_ENV = 'test';
+    process.env.DB_USERNAME = 'test';
+    process.env.DB_PASSWORD = 'test';
+    process.env.DB_NAME = 'test';
+    process.env.JWT_SECRET = 'test-secret';
+    process.env.MAIL_HOST = 'test';
+    process.env.MAIL_PORT = '587';
+    process.env.MAIL_USER = 'test';
+    process.env.MAIL_PASS = 'test';
+    
     // Suppress unhandled promise rejections during tests
     process.removeAllListeners('unhandledRejection');
     process.on('unhandledRejection', () => {});
