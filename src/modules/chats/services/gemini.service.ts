@@ -22,23 +22,49 @@ You are an Islamic AI assistant. Please follow these guidelines strictly:
 @Injectable()
 export class GeminiService {
   private readonly logger = new Logger(GeminiService.name);
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI: GoogleGenerativeAI | null = null;
+  private model: any = null;
+  private readonly apiKey: string | undefined;
 
   constructor(private readonly configService: ConfigService) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    this.apiKey = this.configService.get<string>('GEMINI_API_KEY');
 
-    if (!apiKey) {
+    if (!this.apiKey) {
+      this.logger.warn(
+        'GEMINI_API_KEY is not configured. AI chat features will be unavailable.',
+      );
+    } else {
+      this.initializeGemini();
+    }
+  }
+
+  /**
+   * Initializes the Gemini AI client
+   * @throws {CustomHttpException} If API key is not configured
+   */
+  private initializeGemini(): void {
+    if (!this.apiKey) {
       throw new CustomHttpException(
         'Gemini API key is not configured',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
 
-    this.genAI = new GoogleGenerativeAI(apiKey);
+    this.genAI = new GoogleGenerativeAI(this.apiKey);
     this.model = this.genAI.getGenerativeModel({
       model: 'gemini-2.0-flash-001',
     });
+  }
+
+  /**
+   * Checks if Gemini API is available
+   * @returns true if API key is configured, false otherwise
+   */
+  private isAvailable(): boolean {
+    if (!this.apiKey || !this.genAI || !this.model) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -46,11 +72,19 @@ export class GeminiService {
    * @param messages - Array of chat messages (last 4 messages for context)
    * @param userMessage - The current user message
    * @returns The AI-generated response
+   * @throws {CustomHttpException} If API key is not configured
    */
   async generateResponse(
     messages: ChatMessage[],
     userMessage: string,
   ): Promise<string> {
+    if (!this.isAvailable()) {
+      throw new CustomHttpException(
+        'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
     try {
       // Build conversation history from previous messages
       const conversationHistory = messages.map((msg) => ({
@@ -120,6 +154,16 @@ export class GeminiService {
    * @returns A short, descriptive title (max 50 characters)
    */
   async generateTitle(userMessage: string): Promise<string> {
+    if (!this.isAvailable()) {
+      // Fallback to a truncated version of the message if API is not available
+      this.logger.warn(
+        'Gemini API not available, using fallback title generation',
+      );
+      return userMessage.length > 50
+        ? userMessage.substring(0, 47) + '...'
+        : userMessage;
+    }
+
     try {
       const prompt = `Based on this user message, generate a short, descriptive title (maximum 50 characters) for an Islamic chat conversation. The title should be concise and reflect the main topic. Only return the title, nothing else.
 
