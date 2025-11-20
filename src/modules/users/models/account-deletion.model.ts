@@ -8,6 +8,9 @@ export class AccountDeletionCode {
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
+  @Column({ type: 'varchar', length: 255 })
+  email: string;
+
   @Column({ type: 'varchar', length: 4 })
   code: string;
 
