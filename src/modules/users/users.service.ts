@@ -175,6 +175,45 @@ export class UsersService {
         user.email,
       );
 
-    return isVerified;
+    if (!isVerified) {
+      return {
+        success: false,
+        message: 'Invalid or expired OTP',
+      };
+    }
+
+    // Delete user account
+    await this.userRepo.delete(user.id);
+
+    this.logger.log(`User account deleted for user ID: ${user.id}`);
+
+    // Delete user notification settings
+    await this.notificationSettingsService.deleteUserNotificationSettings(
+      user.id,
+    );
+
+    // Send account deletion confirmation email
+    try {
+      await this.emailService.sendEmail(
+        user.email,
+        'Account Deleted Successfully',
+        'account-deletion-complete',
+        { name: user.name },
+      );
+      this.logger.log(
+        `Account deletion confirmation email sent to ${user.email}`,
+      );
+    } catch (err) {
+      this.logger.error(
+        `Failed to send account deletion confirmation email to ${user.email}: ${
+          (err as Error).message
+        }`,
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Account deleted successfully',
+    };
   }
 }

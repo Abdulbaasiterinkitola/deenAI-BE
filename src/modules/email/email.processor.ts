@@ -11,6 +11,7 @@ import { Job } from 'bull';
 import OtpEmail from './templates/otp-email';
 import PasswordResetSuccessEmail from './templates/password-reset-success';
 import VerificationCodeEmail from './templates/verification-code';
+import AccountDeletionCompleteEmail from './templates/account-deletion-complete';
 
 type MailTransporter = {
   sendMail(
@@ -34,6 +35,7 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   'password-reset-success': PasswordResetSuccessEmail,
   'email-verification': VerificationCodeEmail,
   'account-deletion': OtpEmail,
+  'account-deletion-complete': AccountDeletionCompleteEmail,
 };
 
 @Processor('email')

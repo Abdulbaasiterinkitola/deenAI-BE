@@ -4,8 +4,9 @@ import {
   ClassSerializerInterceptor,
   HttpCode,
   HttpStatus,
+  Body,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 
@@ -81,6 +82,7 @@ export class UsersController {
     description:
       "Confirms the deletion of a user account after verifying the OTP sent to the user's email.",
   })
+  @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: 200,
     description: 'Account successfully deleted',
@@ -103,5 +105,23 @@ export class UsersController {
       },
     },
   })
-  async confirmAccountDeletion() {}
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        otp: {
+          type: 'string',
+          description: 'The OTP code sent to the user email for verification',
+          example: '123456',
+        },
+      },
+      required: ['otp'],
+    },
+  })
+  async confirmAccountDeletion(
+    @AuthUser() user: User,
+    @Body('otp') otp: string,
+  ) {
+    return await this.usersService.confirmAccountDeletion(user, otp);
+  }
 }
