@@ -2,8 +2,10 @@
  * Type definition for creating a new reflection
  */
 export type CreateReflectionType = {
+  surah: number;
+  startAyah: number;
+  endAyah: number;
   content: string;
-  userId: string;
 };
 
 /**
@@ -28,6 +30,9 @@ export type ReflectionQueryType = {
 export type ReflectionResponseType = {
   id: string;
   content: string;
+  surah: number;
+  startAyah: number;
+  endAyah: number;
   userId: string;
   createdAt: Date;
   updatedAt: Date;

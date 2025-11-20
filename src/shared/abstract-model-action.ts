@@ -10,6 +10,10 @@ import {
   FindOptionsOrder,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import {
+  computePaginationMeta,
+  PaginationMeta,
+} from '@shared/helpers/pagination.helper';
 
 export interface CreateRecordGeneric<T> {
   createPayload: T;
@@ -34,15 +38,6 @@ export interface DeleteRecordGeneric<T> {
     useTransaction: boolean;
     transaction?: EntityManager;
   };
-}
-
-export interface PaginationMeta {
-  total: number;
-  limit: number;
-  page: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
 }
 
 export interface ListRecordGeneric<T> {
@@ -155,18 +150,9 @@ export abstract class AbstractModelAction<T extends ObjectLiteral> {
       skip,
     } as FindManyOptions<T>);
 
-    const totalPages = Math.ceil(total / limit);
-
     return {
       payload,
-      paginationMeta: {
-        total,
-        limit,
-        page,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrevious: page > 1,
-      },
+      paginationMeta: computePaginationMeta(total, limit, page),
     };
   }
 

@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,9 +24,11 @@ import {
   ReflectionQueryDto,
   ReflectionIdDto,
 } from './dtos/reflection.dto';
+import { AuthGuard } from '@modules/auth/guards/auth.guard';
 
 @ApiTags('reflections')
 @ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('reflections')
 export class ReflectionsController {
   constructor(private readonly reflectionsService: ReflectionsService) {}
@@ -94,8 +97,8 @@ export class ReflectionsController {
   async deleteReflection(
     @Param() params: ReflectionIdDto,
     @Request() req: any,
-  ): Promise<any> {
-    const userId = req.user?.id;
+  ) {
+    const userId = req.user?.id as string;
     await this.reflectionsService.deleteReflection(params.id, userId);
 
     return {
@@ -149,12 +152,9 @@ export class ReflectionsController {
     @Body() createReflectionDto: CreateReflectionDto,
     @Request() req: any,
   ): Promise<any> {
-    const userId = req.user?.id;
+    const userId = req.user?.id as string;
     const reflection = await this.reflectionsService.createReflection(
-      {
-        content: createReflectionDto.content,
-        userId,
-      },
+      createReflectionDto,
       userId,
     );
 
@@ -208,8 +208,8 @@ export class ReflectionsController {
   async getUserReflections(
     @Query() query: ReflectionQueryDto,
     @Request() req: any,
-  ): Promise<any> {
-    const userId = req.user?.id;
+  ) {
+    const userId = req.user?.id as string;
     const result = await this.reflectionsService.getUserReflections(
       userId,
       query,
@@ -258,8 +258,8 @@ export class ReflectionsController {
   async getReflectionById(
     @Param() params: ReflectionIdDto,
     @Request() req: any,
-  ): Promise<any> {
-    const userId = req.user?.id;
+  ) {
+    const userId = req.user?.id as string;
     const reflection = await this.reflectionsService.getReflectionById(
       params.id,
       userId,
@@ -308,13 +308,11 @@ export class ReflectionsController {
     @Param() params: ReflectionIdDto,
     @Body() updateReflectionDto: UpdateReflectionDto,
     @Request() req: any,
-  ): Promise<any> {
-    const userId = req.user?.id;
+  ) {
+    const userId = req.user?.id as string;
     const reflection = await this.reflectionsService.updateReflection(
       params.id,
-      {
-        content: updateReflectionDto.content,
-      },
+      updateReflectionDto,
       userId,
     );
 

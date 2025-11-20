@@ -40,8 +40,9 @@ export class NotificationSettingsController {
       throw new UnauthorizedException('User not authenticated');
     }
 
-    const settings =
-      await this.notificationSettingsService.findByUserId(userId);
+    const settings = await this.notificationSettingsService.findByUserId(
+      userId as string,
+    );
 
     if (!settings) {
       throw new NotFoundException('Notification settings not found');
