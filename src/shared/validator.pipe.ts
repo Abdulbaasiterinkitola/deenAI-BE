@@ -17,13 +17,18 @@ const primitiveTypes: ClassType[] = [String, Boolean, Number, Array, Object];
 export class ValidationPipe implements PipeTransform<unknown> {
   async transform(
     value: unknown,
-    { metatype }: ArgumentMetadata,
+    { metatype, type }: ArgumentMetadata,
   ): Promise<unknown> {
-    if (!metatype || !this.shouldValidate(metatype)) {
+    if (!metatype || !this.shouldValidate(metatype) || type === 'custom') {
+      return value;
+    }
+
+    if (typeof value !== 'object' || value === null) {
       return value;
     }
 
     const objectInstance = plainToInstance(metatype, value);
+
     const errors = await validate(objectInstance);
 
     if (errors.length > 0) {

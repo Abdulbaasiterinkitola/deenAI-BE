@@ -6,6 +6,9 @@ import { Repository } from 'typeorm';
 import { User } from './models/user.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserProfileDto } from './dtos/user-profile.dto';
+
+
 import { NotificationSettingsService } from '@modules/notification-settings/notification-settings.service';
 import { CustomHttpException } from '@shared/custom.exception';
 @Injectable()
@@ -67,7 +70,7 @@ export class UsersService {
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'email', 'currentRefreshToken'], // Explicitly select the hidden column
+      select: ['id', 'email', 'currentRefreshToken'],
     });
 
     const isRefreshTokenMatching = await bcrypt.compare(
@@ -85,5 +88,9 @@ export class UsersService {
     return this.userRepo.update(userId, {
       currentRefreshToken: null,
     });
+  }
+
+  getUserProfile(user: User): UserProfileDto {
+    return UserProfileDto.fromEntity(user);
   }
 }

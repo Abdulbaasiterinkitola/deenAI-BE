@@ -29,14 +29,14 @@ export class AuthService {
         { sub: userId, email },
         {
           secret: this.configService.get<string>('auth.JWT_SECRET')!,
-          expiresIn: '15m', //this.configService.get<string>('auth.JWT_TIMEFRAME',) as any,
+          expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
         { sub: userId, email },
         {
           secret: this.configService.get<string>('auth.refreshSecret')!,
-          expiresIn: '7d', //this.configService.get<string>('auth.refreshExp') as any,
+          expiresIn: '7d',
         },
       ),
     ]);
