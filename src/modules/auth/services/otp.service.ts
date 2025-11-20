@@ -1,9 +1,10 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { PasswordResetOtp } from '../models/otp.model';
 import { normalizeEmail } from '@helpers/email.helper';
+import { CustomHttpException } from '@shared/custom.exception';
 
 @Injectable()
 export class OtpService {
@@ -15,7 +16,10 @@ export class OtpService {
   async generateOtp(email: string, ttlMinutes = 10): Promise<string> {
     const normalizedEmail = normalizeEmail(email);
     if (!normalizedEmail) {
-      throw new BadRequestException('Email is required');
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -36,7 +40,10 @@ export class OtpService {
   async validateOtp(email: string, otp: string): Promise<boolean> {
     const normalizedEmail = normalizeEmail(email);
     if (!normalizedEmail) {
-      throw new BadRequestException('Email is required');
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const record = await this.otpRepo.findOne({
