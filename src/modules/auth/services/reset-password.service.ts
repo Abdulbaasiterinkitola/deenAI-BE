@@ -1,16 +1,12 @@
 // src/modules/auth/services/reset-password.service.ts
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from '@modules/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '@modules/email/email.service';
 import { PasswordResetOtp } from '../models/otp.model';
+import { normalizeEmail } from '@helpers/email.helper';
 
 @Injectable()
 export class ResetPasswordService {
@@ -26,17 +22,24 @@ export class ResetPasswordService {
 
   // Generate OTP and send email
   async requestOtp(email: string) {
-    const user = await this.usersService.getUserByEmail(email);
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new BadRequestException('Email is required');
+    }
+
+    const user = await this.usersService.getUserByEmail(normalizedEmail);
     if (!user) {
-      this.logger.warn(`OTP requested for non-existing email: ${email}`);
-      throw new NotFoundException('Email not found');
+      this.logger.warn(
+        `OTP requested for non-existing email: ${normalizedEmail}`,
+      );
+      throw new BadRequestException('Email not found');
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const otpRecord = this.otpRepo.create({
-      email,
+      email: normalizedEmail,
       otp,
       expiresAt,
       isVerified: false,
@@ -71,12 +74,17 @@ export class ResetPasswordService {
   // inside ResetPasswordService
 
   async verifyOtp(email: string, otp: string) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new BadRequestException('Email is required');
+    }
+
     this.logger.log(`Verifying OTP for email: ${email}, otp: ${otp}`);
 
     // explicitly select the boolean and used_at columns
     const record = await this.otpRepo
       .createQueryBuilder('otp')
-      .where('otp.email = :email', { email })
+      .where('otp.email = :email', { email: normalizedEmail })
       .andWhere('otp.otp = :otp', { otp })
       .addSelect(['otp.is_verified', 'otp.used_at'])
       .getOne();
@@ -111,12 +119,17 @@ export class ResetPasswordService {
   }
 
   async resetPassword(email: string, otp: string, newPassword: string) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new BadRequestException('Email is required');
+    }
+
     this.logger.log(`Reset password attempt for email: ${email}`);
 
     // explicitly select is_verified and used_at
     const record = await this.otpRepo
       .createQueryBuilder('otp')
-      .where('otp.email = :email', { email })
+      .where('otp.email = :email', { email: normalizedEmail })
       .andWhere('otp.otp = :otp', { otp })
       .addSelect(['otp.is_verified', 'otp.used_at'])
       .getOne();
@@ -133,7 +146,7 @@ export class ResetPasswordService {
     if (record.expiresAt < new Date())
       throw new BadRequestException('OTP has expired');
 
-    const user = await this.usersService.getUserByEmail(email);
+    const user = await this.usersService.getUserByEmail(normalizedEmail);
     if (!user) throw new BadRequestException('User not found');
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

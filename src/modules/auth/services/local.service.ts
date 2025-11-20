@@ -10,6 +10,7 @@ import UserValidationService from '@modules/users/services/user-validation.servi
 import { AuthValidationService } from './auth-validation.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { normalizeEmail } from '@helpers/email.helper';
 
 @Injectable()
 export class LocalAuthService {
@@ -26,14 +27,16 @@ export class LocalAuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    // Validate email using validation service
+    const email = normalizeEmail(dto.email);
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
 
-    // Check if user already exists
-    const existingUser = await this.usersService.getUserByEmail(dto.email);
+    const existingUser = await this.usersService.getUserByEmail(email);
 
     // Validate user creation using validation service
     this.authValidationService.validateUserCreation(
-      dto.email,
+      email,
       AuthProvider.LOCAL,
       existingUser,
     );
@@ -41,23 +44,23 @@ export class LocalAuthService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const userData = {
       name: dto.name,
-      email: dto.email,
+      email,
       password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: false,
     };
     await this.usersService.createUser(userData);
-    await this.emailService.sendEmail(
-      dto.email,
-      'Welcome to DeenAI',
-      'welcome',
-      { name: dto.name || 'User' },
-    );
+    await this.emailService.sendEmail(email, 'Welcome to DeenAI', 'welcome', {
+      name: dto.name || 'User',
+    });
     return { success: true, message: 'User registered successfully' };
   }
 
   async requestPasswordReset(dto: { email: string }) {
-    const { email } = dto;
+    const email = normalizeEmail(dto.email);
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
     const user = await this.usersService.getUserByEmail(email);
     if (!user)
       return { success: true, message: 'If an account exists, OTP sent' };
@@ -81,7 +84,11 @@ export class LocalAuthService {
   }
 
   async verifyOtp(dto: { email: string; otp: string }) {
-    const { email, otp } = dto;
+    const email = normalizeEmail(dto.email);
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    const { otp } = dto;
     const valid = await this.otpService.validateOtp(email, otp);
     if (!valid) throw new BadRequestException('Invalid or expired OTP');
 
@@ -93,7 +100,11 @@ export class LocalAuthService {
     otp: string;
     newPassword: string;
   }) {
-    const { email, otp, newPassword } = dto;
+    const email = normalizeEmail(dto.email);
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    const { otp, newPassword } = dto;
 
     const valid = await this.otpService.validateOtp(email, otp);
     if (!valid) throw new BadRequestException('Invalid or expired OTP');
@@ -105,8 +116,12 @@ export class LocalAuthService {
   }
 
   async login(dto: LoginDto) {
+    const email = normalizeEmail(dto.email);
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
     const user = await this.userValidationService.validateUserForLogin(
-      dto.email,
+      email,
       dto.password,
     );
 
