@@ -21,9 +21,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get('me')
-  getProfile(
-    @AuthUser() user: User,
-  ): ApiResponse<UserProfileDto> {
+  getProfile(@AuthUser() user: User): ApiResponse<UserProfileDto> {
     const profileData = this.usersService.getUserProfile(user);
     return {
       success: true,
