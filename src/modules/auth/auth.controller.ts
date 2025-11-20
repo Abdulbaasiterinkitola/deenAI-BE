@@ -59,7 +59,10 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('verify-otp')
-  @ApiOperation({ summary: 'Verify OTP for various purposes (password reset, email verification, etc.)' })
+  @ApiOperation({
+    summary:
+      'Verify OTP for various purposes (password reset, email verification, etc.)',
+  })
   @ApiResponse({ status: 200, description: 'OTP verified successfully' })
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.resetPasswordService.verifyOtp(dto.email, dto.otp);

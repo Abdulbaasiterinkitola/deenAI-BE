@@ -44,7 +44,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
 
         const response = context.switchToHttp().getResponse();
         const statusCode = response.statusCode || 200;
-        
+
         return {
           success: true,
           status: 'success',

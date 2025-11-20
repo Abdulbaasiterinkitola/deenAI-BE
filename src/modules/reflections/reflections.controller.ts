@@ -101,10 +101,7 @@ export class ReflectionsController {
     const userId = req.user?.id as string;
     await this.reflectionsService.deleteReflection(params.id, userId);
 
-    return {
-      success: true,
-      message: 'Reflection deleted successfully',
-    };
+    return { message: 'Reflection deleted successfully' };
   }
 
   /**
@@ -158,11 +155,7 @@ export class ReflectionsController {
       userId,
     );
 
-    return {
-      success: true,
-      message: 'Reflection created successfully',
-      data: reflection,
-    };
+    return reflection;
   }
 
   /**
@@ -215,11 +208,7 @@ export class ReflectionsController {
       query,
     );
 
-    return {
-      success: true,
-      message: 'Reflections retrieved successfully',
-      data: result,
-    };
+    return result;
   }
 
   /**
@@ -265,11 +254,7 @@ export class ReflectionsController {
       userId,
     );
 
-    return {
-      success: true,
-      message: 'Reflection retrieved successfully',
-      data: reflection,
-    };
+    return reflection;
   }
 
   /**
@@ -316,10 +301,6 @@ export class ReflectionsController {
       userId,
     );
 
-    return {
-      success: true,
-      message: 'Reflection updated successfully',
-      data: reflection,
-    };
+    return reflection;
   }
 }
