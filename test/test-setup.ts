@@ -13,6 +13,7 @@ jest.mock('nodemailer', () => ({
   }),
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 jest.mock('typeorm', () => ({
   ...jest.requireActual('typeorm'),
   DataSource: jest.fn().mockImplementation(() => ({
@@ -67,11 +68,11 @@ export class TestApp {
     process.env.MAIL_PORT = '587';
     process.env.MAIL_USER = 'test';
     process.env.MAIL_PASS = 'test';
-    
+
     // Suppress unhandled promise rejections during tests
     process.removeAllListeners('unhandledRejection');
     process.on('unhandledRejection', () => {});
-    
+
     // Suppress console logs during tests
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -122,14 +123,16 @@ export class TestApp {
   static async cleanup(): Promise<void> {
     if (this.dataSource && this.dataSource.isInitialized) {
       const entities = this.dataSource.entityMetadatas;
-      
+
       await this.dataSource.query('SET session_replication_role = replica;');
-      
+
       for (let i = entities.length - 1; i >= 0; i--) {
         const entity = entities[i];
-        await this.dataSource.query(`TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE;`);
+        await this.dataSource.query(
+          `TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE;`,
+        );
       }
-      
+
       await this.dataSource.query('SET session_replication_role = DEFAULT;');
     }
   }
@@ -158,7 +161,11 @@ export class TestApp {
   }
 }
 
-export const createTestUser = async (dataSource: DataSource, userData: any = {}) => {
+export const createTestUser = async (
+  dataSource: DataSource,
+
+  userData: any = {},
+): Promise<any> => {
   const userRepository = dataSource.getRepository('User');
   const testUser = userRepository.create({
     email: 'test@example.com',
