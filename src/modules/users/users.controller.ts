@@ -16,6 +16,7 @@ import { UserProfileDto } from './dtos/user-profile.dto';
 import { ApiResponse as TApiResponse } from './types/api-response.type';
 
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -38,7 +39,6 @@ export class UsersController {
    * Requires authentication
    */
   @Post('/delete/request')
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Request account deletion',
     description:
@@ -72,6 +72,9 @@ export class UsersController {
   async requestAccountDeletion(@Req() req: any, @Res() res: Response) {
     const userId = req?.user?.id;
     console.log('User ID for account deletion request:', userId);
+    return res.status(201).json({
+      success: true,
+    });
   }
 
   @Post('/delete/confirm')

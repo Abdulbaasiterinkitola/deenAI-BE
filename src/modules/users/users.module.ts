@@ -9,7 +9,6 @@ import { User } from './models/user.model';
 import { PasswordResetOtp } from '@modules/auth/models/otp.model';
 import { AuthModule } from '@modules/auth/auth.module';
 import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
-import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { JwtService } from '@nestjs/jwt';
     UserCoreService,
     UserValidationService,
     UserModelAction,
-    JwtService,
   ],
   exports: [UsersService, UserValidationService],
 })

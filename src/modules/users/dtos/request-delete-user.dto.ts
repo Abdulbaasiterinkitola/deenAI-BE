@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsUUID } from 'class-validator';
 
 export class DeleteUserDto {
   @ApiProperty({
-    description: 'The unique identifier of the user to delete',
-    example: 'uuid-string',
+    description: 'The email  of the user requesting account deletion',
+    example: 'user@example.com',
   })
-  @IsUUID()
+  @IsEmail()
   @IsNotEmpty()
-  id: string;
+  email: string;
 }

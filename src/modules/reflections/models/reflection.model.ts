@@ -19,13 +19,7 @@ export class Reflection extends AbstractBaseEntity {
   @Column({ name: 'user_id', type: 'uuid', nullable: false })
   userId: string;
 
-<<<<<<< HEAD
   @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
-=======
-  @ManyToOne(() => User, {
-    onDelete: 'CASCADE',
-  })
->>>>>>> 3b184a2 (feat(users): implement account deletion request handler and service method)
   @JoinColumn({ name: 'user_id' })
   user: User;
 }
