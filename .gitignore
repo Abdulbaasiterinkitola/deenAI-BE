@@ -70,6 +70,8 @@ guide.txt
 rules/
 rules
 
+data/
+
 # Port files
 PORT=*
 PORT*
