@@ -39,7 +39,7 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
             >
               <div className="text-center mb-8">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533670/Frame_2147225762_aguoyo.svg"
+                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
                   alt="Deen AI Logo"
                   className="w-[180px] h-auto mx-auto"
                 />
@@ -47,7 +47,7 @@ const OtpEmail: React.FC<OtpEmailProps> = ({ name, otp, expiryMinutes = 10 }) =>
 
               <div className="text-left mb-8">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534311/otp_fhtd44.svg"
+                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639129/otp_oj7pge.png"
                   alt="Password Reset illustration"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   className="w-[180px] h-auto"

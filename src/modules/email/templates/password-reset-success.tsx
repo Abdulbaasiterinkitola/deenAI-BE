@@ -37,7 +37,7 @@ const PasswordResetSuccessEmail: React.FC<PasswordResetSuccessEmailProps> = ({ n
             >
               <div className="text-center mb-8">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533670/Frame_2147225762_aguoyo.svg"
+                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
                   alt="Deen AI Logo"
                   className="w-[180px] h-auto mx-auto"
                 />
@@ -45,7 +45,7 @@ const PasswordResetSuccessEmail: React.FC<PasswordResetSuccessEmailProps> = ({ n
 
               <div className="text-left mb-8">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534286/hello_s31dgb.svg"
+                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639371/hello_bfbbz2.png"
                   alt="Password reset success illustration"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   className="w-[180px] h-auto"

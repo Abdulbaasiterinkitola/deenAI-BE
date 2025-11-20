@@ -17,9 +17,15 @@ export class HealthController {
     }
 
     return {
-      status: result.status,
-      services: result.services,
-      timestamp: result.timestamp,
+      success: true,
+      status: 'success',
+      message: 'Health check completed',
+      data: {
+        status: result.status,
+        services: result.services,
+        timestamp: result.timestamp,
+      },
+      status_code: 200,
     };
   }
 }

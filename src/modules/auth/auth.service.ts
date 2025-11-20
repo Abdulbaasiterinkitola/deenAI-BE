@@ -69,14 +69,10 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
-    const user = result.data.user;
+    const user = result.user;
     const tokens = await this.getTokens(user.id, user.email);
     await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
-    return {
-      success: true,
-      message: 'Login successful',
-      data: { tokens, user },
-    };
+    return { tokens, user };
   }
 
   async googleLogin(idToken: string) {
@@ -89,11 +85,7 @@ export class AuthService {
     }
     const tokens = await this.getTokens(user.id, user.email);
 
-    return {
-      success: true,
-      message: 'Google login successful',
-      data: { tokens, user },
-    };
+    return { tokens, user };
   }
 
   async refreshTokens(refreshToken: string) {
@@ -121,11 +113,7 @@ export class AuthService {
         user.id,
       );
 
-      return {
-        success: true,
-        message: 'Tokens refreshed successfully',
-        data: tokens,
-      };
+      return tokens;
     } catch (e) {
       throw new UnauthorizedException(`Invalid or Expired Refresh Token ${e}`);
     }
@@ -133,9 +121,6 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.userService.removeRefreshToken(userId);
-    return {
-      success: true,
-      message: 'Logged out successfully',
-    };
+    return { message: 'Logged out successfully' };
   }
 }

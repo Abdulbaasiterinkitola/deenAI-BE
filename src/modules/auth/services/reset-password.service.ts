@@ -71,7 +71,7 @@ export class ResetPasswordService {
       );
     }
 
-    return { success: true, message: 'OTP sent' };
+    return { message: 'OTP sent' };
   }
 
   // Verify OTP
@@ -133,7 +133,7 @@ export class ResetPasswordService {
 
     this.logger.log(`After update check: ${JSON.stringify(check)}`);
 
-    return { success: true, message: 'OTP verified successfully' };
+    return { message: 'OTP verified successfully' };
   }
 
   async resetPassword(email: string, otp: string, newPassword: string) {
@@ -205,6 +205,6 @@ export class ResetPasswordService {
       );
     }
 
-    return { success: true, message: 'Password has been successfully reset' };
+    return { message: 'Password has been successfully reset' };
   }
 }

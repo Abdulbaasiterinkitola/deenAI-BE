@@ -54,10 +54,27 @@ export class LocalAuthService {
       isEmailVerified: false,
     };
     await this.usersService.createUser(userData);
+    
+    // Get the created user
+    const createdUser = await this.usersService.getUserByEmail(email);
+    
+    if (!createdUser) {
+      throw new CustomHttpException(
+        'Failed to retrieve created user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    
     await this.emailService.sendEmail(email, 'Welcome to DeenAI', 'welcome', {
       name: dto.name || 'User',
     });
-    return { success: true, message: 'User registered successfully' };
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = createdUser;
+    
+    return {
+      user: userWithoutPassword
+    };
   }
 
   async requestPasswordReset(dto: { email: string }) {
@@ -70,7 +87,7 @@ export class LocalAuthService {
     }
     const user = await this.usersService.getUserByEmail(email);
     if (!user)
-      return { success: true, message: 'If an account exists, OTP sent' };
+      return { message: 'If an account exists, OTP sent' };
 
     if ((user.authProvider || '').toLowerCase() !== 'local') {
       throw new CustomHttpException(
@@ -88,7 +105,7 @@ export class LocalAuthService {
       { name: user.name || 'User', otp },
     );
 
-    return { success: true, message: 'If an account exists, OTP sent' };
+    return { message: 'If an account exists, OTP sent' };
   }
 
   async verifyOtp(dto: { email: string; otp: string }) {
@@ -108,7 +125,7 @@ export class LocalAuthService {
       );
     }
 
-    return { success: true, message: 'OTP is valid' };
+    return { message: 'OTP is valid' };
   }
 
   async resetPasswordWithOtp(dto: {
@@ -136,7 +153,7 @@ export class LocalAuthService {
     const hashed = await bcrypt.hash(newPassword, 10);
     await this.usersService.updateUserPassword(email, hashed);
 
-    return { success: true, message: 'Password has been successfully reset' };
+    return { message: 'Password has been successfully reset' };
   }
 
   async login(dto: LoginDto) {
@@ -156,11 +173,7 @@ export class LocalAuthService {
     const { password, ...userWithoutPassword } = user;
 
     return {
-      success: true,
-      message: 'User validated successfully',
-      data: {
-        user: userWithoutPassword,
-      },
+      user: userWithoutPassword,
     };
   }
 }
