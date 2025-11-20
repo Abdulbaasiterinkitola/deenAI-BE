@@ -19,9 +19,9 @@ describe('CI Tests (e2e)', () => {
       '/api/v1/users/profile',
       '/api/v1/waitlist',
       '/api/v1/notification-settings/me',
-      '/health'
+      '/health',
     ];
-    
+
     expect(apiRoutes.length).toBeGreaterThan(0);
     expect(apiRoutes).toContain('/health');
     expect(apiRoutes).toContain('/api/v1/auth/register');

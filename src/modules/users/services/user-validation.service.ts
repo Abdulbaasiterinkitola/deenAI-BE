@@ -42,7 +42,7 @@ export default class UserValidationService {
 
     if (!user) {
       throw new CustomHttpException(
-        'No account found with this email address. Please check your email or sign up for a new account.',
+        'Invalid email or password. Please check your credentials and try again.',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -61,7 +61,7 @@ export default class UserValidationService {
 
     if (!isPasswordMatch) {
       throw new CustomHttpException(
-        'Incorrect password. Please check your password and try again.',
+        'Invalid email or password. Please check your credentials and try again.',
         HttpStatus.UNAUTHORIZED,
       );
     }

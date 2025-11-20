@@ -5,7 +5,13 @@ export class CustomHttpException extends HttpException {
     super(response, status);
   }
 
-  getResponse(): { message: string; success: boolean; status: string; status_code: number; errors?: unknown } {
+  getResponse(): {
+    message: string;
+    success: boolean;
+    status: string;
+    status_code: number;
+    errors?: unknown;
+  } {
     const response = super.getResponse();
     const status_code = this.getStatus();
     const success = status_code === 201 || status_code === 200 ? true : false;

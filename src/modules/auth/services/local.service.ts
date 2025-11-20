@@ -54,26 +54,26 @@ export class LocalAuthService {
       isEmailVerified: false,
     };
     await this.usersService.createUser(userData);
-    
+
     // Get the created user
     const createdUser = await this.usersService.getUserByEmail(email);
-    
+
     if (!createdUser) {
       throw new CustomHttpException(
         'Failed to retrieve created user',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    
+
     await this.emailService.sendEmail(email, 'Welcome to DeenAI', 'welcome', {
       name: dto.name || 'User',
     });
-    
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = createdUser;
-    
+
     return {
-      user: userWithoutPassword
+      user: userWithoutPassword,
     };
   }
 
@@ -86,8 +86,7 @@ export class LocalAuthService {
       );
     }
     const user = await this.usersService.getUserByEmail(email);
-    if (!user)
-      return { message: 'If an account exists, OTP sent' };
+    if (!user) return { message: 'If an account exists, OTP sent' };
 
     if ((user.authProvider || '').toLowerCase() !== 'local') {
       throw new CustomHttpException(

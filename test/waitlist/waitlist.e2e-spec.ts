@@ -66,7 +66,7 @@ describe('Waitlist Controller (e2e)', () => {
         .post('/api/v1/waitlist')
         .send({
           email: 'special@example.com',
-          name: 'José María O\'Connor-Smith',
+          name: "José María O'Connor-Smith",
         })
         .expect((res) => {
           expect([201, 400]).toContain(res.status);
