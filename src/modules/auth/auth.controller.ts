@@ -34,18 +34,165 @@ export class AuthController {
 
   @HttpCode(201)
   @Post('/register')
+  @ApiOperation({ summary: 'Register new user account' })
+  @ApiResponse({
+    status: 201,
+    description: 'User registered successfully',
+    schema: {
+      example: {
+        success: true,
+        status: 'success',
+        message:
+          'User registered successfully. Please check your email for verification.',
+        data: {
+          user: {
+            id: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
+            name: 'John Doe',
+            email: 'user@example.com',
+            authProvider: 'local',
+            isEmailVerified: false,
+            createdAt: '2025-11-20T19:02:39.633Z',
+            updatedAt: '2025-11-20T19:02:39.633Z',
+          },
+        },
+        status_code: 201,
+      },
+    },
+  })
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
   }
 
   @HttpCode(200)
+  @Post('verify-email')
+  @ApiOperation({
+    summary: 'Verify email address using OTP sent during registration',
+    description:
+      'Verifies the user email address with OTP and sends welcome email upon successful verification',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Email verified successfully',
+    schema: {
+      example: {
+        success: true,
+        status: 'success',
+        message: 'Email verified successfully',
+        status_code: 200,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or expired OTP / Email already verified',
+    schema: {
+      example: {
+        success: false,
+        message: 'Invalid or expired OTP',
+        status_code: 400,
+      },
+    },
+  })
+  async verifyEmail(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @HttpCode(200)
+  @Post('resend-verification')
+  @ApiOperation({
+    summary: 'Resend email verification OTP',
+    description:
+      'Resends verification OTP to user email if account exists and is not yet verified',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Verification OTP resent successfully',
+    schema: {
+      example: {
+        success: true,
+        status: 'success',
+        message: 'Verification OTP resent successfully',
+        status_code: 200,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Email already verified or user not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Email is already verified',
+        status_code: 400,
+      },
+    },
+  })
+  async resendVerificationOtp(@Body() dto: RequestOtpDto) {
+    return this.authService.resendVerificationOtp(dto.email);
+  }
+
+  @HttpCode(200)
   @Post('/login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    schema: {
+      example: {
+        success: true,
+        status: 'success',
+        message: 'Login successful',
+        data: {
+          tokens: {
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+            refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          user: {
+            id: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
+            name: 'John Doe',
+            email: 'user@example.com',
+            authProvider: 'local',
+            isEmailVerified: true,
+            createdAt: '2025-11-20T19:02:39.633Z',
+            updatedAt: '2025-11-20T19:04:58.434Z',
+          },
+        },
+        status_code: 200,
+      },
+    },
+  })
   async login(@Body() user: LoginBodyValidator) {
     return await this.authService.login(user);
   }
 
   @HttpCode(200)
   @Post('/google')
+  @ApiOperation({ summary: 'Google OAuth login' })
+  @ApiResponse({
+    status: 200,
+    description: 'Google login successful',
+    schema: {
+      example: {
+        success: true,
+        status: 'success',
+        message: 'Google login successful',
+        data: {
+          tokens: {
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+            refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          user: {
+            id: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
+            name: 'John Doe',
+            email: 'user@example.com',
+            authProvider: 'google',
+            isEmailVerified: true,
+          },
+        },
+        status_code: 200,
+      },
+    },
+  })
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
     return await this.authService.googleLogin(googleAuthDto.idToken);
   }
@@ -60,8 +207,7 @@ export class AuthController {
   @HttpCode(200)
   @Post('verify-otp')
   @ApiOperation({
-    summary:
-      'Verify OTP for various purposes (password reset, email verification, etc.)',
+    summary: 'Verify OTP for password reset purposes',
   })
   @ApiResponse({ status: 200, description: 'OTP verified successfully' })
   async verifyOtp(@Body() dto: VerifyOtpDto) {
