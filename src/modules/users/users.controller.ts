@@ -21,10 +21,10 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get('me')
-  async getProfile(
+  getProfile(
     @AuthUser() user: User,
-  ): Promise<ApiResponse<UserProfileDto>> {
-    const profileData = await this.usersService.getUserProfile(user);
+  ): ApiResponse<UserProfileDto> {
+    const profileData = this.usersService.getUserProfile(user);
     return {
       success: true,
       data: profileData,
