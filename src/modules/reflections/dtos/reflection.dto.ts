@@ -6,12 +6,43 @@ import {
   IsUUID,
   MinLength,
   MaxLength,
+  IsInt,
+  Min,
+  IsIn,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 /**
  * DTO for creating a new reflection
  */
 export class CreateReflectionDto {
+  @ApiProperty({
+    description: 'The number of the start Ayah',
+    example: 1,
+  })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  startAyah: number;
+
+  @ApiProperty({
+    description: 'The number of the end Ayah',
+    example: 10,
+  })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  endAyah: number;
+
+  @ApiProperty({
+    description: 'The number of the Surah',
+    example: 32,
+  })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  surah: number;
+
   @ApiProperty({
     description: 'The content of the reflection',
     example:
@@ -20,8 +51,8 @@ export class CreateReflectionDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(1, { message: 'Reflection content cannot be empty' })
-  @MaxLength(10000, {
-    message: 'Reflection content cannot exceed 10,000 characters',
+  @MaxLength(5000, {
+    message: 'Reflection content cannot exceed 5000 characters',
   })
   content: string;
 }
@@ -55,6 +86,9 @@ export class ReflectionQueryDto {
     default: 1,
   })
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
   @ApiProperty({
@@ -64,6 +98,9 @@ export class ReflectionQueryDto {
     default: 10,
   })
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 
   @ApiProperty({
@@ -74,6 +111,7 @@ export class ReflectionQueryDto {
     enum: ['ASC', 'DESC'],
   })
   @IsOptional()
+  @IsIn(['ASC', 'DESC'])
   orderBy?: 'ASC' | 'DESC';
 }
 

@@ -21,6 +21,10 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap"
           rel="stylesheet"
         />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
           {`
@@ -41,7 +45,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
             >
               <div className="text-center mb-8">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533670/Frame_2147225762_aguoyo.svg"
+                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
                   alt="Deen AI Logo"
                   className="w-[180px] h-auto mx-auto"
                 />
@@ -49,7 +53,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
               <div className="bg-white p-5 rounded-3xl">
                 <div className="text-center mb-7">
                   <img
-                    src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763534286/hello_s31dgb.svg"
+                    src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639371/hello_bfbbz2.png"
                     alt="Welcome illustration"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     className="w-[180px] h-auto mx-auto"
@@ -120,7 +124,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
               <div className="mt-12 text-center pt-7 border-t border-[#e7e7e7]">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <img
-                    src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533505/Logo_icon_exo0rq.svg"
+                    src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
                     alt="Deen AI"
                     className="w-[140px] h-auto"
                   />
@@ -133,11 +137,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
                     target="_blank"
                     className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
                   >
-                    <img
-                      src="https://ottoman.emerj.net/icons/x.svg"
-                      alt="X"
-                      className="w-5 h-5 object-contain"
-                    />
+                    <i className="fab fa-x-twitter text-xl text-gray-600"></i>
                   </a>
                   <a
                     href="https://instagram.com/thedeenai"
@@ -145,11 +145,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
                     target="_blank"
                     className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
                   >
-                    <img
-                      src="https://ottoman.emerj.net/icons/insta.svg"
-                      alt="Instagram"
-                      className="w-5 h-5 object-contain"
-                    />
+                    <i className="fab fa-instagram text-xl text-gray-600"></i>
                   </a>
                   <a
                     href="https://youtube.com/@thedeenai"
@@ -157,11 +153,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
                     target="_blank"
                     className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
                   >
-                    <img
-                      src="https://ottoman.emerj.net/icons/yt.svg"
-                      alt="YouTube"
-                      className="w-5 h-5 object-contain"
-                    />
+                    <i className="fab fa-youtube text-xl text-gray-600"></i>
                   </a>
                 </div>
 

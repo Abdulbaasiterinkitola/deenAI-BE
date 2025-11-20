@@ -2,7 +2,7 @@ name: Backend CI
 
 on:
   pull_request:
-    branches: [staging, main, dev]
+    branches: [staging, main, dev, prod]
 
 jobs:
   ci-checks:

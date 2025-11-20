@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
@@ -6,20 +6,58 @@ import { Repository } from 'typeorm';
 import { User } from './models/user.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserProfileDto } from './dtos/user-profile.dto';
+
+import { NotificationSettingsService } from '@modules/notification-settings/notification-settings.service';
+import { CustomHttpException } from '@shared/custom.exception';
+import { normalizeEmail } from '@helpers/email.helper';
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userCoreService: UserCoreService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly notificationSettingsService: NotificationSettingsService,
   ) {}
 
   async createUser(user: UserType) {
-    return await this.userCoreService.createUser(user);
+    const email = normalizeEmail(user.email);
+    if (!email) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const normalizedUser: UserType = { ...user, email };
+
+    await this.userRepo.manager.transaction(async (manager) => {
+      const userCreated = await this.userCoreService.createUser(
+        normalizedUser,
+        manager,
+      );
+      const userId = userCreated.data?.id;
+      if (!userId) {
+        throw new CustomHttpException(
+          'Failed to retrieve newly created user ID',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      await this.notificationSettingsService.createUserNotificationSettings(
+        userId,
+        manager,
+      );
+    });
   }
 
   async getUserByEmail(email: string) {
-    return await this.userCoreService.getUserByEmail(email);
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.userCoreService.getUserByEmail(normalizedEmail);
   }
   async getUserById(id: string) {
     return await this.userCoreService.getUserById(id);
@@ -34,8 +72,16 @@ export class UsersService {
     authProvider: AuthProvider,
     isEmailVerified: boolean,
   ) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     return await this.userCoreService.updateUserAuthProvider(
-      email,
+      normalizedEmail,
       authProvider,
       isEmailVerified,
     );
@@ -51,7 +97,7 @@ export class UsersService {
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'email', 'currentRefreshToken'], // Explicitly select the hidden column
+      select: ['id', 'email', 'currentRefreshToken'],
     });
 
     const isRefreshTokenMatching = await bcrypt.compare(
@@ -69,5 +115,9 @@ export class UsersService {
     return this.userRepo.update(userId, {
       currentRefreshToken: null,
     });
+  }
+
+  getUserProfile(user: User): UserProfileDto {
+    return UserProfileDto.fromEntity(user);
   }
 }

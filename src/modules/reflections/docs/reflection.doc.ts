@@ -1,15 +1,22 @@
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 /**
  * Documentation for the DELETE /api/v1/reflections/:id endpoint
  */
 export const DeleteReflectionDoc = {
-  operation: () =>
+  operation: () => [
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Delete a reflection',
       description:
         'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
     }),
+  ],
 
   param: () =>
     ApiParam({
@@ -77,11 +84,13 @@ export const DeleteReflectionDoc = {
  * Documentation for the POST /api/v1/reflections endpoint
  */
 export const CreateReflectionDoc = {
-  operation: () =>
+  operation: () => [
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Create a new reflection',
       description: 'Creates a new reflection for the authenticated user.',
     }),
+  ],
 
   successResponse: () =>
     ApiResponse({
@@ -95,6 +104,9 @@ export const CreateReflectionDoc = {
             id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
             content:
               'Today I learned about the importance of patience in software development.',
+            surah: 32,
+            startAyah: 1,
+            endAyah: 5,
             userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
             createdAt: '2025-01-01T12:00:00.000Z',
             updatedAt: '2025-01-01T12:00:00.000Z',
@@ -124,12 +136,14 @@ export const CreateReflectionDoc = {
  * Documentation for the GET /api/v1/reflections endpoint
  */
 export const GetUserReflectionsDoc = {
-  operation: () =>
+  operation: () => [
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Get user reflections',
       description:
         'Retrieves all reflections for the authenticated user with pagination.',
     }),
+  ],
 
   successResponse: () =>
     ApiResponse({
@@ -145,6 +159,9 @@ export const GetUserReflectionsDoc = {
                 id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
                 content:
                   'Today I learned about the importance of patience in software development.',
+                surah: 32,
+                startAyah: 1,
+                endAyah: 5,
                 userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
                 createdAt: '2025-01-01T12:00:00.000Z',
                 updatedAt: '2025-01-01T12:00:00.000Z',
@@ -168,12 +185,14 @@ export const GetUserReflectionsDoc = {
  * Documentation for the GET /api/v1/reflections/:id endpoint
  */
 export const GetReflectionByIdDoc = {
-  operation: () =>
+  operation: () => [
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Get a reflection by ID',
       description:
         'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
     }),
+  ],
 
   param: () =>
     ApiParam({
@@ -194,6 +213,9 @@ export const GetReflectionByIdDoc = {
             id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
             content:
               'Today I learned about the importance of patience in software development.',
+            surah: 32,
+            startAyah: 1,
+            endAyah: 5,
             userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
             createdAt: '2025-01-01T12:00:00.000Z',
             updatedAt: '2025-01-01T12:00:00.000Z',
@@ -207,12 +229,14 @@ export const GetReflectionByIdDoc = {
  * Documentation for the PUT /api/v1/reflections/:id endpoint
  */
 export const UpdateReflectionDoc = {
-  operation: () =>
+  operation: () => [
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Update a reflection',
       description:
         'Updates a reflection by its ID. Only the owner of the reflection can update it.',
     }),
+  ],
 
   param: () =>
     ApiParam({
@@ -232,6 +256,9 @@ export const UpdateReflectionDoc = {
           data: {
             id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
             content: 'Updated reflection content with new insights.',
+            surah: 32,
+            startAyah: 1,
+            endAyah: 5,
             userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
             createdAt: '2025-01-01T12:00:00.000Z',
             updatedAt: '2025-01-01T13:00:00.000Z',

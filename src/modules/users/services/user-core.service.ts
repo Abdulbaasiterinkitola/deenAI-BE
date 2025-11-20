@@ -3,6 +3,7 @@ import { UserModelAction } from '../action-models/user.action-model';
 import { UserType } from '../types/user';
 import UserValidationService from './user-validation.service';
 import { AuthProvider } from '../enums';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export default class UserCoreService {
@@ -11,17 +12,25 @@ export default class UserCoreService {
     private readonly userValidationService: UserValidationService,
   ) {}
 
-  async createUser(createPayload: UserType) {
+  async createUser(createPayload: UserType, transaction?: EntityManager) {
     await this.userValidationService.createUserValidation(createPayload);
 
-    // ✅ FIXED — must wrap inside { createPayload: ... }
-    await this.userModelAction.create({
+    const createdUser = await this.userModelAction.create({
       createPayload,
+      ...(transaction
+        ? {
+            transactionOptions: {
+              useTransaction: true,
+              transaction,
+            },
+          }
+        : {}),
     });
 
     return {
       success: true,
       message: 'User created successfully.',
+      data: createdUser,
     };
   }
 
@@ -30,11 +39,14 @@ export default class UserCoreService {
   }
 
   async getUserById(id: string) {
-    return await this.userModelAction.getById(id);
+    return await this.userModelAction.get({ id });
   }
 
   async updateUserPassword(id: string, hashedPassword: string) {
-    return await this.userModelAction.updatePassword(id, hashedPassword);
+    return await this.userModelAction.update({
+      updatePayload: { password: hashedPassword },
+      identifierOptions: { id },
+    });
   }
 
   async updateUserAuthProvider(

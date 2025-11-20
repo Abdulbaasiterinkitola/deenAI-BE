@@ -134,7 +134,7 @@ export class AuthValidationService {
       }
 
       throw new CustomHttpException(
-        'User already exists with this authentication provider',
+        'An account with this email already exists. Please try logging in instead.',
         HttpStatus.CONFLICT,
       );
     }

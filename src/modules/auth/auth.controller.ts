@@ -50,16 +50,19 @@ export class AuthController {
     return await this.authService.googleLogin(googleAuthDto.idToken);
   }
   @HttpCode(200)
-  @Post('request-otp')
-  @ApiOperation({ summary: 'Request OTP for password reset' })
-  @ApiResponse({ status: 200, description: 'OTP sent if account exists' })
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Forgot password' })
+  @ApiResponse({ status: 200, description: 'Request password reset OTP' })
   async requestOtp(@Body() dto: RequestOtpDto) {
     return this.resetPasswordService.requestOtp(dto.email);
   }
 
   @HttpCode(200)
   @Post('verify-otp')
-  @ApiOperation({ summary: 'Verify OTP' })
+  @ApiOperation({
+    summary:
+      'Verify OTP for various purposes (password reset, email verification, etc.)',
+  })
   @ApiResponse({ status: 200, description: 'OTP verified successfully' })
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.resetPasswordService.verifyOtp(dto.email, dto.otp);

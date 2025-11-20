@@ -7,9 +7,10 @@ import { ReflectionsCoreService } from './services/reflections-core.service';
 import { ReflectionsValidationService } from './services/reflections-validation.service';
 import { ReflectionsActionModel } from './action-models/reflections.action-model';
 import { UsersModule } from '@modules/users/users.module';
+import { AuthModule } from '@modules/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reflection]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Reflection]), UsersModule, AuthModule],
   controllers: [ReflectionsController],
   providers: [
     ReflectionsService,

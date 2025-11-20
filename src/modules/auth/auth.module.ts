@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '@modules/users/users.module';
@@ -29,6 +29,7 @@ import { PasswordResetOtp } from './models/otp.model';
     EmailServiceModule,
     UsersModule,
     TypeOrmModule.forFeature([PasswordResetOtp]),
+    forwardRef(() => UsersModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

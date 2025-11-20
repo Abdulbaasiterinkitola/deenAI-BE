@@ -5,6 +5,8 @@ import { CustomHttpException } from '@shared/custom.exception';
 import { User } from '../models/user.model';
 import { AuthProvider } from '../enums';
 import * as bcrypt from 'bcrypt';
+import { EntityManager } from 'typeorm';
+import { normalizeEmail } from '@helpers/email.helper';
 
 @Injectable()
 export default class UserValidationService {
@@ -17,8 +19,8 @@ export default class UserValidationService {
 
     if (userExists) {
       throw new CustomHttpException(
-        'Email already registered',
-        HttpStatus.BAD_REQUEST,
+        'An account with this email already exists. Please try logging in instead.',
+        HttpStatus.CONFLICT,
       );
     }
   }
@@ -27,11 +29,20 @@ export default class UserValidationService {
     email: string,
     passwordAttempt: string,
   ): Promise<User> {
-    const user = await this.userModelAction.get({ email });
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const user = await this.userModelAction.get({ email: normalizedEmail });
 
     if (!user) {
       throw new CustomHttpException(
-        'Invalid login credentials',
+        'Invalid email or password. Please check your credentials and try again.',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -50,11 +61,20 @@ export default class UserValidationService {
 
     if (!isPasswordMatch) {
       throw new CustomHttpException(
-        'Invalid login credentials',
+        'Invalid email or password. Please check your credentials and try again.',
         HttpStatus.UNAUTHORIZED,
       );
     }
 
     return user;
+  }
+
+  async validateUserExists(userId: string, transaction?: EntityManager) {
+    const user = transaction
+      ? await transaction.findOne(User, { where: { id: userId } })
+      : await this.userModelAction.get({ id: userId });
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
   }
 }

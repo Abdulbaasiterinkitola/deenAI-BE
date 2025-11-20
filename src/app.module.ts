@@ -12,6 +12,10 @@ import { EmailServiceModule } from '@modules/email/email.module';
 import { WaitlistModule } from '@modules/waitlist/waitlist.module';
 import { ReflectionsModule } from '@modules/reflections/reflections.module';
 import { ProfileModule } from '@modules/profile/profile.module';
+import { HealthModule } from '@modules/health/health.module';
+import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
+import { ContactModule } from '@modules/contact/contact.module';
+import { ChatsModule } from '@modules/chats/chats.module';
 
 @Module({
   imports: [
@@ -37,6 +41,10 @@ import { ProfileModule } from '@modules/profile/profile.module';
     WaitlistModule,
     ReflectionsModule,
     ProfileModule,
+    HealthModule,
+    NotificationSettingsModule,
+    ContactModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
