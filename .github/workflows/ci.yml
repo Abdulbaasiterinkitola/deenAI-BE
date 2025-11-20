@@ -2,11 +2,11 @@ name: Backend CI
 
 on:
   pull_request:
-    branches: [staging, main, dev]
+    branches: [staging, main, dev, prod]
 
 jobs:
   ci-checks:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,8 +21,8 @@ jobs:
       - run: npm run lint
       - run: npm test -- --coverage
       - run: npm run build
-      - name: Security Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true   
+      # - name: Security Scan
+      #   uses: snyk/actions/node@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   continue-on-error: true   

@@ -45,7 +45,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
           message: 'Validation failed',
           errors: formattedErrors,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
@@ -9,16 +9,32 @@ import * as bcrypt from 'bcrypt';
 import { UserProfileDto } from './dtos/user-profile.dto';
 
 
+import { NotificationSettingsService } from '@modules/notification-settings/notification-settings.service';
+import { CustomHttpException } from '@shared/custom.exception';
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userCoreService: UserCoreService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly notificationSettingsService: NotificationSettingsService,
   ) {}
 
   async createUser(user: UserType) {
-    return await this.userCoreService.createUser(user);
+    await this.userRepo.manager.transaction(async (manager) => {
+      const userCreated = await this.userCoreService.createUser(user, manager);
+      const userId = userCreated.data?.id;
+      if (!userId) {
+        throw new CustomHttpException(
+          'Failed to retrieve newly created user ID',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      await this.notificationSettingsService.createUserNotificationSettings(
+        userId,
+        manager,
+      );
+    });
   }
 
   async getUserByEmail(email: string) {
