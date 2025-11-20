@@ -14,6 +14,7 @@ import { ReflectionsModule } from '@modules/reflections/reflections.module';
 import { HealthModule } from '@modules/health/health.module';
 import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
 import { ContactModule } from '@modules/contact/contact.module';
+import { ChatsModule } from '@modules/chats/chats.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ContactModule } from '@modules/contact/contact.module';
     HealthModule,
     NotificationSettingsModule,
     ContactModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
