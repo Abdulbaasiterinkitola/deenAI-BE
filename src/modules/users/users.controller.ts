@@ -1,13 +1,12 @@
 import {
-  Controller,
   Get,
-  UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
-  Post,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { Request, Response } from 'express';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/guards/auth-user.decorator';
@@ -70,7 +69,10 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  async requestAccountDeletion() {}
+  async requestAccountDeletion(@Req() req: any, @Res() res: Response) {
+    const userId = req?.user?.id;
+    console.log('User ID for account deletion request:', userId);
+  }
 
   @Post('/delete/confirm')
   @ApiOperation({

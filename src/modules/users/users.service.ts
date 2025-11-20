@@ -128,7 +128,11 @@ export class UsersService {
     });
   }
 
+<<<<<<< HEAD
   getUserProfile(user: User): UserProfileDto {
     return UserProfileDto.fromEntity(user);
   }
+=======
+  async requestAccountDeletion(userId: string) {}
+>>>>>>> 3b184a2 (feat(users): implement account deletion request handler and service method)
 }

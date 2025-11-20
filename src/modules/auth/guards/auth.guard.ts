@@ -3,6 +3,7 @@ import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { UsersService } from '@modules/users/users.service';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ConfigService } from '@nestjs/config';
+import { getLogger } from 'nodemailer/lib/shared';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -30,11 +31,11 @@ export class AuthGuard implements CanActivate {
     let decodedToken;
 
     try {
-      decodedToken = this.jwtService.verify(
-        token as string,
-        this.configService.get<JwtVerifyOptions>('auth.jwtSecret'),
-      );
+      decodedToken = this.jwtService.verify(token as string, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
     } catch (error) {
+      console.log('JWT verification error:', error);
       if (error.name === 'TokenExpiredError') {
         throw new CustomHttpException('Token has expired', 401);
       }
