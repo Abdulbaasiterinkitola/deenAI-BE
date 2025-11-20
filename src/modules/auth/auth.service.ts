@@ -29,7 +29,7 @@ export class AuthService {
         { sub: userId, email },
         {
           secret: this.configService.get<string>('auth.JWT_SECRET')!,
-          expiresIn: '15m',
+          expiresIn: '1y',
         },
       ),
       this.jwtService.signAsync(
@@ -65,6 +65,14 @@ export class AuthService {
     newPassword: string;
   }) {
     return await this.localAuthService.resetPasswordWithOtp(dto);
+  }
+
+  async verifyEmail(dto: { email: string; otp: string }) {
+    return await this.localAuthService.verifyEmail(dto);
+  }
+
+  async resendVerificationOtp(email: string) {
+    return await this.localAuthService.resendVerificationOtp(email);
   }
 
   async login(dto: LoginDto) {

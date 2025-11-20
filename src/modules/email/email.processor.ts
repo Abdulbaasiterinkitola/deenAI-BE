@@ -10,6 +10,7 @@ import WelcomeEmail from './templates/welcome-email';
 import { Job } from 'bull';
 import OtpEmail from './templates/otp-email';
 import PasswordResetSuccessEmail from './templates/password-reset-success';
+import VerificationCodeEmail from './templates/verification-code';
 
 type MailTransporter = {
   sendMail(
@@ -31,6 +32,7 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   welcome: WelcomeEmail,
   'forgot-password': OtpEmail,
   'password-reset-success': PasswordResetSuccessEmail,
+  'email-verification': VerificationCodeEmail,
 };
 
 @Processor('email')

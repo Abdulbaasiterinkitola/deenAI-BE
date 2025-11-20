@@ -62,4 +62,11 @@ export default class UserCoreService {
       identifierOptions: { email },
     });
   }
+
+  async markEmailAsVerified(email: string) {
+    return await this.userModelAction.update({
+      updatePayload: { isEmailVerified: true },
+      identifierOptions: { email },
+    });
+  }
 }

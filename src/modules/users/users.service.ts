@@ -67,6 +67,17 @@ export class UsersService {
     return await this.userCoreService.updateUserPassword(id, hashedPassword);
   }
 
+  async markEmailAsVerified(email: string) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.userCoreService.markEmailAsVerified(normalizedEmail);
+  }
+
   async updateUserAuthProvider(
     email: string,
     authProvider: AuthProvider,
