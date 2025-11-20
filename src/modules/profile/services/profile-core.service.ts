@@ -1,11 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { ProfileModelAction } from '../profile.model-action';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { CreateProfileDto } from '../dto/create-profile.dto';
 import { Profile } from '../models/profile.model';
+import { CustomHttpException } from '@shared/custom.exception';
 
 @Injectable()
 export class ProfileCoreService {
   constructor(private readonly profileModelAction: ProfileModelAction) {}
+
+  // Create a user's profile
+  async createProfile(
+    userId: string,
+    createData: CreateProfileDto,
+  ): Promise<Profile> {
+    const createPayload: Partial<Profile> = {
+      userId,
+      avatar: createData.avatar ?? null,
+      language: createData.language ?? null,
+      username: createData.username
+        ? createData.username.toLowerCase()
+        : null,
+    };
+
+    const createdProfile = await this.profileModelAction.create({
+      createPayload,
+      transactionOptions: { useTransaction: false },
+    });
+
+    if (!createdProfile) {
+      throw new CustomHttpException(
+        'Failed to create profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return createdProfile;
+  }
 
   // Update a user's profile
   async updateProfile(
