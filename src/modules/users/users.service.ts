@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
@@ -11,13 +11,18 @@ import { UserProfileDto } from './dtos/user-profile.dto';
 import { NotificationSettingsService } from '@modules/notification-settings/notification-settings.service';
 import { CustomHttpException } from '@shared/custom.exception';
 import { normalizeEmail } from '@helpers/email.helper';
+import { DeletionCodeService } from './services/deletion-code.service';
+import { EmailService } from '@modules/email/email.service';
 @Injectable()
 export class UsersService {
+  logger = new Logger(UsersService.name);
   constructor(
     private readonly userCoreService: UserCoreService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly notificationSettingsService: NotificationSettingsService,
+    private readonly deletionCodeService: DeletionCodeService,
+    private readonly emailService: EmailService,
   ) {}
 
   async createUser(user: UserType) {
@@ -131,5 +136,45 @@ export class UsersService {
   getUserProfile(user: User): UserProfileDto {
     return UserProfileDto.fromEntity(user);
   }
-  async requestAccountDeletion(userId: string) {}
+
+  async requestAccountDeletion(user: User) {
+    // Generate deletion code
+    const deletionCode =
+      await this.deletionCodeService.generateAccountDeletionCode(
+        user.id,
+        user.email,
+      );
+    // Send email with OTP
+
+    try {
+      await this.emailService.sendEmail(
+        user.email,
+        'Account Deletion Request',
+        'account-deletion',
+        { otp: deletionCode },
+      );
+      this.logger.log(`Account deletion OTP email sent to ${user.email}`);
+    } catch (err) {
+      this.logger.error(
+        `Failed to send account deletion OTP email to ${user.email}: ${
+          (err as Error).message
+        }`,
+      );
+    }
+    // return response
+    return { success: true, message: 'Account deletion OTP sent to email' };
+  }
+
+  async confirmAccountDeletion(user: User, otp: string) {
+    // Verify deletion code
+
+    const isVerified =
+      await this.deletionCodeService.confirmAccountDeletionCode(
+        user.id,
+        otp,
+        user.email,
+      );
+
+    return isVerified;
+  }
 }

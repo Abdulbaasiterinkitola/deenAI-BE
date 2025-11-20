@@ -33,6 +33,7 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   'forgot-password': OtpEmail,
   'password-reset-success': PasswordResetSuccessEmail,
   'email-verification': VerificationCodeEmail,
+  'account-deletion': OtpEmail,
 };
 
 @Processor('email')

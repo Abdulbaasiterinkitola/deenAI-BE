@@ -11,7 +11,7 @@ export class AccountDeletionCode {
   @Column({ type: 'varchar', length: 255 })
   email: string;
 
-  @Column({ type: 'varchar', length: 4 })
+  @Column({ type: 'varchar', length: 6 })
   code: string;
 
   @Column({ name: 'expires_at', type: 'timestamp' })

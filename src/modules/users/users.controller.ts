@@ -2,11 +2,12 @@ import {
   Get,
   UseInterceptors,
   ClassSerializerInterceptor,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Request, Response } from 'express';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthUser } from '../auth/guards/auth-user.decorator';
@@ -39,6 +40,7 @@ export class UsersController {
    * Requires authentication
    */
   @Post('/delete/request')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Request account deletion',
     description:
@@ -69,12 +71,8 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  async requestAccountDeletion(@Req() req: any, @Res() res: Response) {
-    const userId = req?.user?.id;
-    console.log('User ID for account deletion request:', userId);
-    return res.status(201).json({
-      success: true,
-    });
+  async requestAccountDeletion(@AuthUser() user: User) {
+    return await this.usersService.requestAccountDeletion(user);
   }
 
   @Post('/delete/confirm')
