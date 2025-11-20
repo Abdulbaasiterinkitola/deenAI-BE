@@ -1,33 +1,35 @@
-import { Controller, Get, UseGuards, UseInterceptors, ClassSerializerInterceptor  } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 
-import { AuthGuard } from '../auth/guards/auth.guard'; 
-import { AuthUser } from '../auth/guards/auth-user.decorator'; 
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthUser } from '../auth/guards/auth-user.decorator';
 
 import { User } from './models/user.model';
 import { UserProfileDto } from './dtos/user-profile.dto';
-import { ApiResponse } from './types/api-response.type'; 
+import { ApiResponse } from './types/api-response.type';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  
- @UseGuards(AuthGuard) 
- @Get('me') 
- async getProfile(
- @AuthUser() user: User, 
- ): Promise<ApiResponse<UserProfileDto>> {
- 
-    
-    
- const profileData = await this.usersService.getUserProfile(user);
- return {
- success: true,
- data: profileData,
- message: 'User profile retrieved successfully',
- meta: null,
- };
- }
+  @UseGuards(AuthGuard)
+  @Get('me')
+  async getProfile(
+    @AuthUser() user: User,
+  ): Promise<ApiResponse<UserProfileDto>> {
+    const profileData = await this.usersService.getUserProfile(user);
+    return {
+      success: true,
+      data: profileData,
+      message: 'User profile retrieved successfully',
+      meta: null,
+    };
+  }
 }

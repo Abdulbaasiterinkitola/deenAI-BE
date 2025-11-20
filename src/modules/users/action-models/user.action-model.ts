@@ -14,26 +14,18 @@ export class UserModelAction extends AbstractModelAction<User> {
   }
 
   async get(identifierOptions: FindOptionsWhere<User>): Promise<User | null> {
-    
-   
     const selectFields: (keyof User)[] = [
-        
-        'id', 
-        'createdAt', 
-        'updatedAt', 
-        
-        
-        'email', 
-        'name', 
-        'password', 
-        'authProvider',
-        'isEmailVerified',
+      'id',
+      'createdAt',
+      'updatedAt',
+
+      'email',
+      'name',
+      'password',
+      'authProvider',
+      'isEmailVerified',
     ];
 
-    
-
-    
-   
     return await this.repository.findOne({
       where: identifierOptions,
       select: selectFields, // <-- This forces TypeORM to load the data

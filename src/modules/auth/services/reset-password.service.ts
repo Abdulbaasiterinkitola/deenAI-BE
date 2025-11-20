@@ -1,5 +1,10 @@
 // src/modules/auth/services/reset-password.service.ts
-import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from '@modules/users/users.service';
@@ -59,7 +64,7 @@ export class ResetPasswordService {
       );
     }
 
-    return { success: true, message: 'If an account exists, OTP sent' };
+    return { success: true, message: 'OTP sent' };
   }
 
   // Verify OTP

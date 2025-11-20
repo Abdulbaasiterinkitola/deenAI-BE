@@ -5,6 +5,7 @@ import { CustomHttpException } from '@shared/custom.exception';
 import { User } from '../models/user.model';
 import { AuthProvider } from '../enums';
 import * as bcrypt from 'bcrypt';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export default class UserValidationService {
@@ -56,5 +57,14 @@ export default class UserValidationService {
     }
 
     return user;
+  }
+
+  async validateUserExists(userId: string, transaction?: EntityManager) {
+    const user = transaction
+      ? await transaction.findOne(User, { where: { id: userId } })
+      : await this.userModelAction.get({ id: userId });
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
   }
 }

@@ -23,13 +23,12 @@ export class ValidationPipe implements PipeTransform<unknown> {
       return value;
     }
 
-    
     if (typeof value !== 'object' || value === null) {
-        return value;
+      return value;
     }
 
     const objectInstance = plainToInstance(metatype, value);
-    
+
     const errors = await validate(objectInstance);
 
     if (errors.length > 0) {
@@ -45,7 +44,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
           message: 'Validation failed',
           errors: formattedErrors,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
 

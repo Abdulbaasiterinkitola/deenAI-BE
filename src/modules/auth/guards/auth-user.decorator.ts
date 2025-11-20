@@ -1,6 +1,9 @@
-import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { User } from '../../users/models/user.model'; 
-
+import {
+  createParamDecorator,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { User } from '../../users/models/user.model';
 
 export const AuthUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): User => {
@@ -8,10 +11,11 @@ export const AuthUser = createParamDecorator(
     const user = request.user as User;
 
     if (!user) {
-      
-      throw new UnauthorizedException('Authentication required: User data missing from request context.');
+      throw new UnauthorizedException(
+        'Authentication required: User data missing from request context.',
+      );
     }
-   
+
     return user;
   },
 );
