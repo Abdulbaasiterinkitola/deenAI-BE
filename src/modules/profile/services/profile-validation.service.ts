@@ -6,6 +6,18 @@ import { CustomHttpException } from '@shared/custom.exception';
 export class ProfileValidationService {
   constructor(private readonly profileModelAction: ProfileModelAction) {}
 
+  // Ensure a user does not already have a profile
+  async validateProfileDoesNotExist(userId: string) {
+    const exists = await this.profileModelAction.exists({ userId });
+
+    if (exists) {
+      throw new CustomHttpException(
+        { message: 'Profile already exists' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   // Check if a profile exists for a user
   async validateProfileExists(userId: string) {
     const profile = await this.profileModelAction.get({ userId });

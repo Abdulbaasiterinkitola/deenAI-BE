@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ProfileValidationService } from './services/profile-validation.service';
 import { ProfileCoreService } from './services/profile-core.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './models/profile.model';
 
 @Injectable()
@@ -10,6 +11,23 @@ export class ProfileService {
     private readonly profileValidationService: ProfileValidationService,
     private readonly profileCoreService: ProfileCoreService,
   ) {}
+
+  // Create a user's profile
+  async createProfile(
+    userId: string,
+    createData: CreateProfileDto,
+  ): Promise<Profile> {
+    await this.profileValidationService.validateProfileDoesNotExist(userId);
+
+    if (createData.username !== undefined && createData.username !== null) {
+      await this.profileValidationService.validateUsernameUnique(
+        createData.username,
+        userId,
+      );
+    }
+
+    return this.profileCoreService.createProfile(userId, createData);
+  }
 
   // Main method to update a user's profile
   async updateProfile(
