@@ -2,7 +2,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from './models/user.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -23,6 +23,7 @@ export class UsersService {
     private readonly notificationSettingsService: NotificationSettingsService,
     private readonly deletionCodeService: DeletionCodeService,
     private readonly emailService: EmailService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createUser(user: UserType) {
@@ -166,46 +167,56 @@ export class UsersService {
   }
 
   async confirmAccountDeletion(user: User, otp: string) {
-    // Verify deletion code
+    // Store user data for email before deletion
+    const userEmail = user.email;
+    const userName = user.name;
+    const userId = user.id;
 
-    const isVerified =
-      await this.deletionCodeService.confirmAccountDeletionCode(
-        user.id,
-        otp,
-        user.email,
+    // Use transaction to ensure atomicity
+    await this.dataSource.transaction(async (transactionalEntityManager) => {
+      // Verify and consume deletion code within transaction
+      const isVerified =
+        await this.deletionCodeService.confirmAccountDeletionCodeWithTransaction(
+          userId,
+          otp,
+          userEmail,
+          transactionalEntityManager,
+        );
+
+      if (!isVerified) {
+        throw new CustomHttpException(
+          'Invalid or expired OTP',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Delete user notification settings within transaction
+      await this.notificationSettingsService.deleteUserNotificationSettingsWithTransaction(
+        userId,
+        transactionalEntityManager,
       );
 
-    if (!isVerified) {
-      return {
-        success: false,
-        message: 'Invalid or expired OTP',
-      };
-    }
+      // Delete user account within transaction
+      await transactionalEntityManager.delete(User, userId);
 
-    // Delete user account
-    await this.userRepo.delete(user.id);
+      this.logger.log(`User account deleted for user ID: ${userId}`);
+    });
 
-    this.logger.log(`User account deleted for user ID: ${user.id}`);
-
-    // Delete user notification settings
-    await this.notificationSettingsService.deleteUserNotificationSettings(
-      user.id,
-    );
-
-    // Send account deletion confirmation email
+    // Send account deletion confirmation email (outside transaction)
+    // This is non-critical and should not rollback the deletion if it fails
     try {
       await this.emailService.sendEmail(
-        user.email,
+        userEmail,
         'Account Deleted Successfully',
         'account-deletion-complete',
-        { name: user.name },
+        { name: userName },
       );
       this.logger.log(
-        `Account deletion confirmation email sent to ${user.email}`,
+        `Account deletion confirmation email sent to ${userEmail}`,
       );
     } catch (err) {
       this.logger.error(
-        `Failed to send account deletion confirmation email to ${user.email}: ${
+        `Failed to send account deletion confirmation email to ${userEmail}: ${
           (err as Error).message
         }`,
       );
