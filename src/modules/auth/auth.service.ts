@@ -1,51 +1,23 @@
-import {
-  Injectable,
-  HttpStatus,
-  UnauthorizedException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
+import { TokenService } from './services/token.service';
 import RegisterDto from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CustomHttpException } from '@shared/custom.exception';
 import { UsersService } from '@modules/users/users.service';
+import { CustomHttpException } from '@shared/custom.exception';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly localAuthService: LocalAuthService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly tokenService: TokenService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
   ) {}
-
-  // Access and Refresh Tokens generation
-  private async getTokens(userId: string, email: string) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        { sub: userId, email },
-        {
-          secret: this.configService.get<string>('auth.JWT_SECRET')!,
-          expiresIn: '1y',
-        },
-      ),
-      this.jwtService.signAsync(
-        { sub: userId, email },
-        {
-          secret: this.configService.get<string>('auth.refreshSecret')!,
-          expiresIn: '7d',
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
 
   async registerWithEmailAndPassword(dto: RegisterDto) {
     return await this.localAuthService.register(dto);
@@ -78,20 +50,14 @@ export class AuthService {
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
     const user = result.user;
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
     await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
     return { tokens, user };
   }
 
   async googleLogin(idToken: string) {
     const user = await this.googleAuthService.authenticate(idToken);
-    if (!user) {
-      throw new CustomHttpException(
-        'Failed to authenticate with Google',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
 
     return { tokens, user };
   }
@@ -102,18 +68,16 @@ export class AuthService {
         secret: this.configService.get<string>('auth.refreshSecret'),
       });
 
-      //Check if the token matches the one in the DB
       const user = await this.userService.getUserIfRefreshTokenMatches(
         refreshToken,
-        payload.sub,
+        payload.sub as string,
       );
 
-      if (!user) {
-        throw new ForbiddenException('Access Denied');
-      }
-
       // Rotate Tokens (Generate new pair)
-      const tokens = await this.getTokens(user.id, user.email);
+      const tokens = await this.tokenService.generateTokens(
+        user.id,
+        user.email,
+      );
 
       //Update DB with new Refresh Token
       await this.userService.setCurrentRefreshToken(
@@ -123,7 +87,10 @@ export class AuthService {
 
       return tokens;
     } catch (e) {
-      throw new UnauthorizedException(`Invalid or Expired Refresh Token ${e}`);
+      throw new CustomHttpException(
+        `Invalid or Expired Refresh Token ${e}`,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
   }
 
