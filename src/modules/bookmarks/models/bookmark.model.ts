@@ -27,7 +27,7 @@ export class Bookmark extends AbstractBaseEntity {
   @Column({
     name: 'translation_language',
     type: 'varchar',
-    length: 16,
+    length: 32,
     nullable: true,
   })
   translationLanguage?: string | null;
