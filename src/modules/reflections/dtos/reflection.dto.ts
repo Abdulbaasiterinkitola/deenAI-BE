@@ -11,6 +11,7 @@ import {
   IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
 
 /**
  * DTO for creating a new reflection
@@ -125,4 +126,62 @@ export class ReflectionIdDto {
   })
   @IsUUID()
   id: string;
+}
+
+export class ReflectionResponseDto {
+  @ApiProperty({
+    description: 'The unique identifier of the reflection',
+    example: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
+  })
+  id: string;
+
+  @ApiProperty({
+    description: 'Content of the reflection',
+    example: 'Today I learned about the importance of patience.',
+  })
+  content: string;
+
+  @ApiProperty({
+    description: 'Surah number',
+    example: 32,
+  })
+  surah: number;
+
+  @ApiProperty({
+    description: 'Start ayah number',
+    example: 1,
+  })
+  startAyah: number;
+
+  @ApiProperty({
+    description: 'End ayah number',
+    example: 5,
+  })
+  endAyah: number;
+
+  @ApiProperty({
+    description: 'User identifier',
+    example: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
+  })
+  userId: string;
+
+  @ApiProperty({
+    description: 'Creation timestamp',
+    example: '2025-01-01T12:00:00.000Z',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    description: 'Update timestamp',
+    example: '2025-01-01T12:00:00.000Z',
+  })
+  updatedAt: Date;
+}
+
+export class PaginatedReflectionsResponseDto {
+  @ApiProperty({ type: [ReflectionResponseDto] })
+  payload: ReflectionResponseDto[];
+
+  @ApiProperty({ type: PaginationMetaDto })
+  paginationMeta: PaginationMetaDto;
 }

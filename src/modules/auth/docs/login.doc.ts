@@ -27,7 +27,7 @@ export class LoginDocs {
       ApiResponse({
         status: 200,
         description: 'Successful login',
-        type: DocsResponseDto(UserResponseDto, {
+        type: DocsResponseDto<UserResponseDto>(UserResponseDto, {
           token: 'string',
         }),
       }),

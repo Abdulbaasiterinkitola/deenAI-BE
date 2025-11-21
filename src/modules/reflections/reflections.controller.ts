@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   Request,
+  Type,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -23,8 +24,10 @@ import {
   UpdateReflectionDto,
   ReflectionQueryDto,
   ReflectionIdDto,
+  PaginatedReflectionsResponseDto,
 } from './dtos/reflection.dto';
 import { AuthGuard } from '@modules/auth/guards/auth.guard';
+import { DocsResponseDto } from '@shared/docs-response.dto';
 
 @ApiTags('reflections')
 @ApiBearerAuth()
@@ -171,32 +174,9 @@ export class ReflectionsController {
   @ApiResponse({
     status: 200,
     description: 'Reflections retrieved successfully',
-    schema: {
-      example: {
-        success: true,
-        message: 'Reflections retrieved successfully',
-        data: {
-          payload: [
-            {
-              id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-              content:
-                'Today I learned about the importance of patience in software development.',
-              userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
-              createdAt: '2025-01-01T12:00:00.000Z',
-              updatedAt: '2025-01-01T12:00:00.000Z',
-            },
-          ],
-          paginationMeta: {
-            total: 1,
-            limit: 10,
-            page: 1,
-            totalPages: 1,
-            hasNext: false,
-            hasPrevious: false,
-          },
-        },
-      },
-    },
+    type: DocsResponseDto<PaginatedReflectionsResponseDto>(
+      PaginatedReflectionsResponseDto as Type<PaginatedReflectionsResponseDto>,
+    ),
   })
   async getUserReflections(
     @Query() query: ReflectionQueryDto,
