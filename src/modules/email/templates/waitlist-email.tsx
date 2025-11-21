@@ -19,7 +19,7 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
         />
         <link
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
         <style>
           {`
@@ -185,10 +185,9 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
               color: #7a4b29;
               text-decoration: none;
             }
-            .socials img {
-              width: 16px;
-              height: 16px;
-              object-fit: contain;
+            .socials i {
+              font-size: 16px;
+              color: #7a4b29;
             }
             .copyright {
               font-size: 12px;
@@ -293,16 +292,16 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
                   </div>
                   <div className="socials" style={{ marginTop: '6px' }}>
                     <a href="https://x.com/thedeenai" aria-label="x">
-                      <i className="fab fa-x-twitter" style={{ fontSize: '16px', color: '#7a4b29' }}></i>
+                      <i className="fa-brands fa-x-twitter"></i>
                     </a>
                     <a
                       href="https://instagram.com/thedeenai"
                       aria-label="instagram"
                     >
-                      <i className="fab fa-instagram" style={{ fontSize: '16px', color: '#7a4b29' }}></i>
+                      <i className="fa-brands fa-instagram"></i>
                     </a>
                     <a href="https://youtube.com/@thedeenai" aria-label="youtube">
-                      <i className="fab fa-youtube" style={{ fontSize: '16px', color: '#7a4b29' }}></i>
+                      <i className="fa-brands fa-youtube"></i>
                     </a>
                   </div>
                   <div className="copyright">All rights reserved &copy; 2025</div>

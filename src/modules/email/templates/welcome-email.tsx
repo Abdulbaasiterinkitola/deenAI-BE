@@ -23,7 +23,7 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
         />
         <link
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
@@ -132,29 +132,29 @@ const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
 
                 <div className="flex gap-3 justify-center items-center my-4">
                   <a
-                    href="https://x.com/thedeenai"
-                    aria-label="x"
-                    target="_blank"
-                    className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
-                  >
-                    <i className="fab fa-x-twitter text-xl text-gray-600"></i>
-                  </a>
-                  <a
-                    href="https://instagram.com/thedeenai"
-                    aria-label="instagram"
-                    target="_blank"
-                    className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
-                  >
-                    <i className="fab fa-instagram text-xl text-gray-600"></i>
-                  </a>
-                  <a
-                    href="https://youtube.com/@thedeenai"
-                    aria-label="youtube"
-                    target="_blank"
-                    className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
-                  >
-                    <i className="fab fa-youtube text-xl text-gray-600"></i>
-                  </a>
+                href="https://x.com/thedeenai"
+                aria-label="x"
+                target="_blank"
+                className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
+              >
+                    <i className="fa-brands fa-x-twitter text-xl text-gray-600"></i>
+              </a>
+              <a
+                href="https://instagram.com/thedeenai"
+                aria-label="instagram"
+                target="_blank"
+                className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
+              >
+                    <i className="fa-brands fa-instagram text-xl text-gray-600"></i>
+              </a>
+              <a
+                href="https://youtube.com/@thedeenai"
+                aria-label="youtube"
+                target="_blank"
+                className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
+              >
+                    <i className="fa-brands fa-youtube text-xl text-gray-600"></i>
+              </a>
                 </div>
 
                 <div className="text-xs text-[#999] mt-4 leading-normal">
