@@ -78,7 +78,7 @@ export class BookmarksDocs {
 
   static deleteBookmark() {
     return applyDecorators(
-      ApiOperation({ summary: 'Remove a bookmark' }),
+      ApiOperation({ summary: 'Remove a bookmark.' }),
       ApiResponse({
         status: 204,
         description: 'Bookmark removed successfully',
