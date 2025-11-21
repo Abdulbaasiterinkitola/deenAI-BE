@@ -52,7 +52,7 @@ export class AuthValidationService {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
+    if (!emailRegex.test(data.email as string)) {
       throw new CustomHttpException(
         'Invalid Google token: malformed email',
         HttpStatus.UNAUTHORIZED,
@@ -134,7 +134,7 @@ export class AuthValidationService {
       }
 
       throw new CustomHttpException(
-        'User already exists with this authentication provider',
+        'An account with this email already exists. Please try logging in instead.',
         HttpStatus.CONFLICT,
       );
     }

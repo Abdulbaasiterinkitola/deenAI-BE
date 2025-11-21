@@ -3,8 +3,8 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
-  IsStrongPassword,
   MinLength,
+  Matches,
 } from 'class-validator';
 
 export class RegisterBodyValidator {
@@ -31,6 +31,12 @@ export class RegisterBodyValidator {
   })
   @IsString()
   @MinLength(8)
-  @IsStrongPassword()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/,
+    {
+      message:
+        'Password must contain at least 8 characters with uppercase, lowercase, number, and special character',
+    },
+  )
   password: string;
 }

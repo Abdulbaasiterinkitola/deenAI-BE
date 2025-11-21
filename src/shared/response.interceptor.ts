@@ -8,9 +8,11 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 export interface Response<T> {
   success: boolean;
+  status: 'success' | 'error';
   message: string;
   data?: T;
   meta?: unknown;
+  status_code?: number;
 }
 
 const isResponsePayload = <T>(payload: unknown): payload is Response<T> => {
@@ -21,6 +23,8 @@ const isResponsePayload = <T>(payload: unknown): payload is Response<T> => {
   return (
     'success' in payload &&
     typeof (payload as Response<T>).success === 'boolean' &&
+    'status' in payload &&
+    typeof (payload as Response<T>).status === 'string' &&
     'message' in payload &&
     typeof (payload as Response<T>).message === 'string'
   );
@@ -38,10 +42,65 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
           return payload;
         }
 
+        const response = context.switchToHttp().getResponse();
+        const statusCode = response.statusCode || 200;
+        const request = context.switchToHttp().getRequest();
+        const method = request.method;
+        const url = request.url.split('?')[0];
+
+        // Use controller-provided message if present
+        if (
+          payload &&
+          typeof payload === 'object' &&
+          'message' in payload &&
+          typeof (payload as { message: unknown }).message === 'string'
+        ) {
+          const { message, data, ...rest } = payload as {
+            message: string;
+            data?: T;
+            [key: string]: unknown;
+          };
+
+          const remainingKeys = Object.keys(rest).filter(
+            (key) =>
+              key !== 'success' && key !== 'status' && key !== 'status_code',
+          );
+
+          const responseData =
+            data !== undefined
+              ? data
+              : remainingKeys.length > 0
+                ? (rest as unknown as T)
+                : undefined;
+
+          return {
+            success: true,
+            status: 'success',
+            message,
+            ...(responseData !== undefined ? { data: responseData } : {}),
+            status_code: statusCode,
+          };
+        }
+
+        // Get appropriate message based on endpoint
+        let message = 'Operation successful';
+        if (method === 'POST' && url.endsWith('/auth/register')) {
+          message =
+            'User registered successfully. Please check your email for verification.';
+        } else if (method === 'POST' && url.endsWith('/auth/login')) {
+          message = 'Login successful';
+        } else if (method === 'POST' && url.endsWith('/auth/google')) {
+          message = 'Google login successful';
+        } else if (method === 'POST' && url.endsWith('/auth/refresh')) {
+          message = 'Tokens refreshed successfully';
+        }
+
         return {
           success: true,
-          message: 'Operation successful',
+          status: 'success',
+          message,
           data: payload,
+          status_code: statusCode,
         };
       }),
     );

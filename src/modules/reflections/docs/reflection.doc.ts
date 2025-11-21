@@ -9,15 +9,14 @@ import {
  * Documentation for the DELETE /api/v1/reflections/:id endpoint
  */
 export const DeleteReflectionDoc = {
-  operation: () =>
-    [
-      ApiBearerAuth(),
-      ApiOperation({
-        summary: 'Delete a reflection',
-        description:
-          'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
-      }),
-    ],
+  operation: () => [
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Delete a reflection',
+      description:
+        'Deletes a reflection by its ID. Only the owner of the reflection can delete it.',
+    }),
+  ],
 
   param: () =>
     ApiParam({
@@ -85,14 +84,13 @@ export const DeleteReflectionDoc = {
  * Documentation for the POST /api/v1/reflections endpoint
  */
 export const CreateReflectionDoc = {
-  operation: () =>
-    [
-      ApiBearerAuth(),
-      ApiOperation({
-        summary: 'Create a new reflection',
-        description: 'Creates a new reflection for the authenticated user.',
-      }),
-    ],
+  operation: () => [
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Create a new reflection',
+      description: 'Creates a new reflection for the authenticated user.',
+    }),
+  ],
 
   successResponse: () =>
     ApiResponse({
@@ -138,15 +136,14 @@ export const CreateReflectionDoc = {
  * Documentation for the GET /api/v1/reflections endpoint
  */
 export const GetUserReflectionsDoc = {
-  operation: () =>
-    [
-      ApiBearerAuth(),
-      ApiOperation({
-        summary: 'Get user reflections',
-        description:
-          'Retrieves all reflections for the authenticated user with pagination.',
-      }),
-    ],
+  operation: () => [
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get user reflections',
+      description:
+        'Retrieves all reflections for the authenticated user with pagination.',
+    }),
+  ],
 
   successResponse: () =>
     ApiResponse({
@@ -188,15 +185,14 @@ export const GetUserReflectionsDoc = {
  * Documentation for the GET /api/v1/reflections/:id endpoint
  */
 export const GetReflectionByIdDoc = {
-  operation: () =>
-    [
-      ApiBearerAuth(),
-      ApiOperation({
-        summary: 'Get a reflection by ID',
-        description:
-          'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
-      }),
-    ],
+  operation: () => [
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get a reflection by ID',
+      description:
+        'Retrieves a specific reflection by its ID. Only the owner of the reflection can access it.',
+    }),
+  ],
 
   param: () =>
     ApiParam({
@@ -233,15 +229,14 @@ export const GetReflectionByIdDoc = {
  * Documentation for the PUT /api/v1/reflections/:id endpoint
  */
 export const UpdateReflectionDoc = {
-  operation: () =>
-    [
-      ApiBearerAuth(),
-      ApiOperation({
-        summary: 'Update a reflection',
-        description:
-          'Updates a reflection by its ID. Only the owner of the reflection can update it.',
-      }),
-    ],
+  operation: () => [
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Update a reflection',
+      description:
+        'Updates a reflection by its ID. Only the owner of the reflection can update it.',
+    }),
+  ],
 
   param: () =>
     ApiParam({

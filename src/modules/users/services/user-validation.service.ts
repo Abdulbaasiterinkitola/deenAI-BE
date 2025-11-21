@@ -19,8 +19,8 @@ export default class UserValidationService {
 
     if (userExists) {
       throw new CustomHttpException(
-        'Email already registered',
-        HttpStatus.BAD_REQUEST,
+        'An account with this email already exists. Please try logging in instead.',
+        HttpStatus.CONFLICT,
       );
     }
   }
@@ -42,7 +42,7 @@ export default class UserValidationService {
 
     if (!user) {
       throw new CustomHttpException(
-        'Invalid login credentials',
+        'Invalid email or password. Please check your credentials and try again.',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -61,7 +61,7 @@ export default class UserValidationService {
 
     if (!isPasswordMatch) {
       throw new CustomHttpException(
-        'Invalid login credentials',
+        'Invalid email or password. Please check your credentials and try again.',
         HttpStatus.UNAUTHORIZED,
       );
     }

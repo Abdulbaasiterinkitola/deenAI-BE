@@ -17,6 +17,10 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
           rel="stylesheet"
         />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        />
         <style>
           {`
             :root {
@@ -181,10 +185,9 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
               color: #7a4b29;
               text-decoration: none;
             }
-            .socials img {
-              width: 16px;
-              height: 16px;
-              object-fit: contain;
+            .socials i {
+              font-size: 16px;
+              color: #7a4b29;
             }
             .copyright {
               font-size: 12px;
@@ -223,7 +226,7 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
             <div className="card" role="main" aria-labelledby="welcome-title">
               <div className="logo" aria-hidden="true">
                 <img
-                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533670/Frame_2147225762_aguoyo.svg"
+                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
                   alt="Deen AI Logo"
                   width="200"
                   height="48"
@@ -281,7 +284,7 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
                   <div style={{ height: '20px' }}></div>
                   <div className="logo" style={{ margin: '0' }}>
                     <img
-                      src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533670/Frame_2147225762_aguoyo.svg"
+                      src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
                       alt="Deen AI Logo"
                       width="200"
                       height="40"
@@ -289,31 +292,16 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
                   </div>
                   <div className="socials" style={{ marginTop: '6px' }}>
                     <a href="https://x.com/thedeenai" aria-label="x">
-                      <img
-                        src="https://ottoman.emerj.net/icons/x.svg"
-                        alt="X (Twitter)"
-                        width="16"
-                        height="16"
-                      />
+                      <i className="fa-brands fa-x-twitter"></i>
                     </a>
                     <a
                       href="https://instagram.com/thedeenai"
                       aria-label="instagram"
                     >
-                      <img
-                        src="https://ottoman.emerj.net/icons/insta.svg"
-                        alt="Instagram"
-                        width="16"
-                        height="16"
-                      />
+                      <i className="fa-brands fa-instagram"></i>
                     </a>
                     <a href="https://youtube.com/@thedeenai" aria-label="youtube">
-                      <img
-                        src="https://ottoman.emerj.net/icons/yt.svg"
-                        alt="YouTube"
-                        width="16"
-                        height="16"
-                      />
+                      <i className="fa-brands fa-youtube"></i>
                     </a>
                   </div>
                   <div className="copyright">All rights reserved &copy; 2025</div>

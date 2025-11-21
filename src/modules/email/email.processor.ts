@@ -10,6 +10,8 @@ import WelcomeEmail from './templates/welcome-email';
 import { Job } from 'bull';
 import OtpEmail from './templates/otp-email';
 import PasswordResetSuccessEmail from './templates/password-reset-success';
+import VerificationCodeEmail from './templates/verification-code';
+import AccountDeletionCompleteEmail from './templates/account-deletion-complete';
 
 type MailTransporter = {
   sendMail(
@@ -31,6 +33,9 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   welcome: WelcomeEmail,
   'forgot-password': OtpEmail,
   'password-reset-success': PasswordResetSuccessEmail,
+  'email-verification': VerificationCodeEmail,
+  'account-deletion': OtpEmail,
+  'account-deletion-complete': AccountDeletionCompleteEmail,
 };
 
 @Processor('email')
@@ -162,8 +167,15 @@ export class ProcessMail {
       );
 
       // Remove job from Redis after successful completion
-      await job.remove();
-      this.logger.log(`Job ${job.id} removed from Redis queue`);
+      try {
+        await job.remove();
+        this.logger.log(`Job ${job.id} removed from Redis queue`);
+      } catch (removeError) {
+        this.logger.warn(
+          `Failed to remove job ${job.id} from queue: ${(removeError as Error).message}`,
+        );
+        // Don't throw here - email was sent successfully
+      }
     } catch (error) {
       this.logger.error(
         `Failed to send email to ${email}: ${(error as Error).message}`,

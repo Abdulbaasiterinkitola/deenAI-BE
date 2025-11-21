@@ -8,12 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
@@ -21,8 +16,20 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { ResetPasswordService } from './services/reset-password.service';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import {
+  RegisterDocs,
+  VerifyEmailDocs,
+  ResendVerificationDocs,
+  LoginDocs,
+  GoogleAuthDocs,
+  ForgotPasswordDocs,
+  VerifyOtpDocs,
+  ResetPasswordDocs,
+  RefreshDocs,
+  LogoutDocs,
+} from './docs';
 @Controller('auth')
 @ApiTags('Authentication')
 export class AuthController {
@@ -34,41 +41,55 @@ export class AuthController {
 
   @HttpCode(201)
   @Post('/register')
+  @RegisterDocs.register()
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
   }
 
   @HttpCode(200)
+  @Post('verify-email')
+  @VerifyEmailDocs.verifyEmail()
+  async verifyEmail(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @HttpCode(200)
+  @Post('resend-verification')
+  @ResendVerificationDocs.resendVerification()
+  async resendVerificationOtp(@Body() dto: RequestOtpDto) {
+    return this.authService.resendVerificationOtp(dto.email);
+  }
+
+  @HttpCode(200)
   @Post('/login')
+  @LoginDocs.login()
   async login(@Body() user: LoginBodyValidator) {
     return await this.authService.login(user);
   }
 
   @HttpCode(200)
   @Post('/google')
+  @GoogleAuthDocs.googleAuth()
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
     return await this.authService.googleLogin(googleAuthDto.idToken);
   }
   @HttpCode(200)
-  @Post('request-otp')
-  @ApiOperation({ summary: 'Request OTP for password reset' })
-  @ApiResponse({ status: 200, description: 'OTP sent if account exists' })
+  @Post('forgot-password')
+  @ForgotPasswordDocs.forgotPassword()
   async requestOtp(@Body() dto: RequestOtpDto) {
     return this.resetPasswordService.requestOtp(dto.email);
   }
 
   @HttpCode(200)
   @Post('verify-otp')
-  @ApiOperation({ summary: 'Verify OTP' })
-  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
+  @VerifyOtpDocs.verifyOtp()
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.resetPasswordService.verifyOtp(dto.email, dto.otp);
   }
 
   @HttpCode(200)
   @Post('reset-password')
-  @ApiOperation({ summary: 'Reset password using OTP' })
-  @ApiResponse({ status: 200, description: 'Password successfully reset' })
+  @ResetPasswordDocs.resetPassword()
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.resetPasswordService.resetPassword(
       dto.email,
@@ -79,8 +100,7 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('refresh')
-  @ApiOperation({ summary: 'Refresh Access Token' })
-  @ApiResponse({ status: 200, description: 'Tokens refreshed successfully' })
+  @RefreshDocs.refresh()
   async refreshTokens(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshTokens(dto.refreshToken);
   }
@@ -88,11 +108,9 @@ export class AuthController {
   @HttpCode(200)
   @Post('logout')
   @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Logout user' })
-  @ApiResponse({ status: 200, description: 'Successfully logged out' })
+  @LogoutDocs.logout()
   async logout(@Req() req: any) {
     const user = req.user;
-    return this.authService.logout(user.id);
+    return this.authService.logout(user.id as string);
   }
 }

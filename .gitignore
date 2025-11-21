@@ -75,3 +75,6 @@ data/
 # Port files
 PORT=*
 PORT*
+
+# DOCKER
+compose.yml

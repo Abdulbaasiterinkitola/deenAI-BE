@@ -3,7 +3,6 @@ import {
   ApiBadRequestResponse,
   ApiBody,
   ApiOperation,
-  ApiProperty,
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -13,17 +12,36 @@ import {
   UnauthorizedResponseDto,
   ValidationResponseDto,
 } from '@shared/docs-response.dto';
-import { User } from '@modules/users/models/user.model';
 
 export class GoogleAuthDocs {
   static googleAuth() {
     return applyDecorators(
-      ApiOperation({ summary: 'User Authentication with Google OAuth2' }),
+      ApiOperation({ summary: 'Google OAuth login' }),
       ApiBody({ type: GoogleAuthValidator }),
       ApiResponse({
         status: 200,
-        description: 'User authenticated successfully with Google.',
-        type: GoogleAuthResponseDto,
+        description: 'Google login successful',
+        schema: {
+          example: {
+            success: true,
+            status: 'success',
+            message: 'Google login successful',
+            data: {
+              tokens: {
+                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+              },
+              user: {
+                id: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
+                name: 'John Doe',
+                email: 'user@example.com',
+                authProvider: 'google',
+                isEmailVerified: true,
+              },
+            },
+            status_code: 200,
+          },
+        },
       }),
       ApiUnauthorizedResponse({
         description: 'Invalid Google ID token or authentication failed',
@@ -40,36 +58,4 @@ export class GoogleAuthDocs {
       }),
     );
   }
-}
-
-class GoogleAuthData {
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT token for the user',
-  })
-  token: string;
-
-  @ApiProperty({
-    type: () => User,
-  })
-  user: User;
-}
-
-export class GoogleAuthResponseDto {
-  @ApiProperty({
-    example: true,
-    description: 'Indicates if the operation was successful',
-  })
-  success: boolean;
-
-  @ApiProperty({
-    example: 'Google authentication successful',
-    description: 'Response message',
-  })
-  message: string;
-
-  @ApiProperty({
-    type: () => GoogleAuthData,
-  })
-  data: GoogleAuthData;
 }

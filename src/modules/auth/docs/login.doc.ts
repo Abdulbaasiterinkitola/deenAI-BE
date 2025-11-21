@@ -8,28 +8,42 @@ import {
 } from '@nestjs/swagger';
 import { LoginBodyValidator } from '../validators/login.validator';
 import {
-  DocsResponseDto,
   UnauthorizedResponseDto,
   ValidationResponseDto,
   BadResponseDto,
 } from '@shared/docs-response.dto';
-import { UserResponseDto } from '../../users/dtos/user-response.dto';
 
 export class LoginDocs {
   static login() {
     return applyDecorators(
-      ApiOperation({
-        summary: 'User login with email and password',
-        description:
-          'Authenticates a user with LOCAL auth provider using email and password, returning a JWT token and user information.',
-      }),
+      ApiOperation({ summary: 'Login user' }),
       ApiBody({ type: LoginBodyValidator }),
       ApiResponse({
         status: 200,
-        description: 'Successful login',
-        type: DocsResponseDto(UserResponseDto, {
-          token: 'string',
-        }),
+        description: 'Login successful',
+        schema: {
+          example: {
+            success: true,
+            status: 'success',
+            message: 'Login successful',
+            data: {
+              tokens: {
+                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+              },
+              user: {
+                id: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
+                name: 'John Doe',
+                email: 'user@example.com',
+                authProvider: 'local',
+                isEmailVerified: true,
+                createdAt: '2025-11-20T19:02:39.633Z',
+                updatedAt: '2025-11-20T19:04:58.434Z',
+              },
+            },
+            status_code: 200,
+          },
+        },
       }),
       ApiUnauthorizedResponse({
         description: 'Invalid credentials or non-LOCAL provider',
