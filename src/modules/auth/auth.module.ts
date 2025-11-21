@@ -14,6 +14,7 @@ import { OtpService } from './services/otp.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResetPasswordService } from './services/reset-password.service';
 import { PasswordResetOtp } from './models/otp.model';
+import { OtpActionModel } from './action-models/otp.action-model';
 
 @Module({
   controllers: [AuthController],
@@ -26,6 +27,7 @@ import { PasswordResetOtp } from './models/otp.model';
     OtpService,
     ResetPasswordService,
     AuthValidationService,
+    OtpActionModel,
   ],
   imports: [
     EmailServiceModule,

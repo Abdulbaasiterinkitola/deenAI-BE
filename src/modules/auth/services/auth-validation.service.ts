@@ -52,7 +52,7 @@ export class AuthValidationService {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
+    if (!emailRegex.test(data.email as string)) {
       throw new CustomHttpException(
         'Invalid Google token: malformed email',
         HttpStatus.UNAUTHORIZED,
