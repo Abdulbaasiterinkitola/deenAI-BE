@@ -1,9 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 
 export class RefreshDocs {
@@ -32,4 +28,3 @@ export class RefreshDocs {
     );
   }
 }
-

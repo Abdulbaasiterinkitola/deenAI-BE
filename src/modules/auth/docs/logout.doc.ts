@@ -1,9 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 export class LogoutDocs {
   static logout() {
@@ -25,4 +21,3 @@ export class LogoutDocs {
     );
   }
 }
-

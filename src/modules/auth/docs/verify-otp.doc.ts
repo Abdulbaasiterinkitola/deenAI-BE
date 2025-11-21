@@ -1,9 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { VerifyOtpDto } from '../dtos/verify-otp.dto';
 
 export class VerifyOtpDocs {
@@ -28,4 +24,3 @@ export class VerifyOtpDocs {
     );
   }
 }
-
