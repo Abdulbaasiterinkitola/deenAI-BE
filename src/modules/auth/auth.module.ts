@@ -5,6 +5,7 @@ import { UsersModule } from '@modules/users/users.module';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
 import { AuthValidationService } from './services/auth-validation.service';
+import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailServiceModule } from '@modules/email/email.module';
@@ -20,6 +21,7 @@ import { PasswordResetOtp } from './models/otp.model';
     AuthService,
     LocalAuthService,
     GoogleAuthService,
+    TokenService,
     AuthGuard,
     OtpService,
     ResetPasswordService,
