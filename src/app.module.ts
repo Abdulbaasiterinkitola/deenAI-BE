@@ -16,6 +16,7 @@ import { HealthModule } from '@modules/health/health.module';
 import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
 import { ContactModule } from '@modules/contact/contact.module';
 import { ChatsModule } from '@modules/chats/chats.module';
+import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ChatsModule } from '@modules/chats/chats.module';
     NotificationSettingsModule,
     ContactModule,
     ChatsModule,
+    BookmarksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
