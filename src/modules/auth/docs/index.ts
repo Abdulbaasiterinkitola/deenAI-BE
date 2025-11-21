@@ -1,0 +1,10 @@
+export { RegisterDocs } from './register.doc';
+export { VerifyEmailDocs } from './verify-email.doc';
+export { ResendVerificationDocs } from './resend-verification.doc';
+export { LoginDocs } from './login.doc';
+export { GoogleAuthDocs } from './google-auth.doc';
+export { ForgotPasswordDocs } from './forgot-password.doc';
+export { VerifyOtpDocs } from './verify-otp.doc';
+export { ResetPasswordDocs } from './reset-password.doc';
+export { RefreshDocs } from './refresh.doc';
+export { LogoutDocs } from './logout.doc';
