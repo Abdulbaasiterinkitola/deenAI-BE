@@ -82,14 +82,6 @@ export class BookmarksDocs {
       ApiResponse({
         status: 204,
         description: 'Bookmark removed successfully',
-        schema: {
-          example: {
-            success: true,
-            status: 'success',
-            message: 'Bookmark removed successfully',
-            status_code: 204,
-          },
-        },
       }),
     );
   }
