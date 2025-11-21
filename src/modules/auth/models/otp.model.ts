@@ -1,15 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-} from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { AbstractBaseEntity } from '@entities/base.entity';
 
 @Entity('password_reset_otp')
-export class PasswordResetOtp {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class PasswordResetOtp extends AbstractBaseEntity {
   @Column()
   email: string;
 
@@ -24,7 +17,4 @@ export class PasswordResetOtp {
 
   @Column({ name: 'used_at', type: 'timestamp', nullable: true })
   usedAt: Date | null;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
 }
