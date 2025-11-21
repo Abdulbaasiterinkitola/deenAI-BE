@@ -16,7 +16,7 @@ export class NotificationSettings extends AbstractBaseEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
-  @OneToOne(() => User, { nullable: false })
+  @OneToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 }

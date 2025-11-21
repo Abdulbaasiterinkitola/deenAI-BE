@@ -9,12 +9,16 @@ import { User } from './models/user.model';
 import { PasswordResetOtp } from '@modules/auth/models/otp.model';
 import { AuthModule } from '@modules/auth/auth.module';
 import { NotificationSettingsModule } from '@modules/notification-settings/notification-settings.module';
+import { DeletionCodeService } from './services/deletion-code.service';
+import { AccountDeletionCode } from './models/account-deletion.model';
+import { EmailServiceModule } from '@modules/email/email.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, PasswordResetOtp]),
+    TypeOrmModule.forFeature([User, PasswordResetOtp, AccountDeletionCode]),
     forwardRef(() => AuthModule),
     forwardRef(() => NotificationSettingsModule),
+    EmailServiceModule,
   ],
   controllers: [UsersController],
   providers: [
@@ -22,6 +26,7 @@ import { NotificationSettingsModule } from '@modules/notification-settings/notif
     UserCoreService,
     UserValidationService,
     UserModelAction,
+    DeletionCodeService,
   ],
   exports: [UsersService, UserValidationService],
 })
