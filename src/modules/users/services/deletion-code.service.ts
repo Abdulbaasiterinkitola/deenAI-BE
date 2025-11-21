@@ -30,7 +30,7 @@ export class DeletionCodeService {
       `Generating account deletion code for user ID: ${userId}, email: ${normalizedEmail}`,
     );
 
-    const code = Math.floor(100000 + Math.random() * 9000).toString();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
 
     // Delete any existing codes for this user and email
