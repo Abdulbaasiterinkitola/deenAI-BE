@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from './test-setup';
+import { App } from 'supertest/types';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +18,7 @@ describe('AppController (e2e)', () => {
 
   describe('GET /', () => {
     it('should return app info', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/')
         .expect(200)
         .expect((res) => {
@@ -28,7 +29,7 @@ describe('AppController (e2e)', () => {
 
   describe('API Prefix', () => {
     it('should have correct API prefix for protected routes', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/api/v1/reflections')
         .expect((res) => {
           expect(res.status).not.toBe(404);

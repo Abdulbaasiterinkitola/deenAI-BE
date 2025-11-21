@@ -1,5 +1,5 @@
 import { UsersService } from '@modules/users/users.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
@@ -29,9 +29,18 @@ export class GoogleAuthService {
     private readonly authValidationService: AuthValidationService,
   ) {}
 
-  async authenticate(token: string): Promise<User | null> {
+  async authenticate(token: string): Promise<User> {
     const googleUserData = await this.verifyGoogleToken(token);
-    return await this.createOrUpdateUser(googleUserData);
+    const user = await this.createOrUpdateUser(googleUserData);
+
+    if (!user) {
+      throw new CustomHttpException(
+        'Failed to authenticate with Google',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    return user;
   }
 
   private async verifyGoogleToken(token: string): Promise<GoogleUserData> {

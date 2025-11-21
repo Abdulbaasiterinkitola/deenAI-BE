@@ -11,8 +11,8 @@ import {
 import { Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { AuthUser } from '../auth/guards/auth-user.decorator';
+import { AuthGuard } from '@guards/auth.guard';
+import { AuthUser } from '@guards/auth-user.decorator';
 
 import { User } from './models/user.model';
 import { UserProfileDto } from './dtos/user-profile.dto';

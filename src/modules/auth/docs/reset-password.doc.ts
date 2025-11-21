@@ -5,9 +5,20 @@ import { applyDecorators } from '@nestjs/common';
 export class ResetPasswordDocs {
   static resetPassword() {
     return applyDecorators(
-      ApiOperation({ summary: 'Reset user password using token' }),
+      ApiOperation({ summary: 'Reset password using OTP' }),
       ApiBody({ type: ResetPasswordDto }),
-      ApiResponse({ status: 200, description: 'Password successfully reset' }),
+      ApiResponse({
+        status: 200,
+        description: 'Password successfully reset',
+        schema: {
+          example: {
+            success: true,
+            status: 'success',
+            message: 'Password successfully reset',
+            status_code: 200,
+          },
+        },
+      }),
     );
   }
 }

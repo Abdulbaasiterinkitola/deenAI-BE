@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from '../test-setup';
+import { App } from 'supertest/types';
 
 describe('Auth Controller (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +18,7 @@ describe('Auth Controller (e2e)', () => {
 
   describe('POST /api/v1/auth/register', () => {
     it('should validate required fields', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/register')
         .send({})
         .expect((res) => {
@@ -26,7 +27,7 @@ describe('Auth Controller (e2e)', () => {
     });
 
     it('should validate email format', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/register')
         .send({
           email: 'invalid-email',
@@ -42,7 +43,7 @@ describe('Auth Controller (e2e)', () => {
 
   describe('POST /api/v1/auth/login', () => {
     it('should validate required fields', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/login')
         .send({})
         .expect((res) => {
@@ -51,7 +52,7 @@ describe('Auth Controller (e2e)', () => {
     });
 
     it('should validate email format', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/login')
         .send({
           email: 'invalid-email',
@@ -65,7 +66,7 @@ describe('Auth Controller (e2e)', () => {
 
   describe('POST /api/v1/auth/forgot-password', () => {
     it('should validate email format', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/forgot-password')
         .send({ email: 'invalid-email' })
         .expect((res) => {
@@ -76,7 +77,7 @@ describe('Auth Controller (e2e)', () => {
 
   describe('POST /api/v1/auth/verify-otp', () => {
     it('should validate required fields', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/verify-otp')
         .send({})
         .expect((res) => {
@@ -87,7 +88,7 @@ describe('Auth Controller (e2e)', () => {
 
   describe('POST /api/v1/auth/reset-password', () => {
     it('should validate required fields', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/auth/reset-password')
         .send({})
         .expect((res) => {

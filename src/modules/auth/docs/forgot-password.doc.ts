@@ -3,21 +3,27 @@ import {
   ApiBadRequestResponse,
   ApiBody,
   ApiOperation,
-  ApiProperty,
   ApiResponse,
 } from '@nestjs/swagger';
 import { BadResponseDto } from '@shared/docs-response.dto';
-import { ForgotPasswordBodyValidator } from '../validators/forgot-password.validator';
+import { RequestOtpDto } from '../dtos/forgot-password.dto';
 
 export class ForgotPasswordDocs {
   static forgotPassword() {
     return applyDecorators(
-      ApiOperation({ summary: 'Forgot Password' }),
-      ApiBody({ type: ForgotPasswordBodyValidator }),
+      ApiOperation({ summary: 'Forgot password' }),
+      ApiBody({ type: RequestOtpDto }),
       ApiResponse({
         status: 200,
-        description: 'Password reset email sent successfully',
-        type: ForgotPasswordResponseDto,
+        description: 'Request password reset OTP',
+        schema: {
+          example: {
+            success: true,
+            status: 'success',
+            message: 'Password reset OTP sent successfully',
+            status_code: 200,
+          },
+        },
       }),
       ApiBadRequestResponse({
         description: 'Invalid email or user not found',
@@ -25,18 +31,4 @@ export class ForgotPasswordDocs {
       }),
     );
   }
-}
-
-export class ForgotPasswordResponseDto {
-  @ApiProperty({
-    example: true,
-    description: 'Indicates if the operation was successful',
-  })
-  success: boolean;
-
-  @ApiProperty({
-    example: 'Password reset email sent successfully.',
-    description: 'Response message',
-  })
-  message: string;
 }

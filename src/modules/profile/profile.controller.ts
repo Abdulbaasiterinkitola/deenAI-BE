@@ -11,7 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { AuthGuard } from '@modules/auth/guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { UpdateProfileDocs } from './docs/update-profile.docs';
 import { CreateProfileDocs } from './docs/create-profile.docs';
 

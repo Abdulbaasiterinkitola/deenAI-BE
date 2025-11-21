@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from '../test-setup';
+import { App } from 'supertest/types';
 
 describe('Health Controller (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +18,7 @@ describe('Health Controller (e2e)', () => {
 
   describe('GET /health', () => {
     it('should return health status', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/health')
         .expect((res) => {
           expect(res.status).toBeGreaterThanOrEqual(200);

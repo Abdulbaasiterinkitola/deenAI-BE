@@ -8,7 +8,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthGuard } from '@modules/auth/guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { NotificationSettingsService } from './notification-settings.service';
 import {
   ApiTags,
