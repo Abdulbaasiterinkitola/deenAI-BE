@@ -26,7 +26,7 @@ import {
   ReflectionIdDto,
   PaginatedReflectionsResponseDto,
 } from './dtos/reflection.dto';
-import { AuthGuard } from '@modules/auth/guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { DocsResponseDto } from '@shared/docs-response.dto';
 
 @ApiTags('reflections')

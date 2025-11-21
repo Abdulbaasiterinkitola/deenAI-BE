@@ -8,7 +8,7 @@ import { AuthValidationService } from './services/auth-validation.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailServiceModule } from '@modules/email/email.module';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { OtpService } from './services/otp.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResetPasswordService } from './services/reset-password.service';

@@ -16,7 +16,7 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { ResetPasswordService } from './services/reset-password.service';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import {
   RegisterDocs,

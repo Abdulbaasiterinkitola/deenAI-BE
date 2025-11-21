@@ -17,7 +17,7 @@ import {
   BookmarkIdParamDto,
   BookmarkQueryDto,
 } from './dtos/bookmark.dto';
-import { AuthGuard } from '@modules/auth/guards/auth.guard';
+import { AuthGuard } from '@guards/auth.guard';
 import { BookmarksDocs } from './docs/bookmarks.doc';
 
 @ApiTags('bookmarks')
