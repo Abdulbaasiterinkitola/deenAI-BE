@@ -5,6 +5,8 @@ import {
   HttpCode,
   HttpStatus,
   Body,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Controller, Post, UseGuards } from '@nestjs/common';
@@ -16,6 +18,9 @@ import { AuthUser } from '../auth/guards/auth-user.decorator';
 import { User } from './models/user.model';
 import { UserProfileDto } from './dtos/user-profile.dto';
 import { ApiResponse as TApiResponse } from './types/api-response.type';
+import { ConfirmAccountDeletionDto } from './dtos/confirm-account-deletion.dto';
+import { RequestAccountDeletionDocs } from './docs/request-account-deletion.doc';
+import { ConfirmAccountDeletionDocs } from './docs/confirm-account-deletion.doc';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard)
@@ -42,86 +47,19 @@ export class UsersController {
    */
   @Post('/delete/request')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Request account deletion',
-    description:
-      'Allows a user to request the deletion of their account. This action is irreversible.',
-  })
-  @ApiResponse({
-    status: 201,
-    description:
-      'Account deletion request successfully created, you will receive a verification email shortly.',
-    schema: {
-      example: {
-        success: true,
-        message:
-          'Account deletion request created. Please check your email for OTP verification.',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description:
-      'Unauthorized - User must be authenticated to request account deletion',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden - User is not allowed to request account deletion',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
+  @RequestAccountDeletionDocs.requestAccountDeletion()
   async requestAccountDeletion(@AuthUser() user: User) {
     return await this.usersService.requestAccountDeletion(user);
   }
 
   @Post('/delete/confirm')
-  @ApiOperation({
-    summary: 'Confirm account deletion',
-    description:
-      "Confirms the deletion of a user account after verifying the OTP sent to the user's email.",
-  })
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
-    status: 200,
-    description: 'Account successfully deleted',
-    schema: {
-      example: {
-        success: true,
-        message: 'Account deleted successfully',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request - Invalid or expired OTP',
-    schema: {
-      example: {
-        success: false,
-        message: 'Invalid or expired OTP',
-        error: 'The provided OTP is incorrect or has expired',
-        status_code: 400,
-      },
-    },
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        otp: {
-          type: 'string',
-          description: 'The OTP code sent to the user email for verification',
-          example: '123456',
-        },
-      },
-      required: ['otp'],
-    },
-  })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @ConfirmAccountDeletionDocs.confirmAccountDeletion()
   async confirmAccountDeletion(
     @AuthUser() user: User,
-    @Body('otp') otp: string,
+    @Body() body: ConfirmAccountDeletionDto,
   ) {
-    return await this.usersService.confirmAccountDeletion(user, otp);
+    return await this.usersService.confirmAccountDeletion(user, body.otp);
   }
 }
