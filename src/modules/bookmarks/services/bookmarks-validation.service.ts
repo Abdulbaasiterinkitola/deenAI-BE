@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Bookmark } from '../models/bookmark.model';
 import { CustomHttpException } from '@shared/custom.exception';
 import { HttpStatus } from '@nestjs/common';
+import { Bookmark } from '../models/bookmark.model';
 
 /**
  * Service responsible for validating bookmark-related data and operations
@@ -36,28 +36,6 @@ export class BookmarksValidationService {
       throw new CustomHttpException(
         'Invalid bookmark ID format',
         HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
-  /**
-   * Validates that a bookmark exists and belongs to the specified user
-   * @param bookmark - The bookmark to validate
-   * @param userId - The user ID to check ownership against
-   * @throws {CustomHttpException} When bookmark doesn't exist or doesn't belong to the user
-   */
-  validateBookmarkOwnership(
-    bookmark: Bookmark | null,
-    userId: string,
-  ): asserts bookmark is Bookmark {
-    if (!bookmark) {
-      throw new CustomHttpException('Bookmark not found', HttpStatus.NOT_FOUND);
-    }
-
-    if (bookmark.userId !== userId) {
-      throw new CustomHttpException(
-        'You do not have permission to access this bookmark',
-        HttpStatus.FORBIDDEN,
       );
     }
   }

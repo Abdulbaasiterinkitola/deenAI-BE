@@ -2,10 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { BookmarksActionModel } from '../action-models/bookmarks.action-model';
 import { BookmarksValidationService } from './bookmarks-validation.service';
 import { Bookmark } from '../models/bookmark.model';
-import {
-  BookmarkQueryDto,
-  CreateBookmarkDto,
-} from '../dtos/bookmark.dto';
+import { BookmarkQueryDto, CreateBookmarkDto } from '../dtos/bookmark.dto';
 import { CustomHttpException } from '@shared/custom.exception';
 import { PaginationMeta } from '@shared/helpers/pagination.helper';
 
@@ -95,7 +92,9 @@ export class BookmarksCoreService {
 
     const bookmark = await this.bookmarksActionModel.get({ id, userId });
 
-    this.bookmarksValidationService.validateBookmarkOwnership(bookmark, userId);
+    if (!bookmark) {
+      throw new CustomHttpException('Bookmark not found', HttpStatus.NOT_FOUND);
+    }
 
     return bookmark;
   }
@@ -108,10 +107,9 @@ export class BookmarksCoreService {
       userId,
     });
 
-    this.bookmarksValidationService.validateBookmarkOwnership(
-      existingBookmark,
-      userId,
-    );
+    if (!existingBookmark) {
+      throw new CustomHttpException('Bookmark not found', HttpStatus.NOT_FOUND);
+    }
 
     await this.bookmarksActionModel.delete({
       identifierOptions: { id, userId },
