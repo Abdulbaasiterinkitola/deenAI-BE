@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, ForbiddenException, Logger } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
