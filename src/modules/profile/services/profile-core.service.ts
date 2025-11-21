@@ -18,9 +18,7 @@ export class ProfileCoreService {
       userId,
       avatar: createData.avatar ?? null,
       language: createData.language ?? null,
-      username: createData.username
-        ? createData.username.toLowerCase()
-        : null,
+      username: createData.username ? createData.username.toLowerCase() : null,
     };
 
     const createdProfile = await this.profileModelAction.create({

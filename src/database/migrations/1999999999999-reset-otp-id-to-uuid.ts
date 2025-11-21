@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class ConvertPasswordResetOtpIdToUuid1999999999999 implements MigrationInterface {
+export class ConvertPasswordResetOtpIdToUuid1999999999999
+  implements MigrationInterface
+{
   name = 'ConvertPasswordResetOtpIdToUuid1999999999999';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class DeleteUserDto {
   @ApiProperty({
