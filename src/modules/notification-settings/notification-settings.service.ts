@@ -23,6 +23,17 @@ export class NotificationSettingsService {
     );
   }
 
+  async deleteUserNotificationSettings(userId: string) {
+    await this.notificationSettingsRepo.delete({ userId });
+  }
+
+  async deleteUserNotificationSettingsWithTransaction(
+    userId: string,
+    transactionalEntityManager: EntityManager,
+  ) {
+    await transactionalEntityManager.delete(NotificationSettings, { userId });
+  }
+
   async findByUserId(userId: string): Promise<NotificationSettings | null> {
     return this.notificationSettingsRepo.findOne({ where: { userId } });
   }
