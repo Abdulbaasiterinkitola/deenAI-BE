@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, ForbiddenException } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
@@ -111,15 +111,20 @@ export class UsersService {
       select: ['id', 'email', 'currentRefreshToken'],
     });
 
+    if (!user) {
+      throw new ForbiddenException('Access Denied');
+    }
+
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
-      user?.currentRefreshToken || '',
+      user.currentRefreshToken || '',
     );
 
-    if (isRefreshTokenMatching) {
-      return user;
+    if (!isRefreshTokenMatching) {
+      throw new ForbiddenException('Access Denied');
     }
-    return null;
+
+    return user;
   }
 
   async removeRefreshToken(userId: string) {
