@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, DeepPartial, ObjectLiteral } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
 import { ResponseInterceptor } from '@shared/response.interceptor';
@@ -175,7 +175,7 @@ export const createTestUser = async (
     lastName: 'User',
     isEmailVerified: true,
     ...userData,
-  });
+  } as DeepPartial<ObjectLiteral>[]);
   return await userRepository.save(testUser);
 };
 

@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from '../test-setup';
+import { App } from 'supertest/types';
 
 describe('Reflections Controller (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +18,7 @@ describe('Reflections Controller (e2e)', () => {
 
   describe('POST /api/v1/reflections', () => {
     it('should require authentication', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/reflections')
         .send({
           startAyah: 1,
@@ -29,7 +30,7 @@ describe('Reflections Controller (e2e)', () => {
     });
 
     it('should validate required fields', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/reflections')
         .send({})
         .expect((res) => {
@@ -40,7 +41,7 @@ describe('Reflections Controller (e2e)', () => {
 
   describe('GET /api/v1/reflections', () => {
     it('should require authentication', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/api/v1/reflections')
         .expect(401);
     });
@@ -48,7 +49,7 @@ describe('Reflections Controller (e2e)', () => {
 
   describe('GET /api/v1/reflections/:id', () => {
     it('should require authentication', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/api/v1/reflections/550e8400-e29b-41d4-a716-446655440000')
         .expect(401);
     });
@@ -56,7 +57,7 @@ describe('Reflections Controller (e2e)', () => {
 
   describe('PUT /api/v1/reflections/:id', () => {
     it('should require authentication', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .put('/api/v1/reflections/550e8400-e29b-41d4-a716-446655440000')
         .send({ content: 'Updated content' })
         .expect(401);
@@ -65,7 +66,7 @@ describe('Reflections Controller (e2e)', () => {
 
   describe('DELETE /api/v1/reflections/:id', () => {
     it('should require authentication', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .delete('/api/v1/reflections/550e8400-e29b-41d4-a716-446655440000')
         .expect(401);
     });

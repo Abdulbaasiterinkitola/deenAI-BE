@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from '../test-setup';
+import { App } from 'supertest/types';
 
 describe('Contact Controller (e2e)', () => {
   let app: INestApplication;
@@ -24,7 +25,7 @@ describe('Contact Controller (e2e)', () => {
     };
 
     it('should submit contact form successfully', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/contact')
         .send(validContact)
         .expect(201)
@@ -38,7 +39,7 @@ describe('Contact Controller (e2e)', () => {
     });
 
     it('should fail with missing required fields', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/contact')
         .send({ name: 'John Doe' })
         .expect((res) => {
@@ -48,7 +49,7 @@ describe('Contact Controller (e2e)', () => {
     });
 
     it('should validate email format', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/contact')
         .send({
           ...validContact,
@@ -60,7 +61,7 @@ describe('Contact Controller (e2e)', () => {
     });
 
     it('should handle special characters', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/contact')
         .send({
           name: 'José María',

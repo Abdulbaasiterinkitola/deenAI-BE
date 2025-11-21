@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Logger } from '@nestjs/common';
@@ -43,7 +43,7 @@ if (dbType === 'sqlite') {
 }
 
 // Export data source for CLI
-const dataSource = new DataSource(dataSourceConfig);
+const dataSource = new DataSource(dataSourceConfig as DataSourceOptions);
 
 export async function initializeDataSource() {
   const logger = new Logger('Database');

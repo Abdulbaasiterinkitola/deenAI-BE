@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from '../test-setup';
+import { App } from 'supertest/types';
 
 describe('Users Controller (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +18,7 @@ describe('Users Controller (e2e)', () => {
 
   describe('GET /api/v1/users/profile', () => {
     it('should require authentication or return 404', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/api/v1/users/profile')
         .expect((res) => {
           expect([401, 404]).toContain(res.status);
@@ -25,7 +26,7 @@ describe('Users Controller (e2e)', () => {
     });
 
     it('should fail with invalid token', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer invalid-token')
         .expect((res) => {
@@ -36,7 +37,7 @@ describe('Users Controller (e2e)', () => {
 
   describe('PUT /api/v1/users/profile', () => {
     it('should require authentication or return 404', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .put('/api/v1/users/profile')
         .send({
           firstName: 'Updated',
@@ -50,7 +51,7 @@ describe('Users Controller (e2e)', () => {
 
   describe('DELETE /api/v1/users/account', () => {
     it('should require authentication or return 404', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .delete('/api/v1/users/account')
         .expect((res) => {
           expect([401, 404]).toContain(res.status);
@@ -60,7 +61,7 @@ describe('Users Controller (e2e)', () => {
 
   describe('POST /api/v1/users/change-password', () => {
     it('should require authentication or return 404', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/users/change-password')
         .send({
           currentPassword: 'Password123!',

@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp } from '../test-setup';
+import { App } from 'supertest/types';
 
 describe('Waitlist Controller (e2e)', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('Waitlist Controller (e2e)', () => {
     };
 
     it('should register for waitlist successfully', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/waitlist')
         .send(validWaitlistData)
         .expect((res) => {
@@ -41,7 +42,7 @@ describe('Waitlist Controller (e2e)', () => {
     });
 
     it('should fail with invalid email format', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/waitlist')
         .send({
           ...validWaitlistData,
@@ -53,7 +54,7 @@ describe('Waitlist Controller (e2e)', () => {
     });
 
     it('should fail with missing email', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/waitlist')
         .send({ name: 'Test User' })
         .expect((res) => {
@@ -62,7 +63,7 @@ describe('Waitlist Controller (e2e)', () => {
     });
 
     it('should handle special characters in name', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as App)
         .post('/api/v1/waitlist')
         .send({
           email: 'special@example.com',
