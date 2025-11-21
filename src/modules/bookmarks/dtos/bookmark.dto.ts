@@ -8,6 +8,7 @@ import {
   Min,
   IsIn,
   ValidateIf,
+  IsUUID,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
@@ -70,8 +71,7 @@ export class BookmarkIdParamDto {
     description: 'Bookmark identifier',
     example: 'd9d7b8a8-1c23-4c3a-9c87-08e5edbf80ec',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsUUID()
   id: string;
 }
 
