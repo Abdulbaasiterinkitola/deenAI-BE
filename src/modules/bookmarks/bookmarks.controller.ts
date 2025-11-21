@@ -34,14 +34,27 @@ export class BookmarksController {
     @Request() req: any,
   ) {
     const userId = req.user?.id as string;
-    return this.bookmarksService.createBookmark(userId, payload);
+    const bookmark = await this.bookmarksService.createBookmark(
+      userId,
+      payload,
+    );
+
+    return {
+      message: 'Bookmark created successfully',
+      data: bookmark,
+    };
   }
 
   @Get()
   @BookmarksDocs.getBookmarks()
   async getBookmarks(@Query() query: BookmarkQueryDto, @Request() req: any) {
     const userId = req.user?.id as string;
-    return this.bookmarksService.getBookmarks(userId, query);
+    const result = await this.bookmarksService.getBookmarks(userId, query);
+
+    return {
+      message: 'Bookmarks retrieved successfully',
+      data: result,
+    };
   }
 
   @Get(':id')
@@ -51,7 +64,15 @@ export class BookmarksController {
     @Request() req: any,
   ) {
     const userId = req.user?.id as string;
-    return this.bookmarksService.getBookmarkById(params.id, userId);
+    const bookmark = await this.bookmarksService.getBookmarkById(
+      params.id,
+      userId,
+    );
+
+    return {
+      message: 'Bookmark retrieved successfully',
+      data: bookmark,
+    };
   }
 
   @Delete(':id')

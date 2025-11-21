@@ -48,17 +48,36 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
         const method = request.method;
         const url = request.url.split('?')[0];
 
-        // Handle message-only responses
+        // Use controller-provided message if present
         if (
           payload &&
           typeof payload === 'object' &&
           'message' in payload &&
-          Object.keys(payload).length === 1
+          typeof (payload as { message: unknown }).message === 'string'
         ) {
+          const { message, data, ...rest } = payload as {
+            message: string;
+            data?: T;
+            [key: string]: unknown;
+          };
+
+          const remainingKeys = Object.keys(rest).filter(
+            (key) =>
+              key !== 'success' && key !== 'status' && key !== 'status_code',
+          );
+
+          const responseData =
+            data !== undefined
+              ? data
+              : remainingKeys.length > 0
+                ? (rest as unknown as T)
+                : undefined;
+
           return {
             success: true,
             status: 'success',
-            message: (payload as { message: string }).message,
+            message,
+            ...(responseData !== undefined ? { data: responseData } : {}),
             status_code: statusCode,
           };
         }
