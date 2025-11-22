@@ -1,18 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationSettingsCoreService } from './services/notification-settings-core.service';
 import { EntityManager } from 'typeorm';
-import { NotificationSettings } from './models/notification-setting.model';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class NotificationSettingsService {
   constructor(
     private readonly notificationSettingsCoreService: NotificationSettingsCoreService,
-    @InjectRepository(NotificationSettings)
-    private readonly notificationSettingsRepo: Repository<NotificationSettings>,
   ) {}
 
+  /** * Create default settings for a user
+   */
   async createUserNotificationSettings(
     userId: string,
     transaction?: EntityManager,
@@ -23,18 +20,17 @@ export class NotificationSettingsService {
     );
   }
 
-  async deleteUserNotificationSettings(userId: string) {
-    await this.notificationSettingsRepo.delete({ userId });
-  }
-
+  /**
+   * Delete settings within a transaction
+   * (Called by UsersModule)
+   */
   async deleteUserNotificationSettingsWithTransaction(
     userId: string,
-    transactionalEntityManager: EntityManager,
+    transaction: EntityManager,
   ) {
-    await transactionalEntityManager.delete(NotificationSettings, { userId });
-  }
-
-  async findByUserId(userId: string): Promise<NotificationSettings | null> {
-    return this.notificationSettingsRepo.findOne({ where: { userId } });
+    await this.notificationSettingsCoreService.deleteUserNotification(
+      userId,
+      transaction,
+    );
   }
 }
