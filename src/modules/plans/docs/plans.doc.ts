@@ -1,10 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
 import { PlanResponseDto } from '../dto/plan-response.dto';
 

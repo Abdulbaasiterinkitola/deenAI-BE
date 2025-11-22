@@ -1,4 +1,11 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { PlansService } from './plans.service';
 import { PlansDocs } from './docs/plans.doc';
 import { PlanQueryDto } from './dto/plan-query.dto';

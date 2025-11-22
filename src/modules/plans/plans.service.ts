@@ -15,11 +15,10 @@ export class PlansService {
 
   async getAll(query: PlanQueryDto) {
     this.plansValidationService.validatePagination(query.page, query.limit);
-    const { items, paginationMeta } = await this.plansCoreService.listPlans(
-      query,
-    );
+    const { items, paginationMeta } =
+      await this.plansCoreService.listPlans(query);
     return {
-      items: items.map(PlanResponseDto.fromEntity),
+      items: items.map((plan) => PlanResponseDto.fromEntity(plan)),
       paginationMeta,
     };
   }

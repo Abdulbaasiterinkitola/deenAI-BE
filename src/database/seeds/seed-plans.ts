@@ -30,12 +30,10 @@ export const seedPlans = async () => {
 if (require.main === module) {
   seedPlans()
     .then(() => {
-      // eslint-disable-next-line no-console
       console.log('Plans seeding completed');
       process.exit(0);
     })
     .catch((error) => {
-      // eslint-disable-next-line no-console
       console.error('Plans seeding failed', error);
       process.exit(1);
     });

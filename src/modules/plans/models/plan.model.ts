@@ -24,11 +24,7 @@ export class Plan extends AbstractBaseEntity {
   @Column({ type: 'varchar', length: 10, default: 'USD' })
   currency: string;
 
-  @Column({
-    type: 'enum',
-    enum: PlanInterval,
-    default: PlanInterval.MONTHLY,
-  })
+  @Column({ type: 'varchar', length: 20, default: PlanInterval.MONTHLY })
   interval: PlanInterval;
 
   @Column({ name: 'is_popular', type: 'boolean', default: false })

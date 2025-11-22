@@ -23,13 +23,19 @@ export class PlansValidationService {
 
   validateId(id: string): void {
     if (!id) {
-      throw new CustomHttpException('Plan id is required', HttpStatus.BAD_REQUEST);
+      throw new CustomHttpException(
+        'Plan id is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id)) {
-      throw new CustomHttpException('Invalid plan id format', HttpStatus.BAD_REQUEST);
+      throw new CustomHttpException(
+        'Invalid plan id format',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }

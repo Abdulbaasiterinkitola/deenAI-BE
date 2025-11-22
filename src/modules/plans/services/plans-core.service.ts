@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PlanModelAction } from '../model-actions/plan.model-action';
-import { Plan, PlanInterval } from '../models/plan.model';
+import { Plan } from '../models/plan.model';
 import { PaginationMeta } from '@shared/helpers/pagination.helper';
 import { PlanQueryDto } from '../dto/plan-query.dto';
 
