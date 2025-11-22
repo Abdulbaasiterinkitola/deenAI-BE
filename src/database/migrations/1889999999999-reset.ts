@@ -12,7 +12,8 @@ export class PasswordResetOtp1889999999999 implements MigrationInterface {
         is_verified BOOLEAN NOT NULL DEFAULT false,
         used_at TIMESTAMP,
         expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
     `);
   }
