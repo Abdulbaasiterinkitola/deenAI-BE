@@ -1,7 +1,8 @@
 import { AbstractBaseEntity } from '@entities/base.entity';
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { AuthProvider } from '../enums';
 import { Plan } from '@modules/plans/models/plan.model';
+import { UserStatus } from '../enums/user-status.enum';
 
 @Entity({ name: 'users' })
 export class User extends AbstractBaseEntity {
@@ -38,4 +39,12 @@ export class User extends AbstractBaseEntity {
   @ManyToOne(() => Plan, { nullable: true })
   @JoinColumn({ name: 'plan_id' })
   plan: Plan | null;
+
+  @Index()
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
 }

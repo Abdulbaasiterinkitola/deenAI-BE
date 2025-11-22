@@ -8,7 +8,7 @@ import {
   ValidationPipe,
   Patch,
 } from '@nestjs/common';
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Controller, Post, Patch, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { SubscriptionsService } from '@modules/subscriptions/subscriptions.service';
 
@@ -62,5 +62,39 @@ export class UsersController {
     @Body() body: ConfirmAccountDeletionDto,
   ) {
     return await this.usersService.confirmAccountDeletion(user, body.otp);
+  }
+
+  /**
+   * Pauses the authenticated user's account.
+   */
+  @Patch('me/pause')
+  @HttpCode(HttpStatus.OK)
+  // You can add API documentation here later if you use Swagger
+  async pauseAccount(@AuthUser() user: User) {
+    const pausedUser = await this.usersService.pauseAccount(user.id);
+    return {
+      status_code: HttpStatus.OK,
+      message: 'Account successfully paused',
+      data: {
+        user: this.usersService.getUserProfile(pausedUser),
+      },
+    };
+  }
+
+  /**
+   * Reactivates the authenticated user's paused account.
+   */
+  @Patch('me/reactivate')
+  @HttpCode(HttpStatus.OK)
+  // You can add API documentation here later if you use Swagger
+  async reactivateAccount(@AuthUser() user: User) {
+    const reactivatedUser = await this.usersService.reactivateAccount(user.id);
+    return {
+      status_code: HttpStatus.OK,
+      message: 'Account successfully reactivated',
+      data: {
+        user: this.usersService.getUserProfile(reactivatedUser),
+      },
+    };
   }
 }
