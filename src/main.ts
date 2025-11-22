@@ -7,6 +7,7 @@ import { ValidationPipe } from '@shared/validator.pipe';
 import { Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationExceptionFilter } from '@shared/validation-exception.filter';
+import { seedPlans } from '@database/seeds/seed-plans';
 
 async function bootstrap() {
   // Handle uncaught Redis connection errors gracefully (only log, no crash)
@@ -38,6 +39,13 @@ async function bootstrap() {
   try {
     await initializeDataSource();
     logger.log('Data Source has been initialized!');
+
+    try {
+      await seedPlans();
+      logger.log('Database seeding completed!');
+    } catch (seedError) {
+      logger.error('Error during database seeding', seedError);
+    }
   } catch (err) {
     console.error('Error during Data Source initialization', err);
     process.exit(1);
@@ -60,6 +68,18 @@ async function bootstrap() {
     .setTitle('DeenAI API Documentation')
     .setDescription('DeenAI Backend API Documentation')
     .setVersion('1.0')
+    .addTag('App')
+    .addTag('Health Check')
+    .addTag('Authentication')
+    .addTag('Users')
+    .addTag('Profile')
+    .addTag('Notification Settings')
+    .addTag('Reflections')
+    .addTag('Bookmarks')
+    .addTag('Chats')
+    .addTag('Plans')
+    .addTag('Waitlist')
+    .addTag('Contact')
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, config);
