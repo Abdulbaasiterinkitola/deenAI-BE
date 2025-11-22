@@ -1,194 +1,426 @@
-import React from 'react';
+import React from "react";
 
 interface WelcomeEmailProps {
   name: string;
   supportEmail?: string;
 }
 
+const imgStyle = {
+  display: "block",
+  border: 0,
+  outline: "none",
+  textDecoration: "none",
+  ["-ms-interpolation-mode" as any]: "bicubic",
+};
+
 const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
   name,
-  supportEmail = 'buddy.deenai@gmail.com',
+  supportEmail = "email@deenai.com",
 }) => {
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Welcome to Deen AI</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-          {`
-            html,
-            body {
-              font-family: Nunito, system-ui, -apple-system, "Segoe UI", Roboto,
-                "Helvetica Neue", Arial, sans-serif;
-            }
-          `}
-        </style>
       </head>
-      <body className="min-h-screen bg-[#f5f3f1] antialiased">
-        <div className="min-h-screen flex items-center justify-center px-6 py-12">
-          <div className="w-full max-w-[680px]">
-            <div
-              className="bg-[#fafafa] rounded-2xl px-8 sm:px-14 py-12 shadow-sm"
-              role="main"
-            >
-              <div className="text-center mb-8">
-                <img
-                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
-                  alt="Deen AI Logo"
-                  className="w-[180px] h-auto mx-auto"
-                />
-              </div>
-              <div className="bg-white p-5 rounded-3xl">
-                <div className="text-center mb-7">
-                  <img
-                    src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639371/hello_bfbbz2.png"
-                    alt="Welcome illustration"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    className="w-[180px] h-auto mx-auto"
-                  />
-                </div>
 
-                <h1
-                  className="text-[28px] font-semibold leading-snug mb-2 text-left text-[#333]"
-                >
-                  Welcome <span className="font-bold text-[#1a1a1a]">{name},</span>
-                </h1>
-
-                <p
-                  className="text-[#6b6b6b] text-[15px] leading-relaxed mb-6 text-left"
-                >
-                  Welcome to Deen AI! Your account has been successfully created,
-                  and you're all set to get started.
-                </p>
-
-                <div className="my-7">
-                  <h3 className="font-semibold text-base text-[#9a4a00] mb-4 text-left">
-                    Next steps:
-                  </h3>
-                  <ul className="space-y-3 list-none p-0 m-0">
-                    <li
-                      className="flex gap-3 items-start text-[#333] text-[15px] leading-normal"
-                    >
-                      <span
-                        className="min-w-[20px] h-5 inline-flex items-center justify-center text-[#4a9b5c] flex-shrink-0 font-semibold text-base"
-                      >✓</span>
-                      <span>Open the Deen AI app</span>
-                    </li>
-                    <li
-                      className="flex gap-3 items-start text-[#333] text-[15px] leading-normal"
-                    >
-                      <span
-                        className="min-w-[20px] h-5 inline-flex items-center justify-center text-[#4a9b5c] flex-shrink-0 font-semibold text-base"
-                      >✓</span>
-                      <span>Log in with your new account</span>
-                    </li>
-                    <li
-                      className="flex gap-3 items-start text-[#333] text-[15px] leading-normal"
-                    >
-                      <span
-                        className="min-w-[20px] h-5 inline-flex items-center justify-center text-[#4a9b5c] flex-shrink-0 font-semibold text-base"
-                      >✓</span>
-                      <span>Start using your personalized tools and features</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <p className="text-[#6b6b6b] text-sm leading-relaxed mt-6 mb-2 text-left">
-                If you ever need help, reach us anytime at
-                <a
-                  href={`mailto:${supportEmail}`}
-                  className="text-[#9a4a00] no-underline hover:underline"
-                >{supportEmail}</a>
-              </p>
-
-              <p className="text-[#6b6b6b] text-[15px] leading-relaxed my-4 text-left">
-                Thanks for joining Deen AI — we're excited to have you onboard!
-              </p>
-
-              <p className="text-[#6b6b6b] text-[15px] mt-3 mb-0 text-left">
-                — The Deen AI Team
-              </p>
-
-              <div className="mt-12 text-center pt-7 border-t border-[#e7e7e7]">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <img
-                    src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
-                    alt="Deen AI"
-                    className="w-[140px] h-auto"
-                  />
-                </div>
-
-                <div className="flex gap-3 justify-center items-center my-4">
-                  <a
-                href="https://x.com/thedeenai"
-                aria-label="x"
-                target="_blank"
-                className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
+      <body
+        style={{
+          margin: 0,
+          padding: 0,
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+          backgroundColor: "#f5f3f1",
+        }}
+      >
+        <table
+          width="100%"
+          cellPadding={0}
+          cellSpacing={0}
+          style={{ backgroundColor: "#f5f3f1", padding: "40px 20px" }}
+        >
+          <tr>
+            <td align="center">
+              <table
+                width="600"
+                cellPadding={0}
+                cellSpacing={0}
+                style={{
+                  maxWidth: "600px",
+                  backgroundColor: "#fafafa",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                }}
               >
-                    <i className="fa-brands fa-x-twitter text-xl text-gray-600"></i>
-              </a>
-              <a
-                href="https://instagram.com/thedeenai"
-                aria-label="instagram"
-                target="_blank"
-                className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
-              >
-                    <i className="fa-brands fa-instagram text-xl text-gray-600"></i>
-              </a>
-              <a
-                href="https://youtube.com/@thedeenai"
-                aria-label="youtube"
-                target="_blank"
-                className="inline-flex w-9 h-9 rounded-full items-center justify-center bg-transparent no-underline transition-transform hover:scale-110"
-              >
-                    <i className="fa-brands fa-youtube text-xl text-gray-600"></i>
-              </a>
-                </div>
+                <tr>
+                  <td style={{ padding: "40px" }}>
+                    {/* Logo */}
+                    <table width="100%" cellPadding={0} cellSpacing={0}>
+                      <tr>
+                        <td align="center" style={{ paddingBottom: "30px" }}>
+                          <img
+                            src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
+                            alt="Deen AI Logo"
+                            width="180"
+                            style={imgStyle}
+                          />
+                        </td>
+                      </tr>
+                    </table>
 
-                <div className="text-xs text-[#999] mt-4 leading-normal">
-                  All rights reserved &copy; 2025
-                </div>
+                    {/* Card */}
+                    <table
+                      width="100%"
+                      cellPadding={0}
+                      cellSpacing={0}
+                      style={{ backgroundColor: "#ffffff", borderRadius: "20px" }}
+                    >
+                      <tr>
+                        <td style={{ padding: "30px" }}>
+                          {/* Illustration */}
+                          <table width="100%" cellPadding={0} cellSpacing={0}>
+                            <tr>
+                              <td style={{ paddingBottom: "20px" }}>
+                                <img
+                                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639371/hello_bfbbz2.png"
+                                  alt="Welcome"
+                                  width="120"
+                                  style={imgStyle}
+                                />
+                              </td>
+                            </tr>
+                          </table>
 
-                <div className="flex gap-4 justify-center my-3 text-[13px]">
-                  <a href="#" className="text-[#6b6b6b] no-underline hover:underline"
-                  >Privacy Policy</a>
-                  <span className="text-[#6b6b6b]">-</span>
-                  <a href="#" className="text-[#9a4a00] no-underline hover:underline"
-                  >Unsubscribe</a>
-                </div>
+                          {/* Welcome Header */}
+                          <h1
+                            style={{
+                              margin: "0 0 20px",
+                              fontSize: "28px",
+                              fontWeight: 600,
+                              color: "#333333",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            Welcome{" "}
+                            <span
+                              style={{ fontWeight: 700, color: "#1a1a1a" }}
+                            >
+                              {name},
+                            </span>
+                          </h1>
 
-                <div className="flex gap-3 justify-center my-5 mt-5 mb-4">
-                  <a href="#" target="_blank">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                      alt="Get it on Google Play"
-                      className="h-10 w-auto"
-                    />
-                  </a>
-                  <a href="#" target="_blank">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
-                      alt="Download on the App Store"
-                      className="h-10 w-auto"
-                    />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                          {/* Text */}
+                          <p
+                            style={{
+                              margin: "0 0 30px",
+                              fontSize: "15px",
+                              lineHeight: 1.6,
+                              color: "#6b6b6b",
+                            }}
+                          >
+                            Welcome to Deen AI! Your account has been
+                            successfully created, and you're all set to get
+                            started.
+                          </p>
+
+                          {/* Next steps */}
+                          <h3
+                            style={{
+                              margin: "0 0 15px",
+                              fontSize: "16px",
+                              fontWeight: 600,
+                              color: "#9a4a00",
+                            }}
+                          >
+                            Next steps:
+                          </h3>
+
+                          {/* Step 1 */}
+                          <table
+                            width="100%"
+                            cellPadding={0}
+                            cellSpacing={0}
+                            style={{ marginBottom: "12px" }}
+                          >
+                            <tr>
+                              <td width="25" valign="top" style={{ paddingTop: "2px" }}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#4a9b5c",
+                                  }}
+                                >
+                                  ✓
+                                </span>
+                              </td>
+                              <td
+                                style={{
+                                  fontSize: "15px",
+                                  lineHeight: 1.4,
+                                  color: "#333333",
+                                }}
+                              >
+                                Open the Deen AI app
+                              </td>
+                            </tr>
+                          </table>
+
+                          {/* Step 2 */}
+                          <table
+                            width="100%"
+                            cellPadding={0}
+                            cellSpacing={0}
+                            style={{ marginBottom: "12px" }}
+                          >
+                            <tr>
+                              <td width="25" valign="top" style={{ paddingTop: "2px" }}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#4a9b5c",
+                                  }}
+                                >
+                                  ✓
+                                </span>
+                              </td>
+                              <td
+                                style={{
+                                  fontSize: "15px",
+                                  lineHeight: 1.4,
+                                  color: "#333333",
+                                }}
+                              >
+                                Log in with your new account
+                              </td>
+                            </tr>
+                          </table>
+
+                          {/* Step 3 */}
+                          <table
+                            width="100%"
+                            cellPadding={0}
+                            cellSpacing={0}
+                            style={{ marginBottom: "12px" }}
+                          >
+                            <tr>
+                              <td width="25" valign="top" style={{ paddingTop: "2px" }}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    fontSize: "16px",
+                                    fontWeight: 600,
+                                    color: "#4a9b5c",
+                                  }}
+                                >
+                                  ✓
+                                </span>
+                              </td>
+                              <td
+                                style={{
+                                  fontSize: "15px",
+                                  lineHeight: 1.4,
+                                  color: "#333333",
+                                }}
+                              >
+                                Start using your personalized tools and features
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    {/* Support */}
+                    <p
+                      style={{
+                        margin: "25px 0 15px",
+                        fontSize: "14px",
+                        lineHeight: 1.6,
+                        color: "#6b6b6b",
+                      }}
+                    >
+                      If you ever need help, reach us anytime at{" "}
+                      <a
+                        href={`mailto:${supportEmail}`}
+                        style={{ color: "#9a4a00", textDecoration: "none" }}
+                      >
+                        {supportEmail}
+                      </a>
+                    </p>
+
+                    {/* Thanks */}
+                    <p
+                      style={{
+                        margin: "0 0 15px",
+                        fontSize: "15px",
+                        lineHeight: 1.6,
+                        color: "#6b6b6b",
+                      }}
+                    >
+                      Thanks for joining Deen AI — we're excited to have you
+                      onboard!
+                    </p>
+
+                    {/* Signature */}
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "15px",
+                        color: "#6b6b6b",
+                      }}
+                    >
+                      — The Deen AI Team
+                    </p>
+
+                    {/* Footer */}
+                    <table
+                      width="100%"
+                      cellPadding={0}
+                      cellSpacing={0}
+                      style={{
+                        marginTop: "40px",
+                        paddingTop: "30px",
+                        borderTop: "1px solid #e7e7e7",
+                      }}
+                    >
+                      <tr>
+                        <td align="center">
+                          <img
+                            src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
+                            alt="Deen AI"
+                            width="140"
+                            style={imgStyle}
+                          />
+
+                          {/* Social icons */}
+                          <table
+                            cellPadding={0}
+                            cellSpacing={0}
+                            style={{ margin: "0 auto 20px" }}
+                          >
+                            <tr>
+                              <td style={{ padding: "0 8px" }}>
+                                <a
+                                  href="https://x.com/thedeenai"
+                                  target="_blank"
+                                  style={{ display: "block" }}
+                                >
+                                  <img
+                                    src="https://img.icons8.com/ios-filled/50/9a4a00/twitterx--v1.png"
+                                    alt="X"
+                                    width="24"
+                                    height="24"
+                                    style={imgStyle}
+                                  />
+                                </a>
+                              </td>
+
+                              <td style={{ padding: "0 8px" }}>
+                                <a
+                                  href="https://instagram.com/thedeenai"
+                                  target="_blank"
+                                  style={{ display: "block" }}
+                                >
+                                  <img
+                                    src="https://img.icons8.com/ios-filled/50/9a4a00/instagram-new.png"
+                                    alt="Instagram"
+                                    width="24"
+                                    height="24"
+                                    style={imgStyle}
+                                  />
+                                </a>
+                              </td>
+
+                              <td style={{ padding: "0 8px" }}>
+                                <a
+                                  href="https://youtube.com/@the.deenai"
+                                  target="_blank"
+                                  style={{ display: "block" }}
+                                >
+                                  <img
+                                    src="https://img.icons8.com/ios-filled/50/9a4a00/youtube-play.png"
+                                    alt="YouTube"
+                                    width="24"
+                                    height="24"
+                                    style={imgStyle}
+                                  />
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+
+                          <p
+                            style={{
+                              margin: "0 0 15px",
+                              fontSize: "12px",
+                              color: "#999999",
+                            }}
+                          >
+                            All rights reserved © 2025
+                          </p>
+
+                          <p
+                            style={{
+                              margin: "0 0 20px",
+                              fontSize: "13px",
+                              color: "#6b6b6b",
+                            }}
+                          >
+                            <a
+                              href="#"
+                              style={{
+                                color: "#6b6b6b",
+                                textDecoration: "none",
+                              }}
+                            >
+                              Privacy Policy
+                            </a>
+                          </p>
+
+                          {/* App badges */}
+                          <table
+                            cellPadding={0}
+                            cellSpacing={0}
+                            style={{ margin: "0 auto" }}
+                          >
+                            <tr>
+                              <td style={{ padding: "0 8px" }}>
+                                <a href="#" target="_blank">
+                                  <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/512px-Google_Play_Store_badge_EN.svg.png"
+                                    alt="Get it on Google Play"
+                                    height="40"
+                                    style={imgStyle}
+                                  />
+                                </a>
+                              </td>
+
+                              <td style={{ padding: "0 8px" }}>
+                                <a href="#" target="_blank">
+                                  <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/512px-Download_on_the_App_Store_Badge.svg.png"
+                                    alt="Download on the App Store"
+                                    height="40"
+                                    style={imgStyle}
+                                  />
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   );
