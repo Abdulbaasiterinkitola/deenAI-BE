@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 
 export class ChatsDocs {
   static getUserChats() {
@@ -119,6 +119,35 @@ export class ChatsDocs {
       ApiResponse({
         status: 403,
         description: 'Access denied - chat belongs to another user',
+      }),
+      ApiResponse({
+        status: 404,
+        description: 'Chat not found',
+      }),
+    );
+  }
+  static getMessages() {
+    return applyDecorators(
+      ApiOperation({
+        summary: 'Get paginated chat messages',
+        description: 'Retrieves chat messages in pages of 50',
+      }),
+      ApiParam({
+        name: 'id',
+        description: 'Chat ID',
+      }),
+      ApiQuery({
+        name: 'page',
+        required: false,
+        example: 1,
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Messages retrieved successfully',
+      }),
+      ApiResponse({
+        status: 401,
+        description: 'Unauthorized',
       }),
       ApiResponse({
         status: 404,

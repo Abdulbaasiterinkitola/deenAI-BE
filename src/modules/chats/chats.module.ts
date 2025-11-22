@@ -11,6 +11,8 @@ import { ChatActionModel } from './action-models/chat.action-model';
 import { ChatMessageActionModel } from './action-models/chat-message.action-model';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { ChatRetentionService } from './services/chat-retention.service';
+import { ChatCleanupService } from './services/chat-cleanup.service';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { AuthModule } from '@modules/auth/auth.module';
     GeminiService,
     ChatActionModel,
     ChatMessageActionModel,
+    ChatRetentionService,
+    ChatCleanupService,
   ],
   exports: [ChatsService],
 })
