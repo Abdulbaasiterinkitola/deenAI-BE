@@ -5,7 +5,7 @@ import { PlanResponseDto } from '../dto/plan-response.dto';
 
 export class PlansDocs {
   static tag() {
-    return ApiTags('plans');
+    return ApiTags('Plans');
   }
 
   static getAll() {
@@ -23,8 +23,8 @@ export class PlansDocs {
             message: 'Plans retrieved successfully',
             data: {
               items: [PlanResponseDto],
-              paginationMeta: PaginationMetaDto,
             },
+            meta: PaginationMetaDto,
             status_code: 200,
           },
         },

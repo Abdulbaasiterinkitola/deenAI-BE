@@ -19,14 +19,14 @@ export class PlansController {
   @HttpCode(HttpStatus.OK)
   @PlansDocs.getAll()
   async getAll(@Query() query: PlanQueryDto) {
-    const data = await this.plansService.getAll(query);
+    const { items, paginationMeta } = await this.plansService.getAll(query);
 
     return {
       success: true,
       status: 'success',
       message: 'Plans retrieved successfully',
-      data,
-      meta: null,
+      data: { items },
+      meta: paginationMeta,
       status_code: 200,
     };
   }
@@ -42,7 +42,6 @@ export class PlansController {
       status: 'success',
       message: 'Plan retrieved successfully',
       data,
-      meta: null,
       status_code: 200,
     };
   }
