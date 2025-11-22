@@ -12,6 +12,7 @@ import { NotificationSettingsModule } from '@modules/notification-settings/notif
 import { DeletionCodeService } from './services/deletion-code.service';
 import { AccountDeletionCode } from './models/account-deletion.model';
 import { EmailServiceModule } from '@modules/email/email.module';
+import { PlansModule } from '@modules/plans/plans.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { EmailServiceModule } from '@modules/email/email.module';
     forwardRef(() => AuthModule),
     forwardRef(() => NotificationSettingsModule),
     EmailServiceModule,
+    PlansModule,
   ],
   controllers: [UsersController],
   providers: [

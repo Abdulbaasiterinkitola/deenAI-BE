@@ -5,6 +5,7 @@ import { PlanQueryDto } from './dto/plan-query.dto';
 import { PlanResponseDto } from './dto/plan-response.dto';
 import { CustomHttpException } from '@shared/custom.exception';
 import { HttpStatus } from '@nestjs/common';
+import { Plan } from './models/plan.model';
 
 @Injectable()
 export class PlansService {
@@ -30,5 +31,9 @@ export class PlansService {
       throw new CustomHttpException('Plan not found', HttpStatus.NOT_FOUND);
     }
     return PlanResponseDto.fromEntity(plan);
+  }
+
+  async getBySlug(slug: string): Promise<Plan | null> {
+    return this.plansCoreService.getPlanBySlug(slug);
   }
 }

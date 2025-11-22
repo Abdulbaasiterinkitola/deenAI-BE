@@ -25,6 +25,10 @@ export class PlansCoreService {
     return this.planModelAction.get({ id });
   }
 
+  async getPlanBySlug(slug: string): Promise<Plan | null> {
+    return this.planModelAction.get({ slug });
+  }
+
   async seedDefaults(plans: Partial<Plan>[]) {
     for (const plan of plans) {
       const existing = await this.planModelAction.get({ slug: plan.slug });

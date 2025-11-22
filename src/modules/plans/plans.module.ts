@@ -16,6 +16,6 @@ import { PlansCoreService } from './services/plans-core.service';
     PlansValidationService,
     PlansCoreService,
   ],
-  exports: [PlansService],
+  exports: [PlansService, PlansCoreService, PlanModelAction],
 })
 export class PlansModule {}

@@ -1,6 +1,7 @@
 import { AbstractBaseEntity } from '@entities/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { AuthProvider } from '../enums';
+import { Plan } from '@modules/plans/models/plan.model';
 
 @Entity({ name: 'users' })
 export class User extends AbstractBaseEntity {
@@ -30,4 +31,11 @@ export class User extends AbstractBaseEntity {
     select: false,
   })
   currentRefreshToken: string | null;
+
+  @Column({ name: 'plan_id', type: 'uuid', nullable: true })
+  planId: string | null;
+
+  @ManyToOne(() => Plan, { nullable: true })
+  @JoinColumn({ name: 'plan_id' })
+  plan: Plan | null;
 }
