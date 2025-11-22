@@ -25,7 +25,7 @@ interface AuthenticatedRequest extends Request {
   user: User;
 }
 
-@ApiTags('notification-settings')
+@ApiTags('Notification Settings')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('notification-settings')

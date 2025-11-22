@@ -13,7 +13,7 @@ import { SendMessageDto, ChatIdDto } from './dtos/chat.dto';
 import { AuthGuard } from '@guards/auth.guard';
 import { ChatsDocs } from './docs/chats.doc';
 
-@ApiTags('chats')
+@ApiTags('Chats')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('chats')
