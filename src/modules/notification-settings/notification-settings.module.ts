@@ -2,12 +2,13 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { NotificationSettingsService } from './notification-settings.service';
 import { NotificationSettingsController } from './notification-settings.controller';
-import { UsersModule } from '@modules/users/users.module';
+import { NotificationSettingsService } from './notification-settings.service';
 import { NotificationSettingsCoreService } from './services/notification-settings-core.service';
+import { NotificationSettingsValidationService } from './services/notification-settings-validation.service'; // <--- Added this
 import { NotificationSettings } from './models/notification-setting.model';
 import { NotificationSettingsModelAction } from './model-actions/notification-settings.model-action';
+import { UsersModule } from '@modules/users/users.module';
 
 const daysToSeconds = (days: number) => days * 24 * 60 * 60;
 
@@ -29,8 +30,9 @@ const daysToSeconds = (days: number) => days * 24 * 60 * 60;
   providers: [
     NotificationSettingsService,
     NotificationSettingsCoreService,
+    NotificationSettingsValidationService,
     NotificationSettingsModelAction,
   ],
-  exports: [NotificationSettingsService],
+  exports: [NotificationSettingsService, NotificationSettingsCoreService],
 })
 export class NotificationSettingsModule {}

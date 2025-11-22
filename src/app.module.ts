@@ -17,6 +17,7 @@ import { NotificationSettingsModule } from '@modules/notification-settings/notif
 import { ContactModule } from '@modules/contact/contact.module';
 import { ChatsModule } from '@modules/chats/chats.module';
 import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
+import { PlansModule } from '@modules/plans/plans.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
     ContactModule,
     ChatsModule,
     BookmarksModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService],

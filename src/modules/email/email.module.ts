@@ -1,7 +1,6 @@
 import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailService } from './email.service';
-import { EmailServiceController } from './email.controller';
 import { ProcessMail } from './email.processor';
 import { BullModule } from '@nestjs/bull';
 
@@ -57,7 +56,7 @@ import { BullModule } from '@nestjs/bull';
       // Don't fail module initialization if queue can't be created
     }),
   ],
-  controllers: [EmailServiceController],
+  controllers: [],
   providers: [EmailService, ProcessMail],
   exports: [EmailService, ProcessMail],
 })

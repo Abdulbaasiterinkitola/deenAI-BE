@@ -18,6 +18,8 @@ import { CustomHttpException } from '@shared/custom.exception';
 import { normalizeEmail } from '@helpers/email.helper';
 import { DeletionCodeService } from './services/deletion-code.service';
 import { EmailService } from '@modules/email/email.service';
+import { PlansService } from '@modules/plans/plans.service';
+import { Plan } from '@modules/plans/models/plan.model';
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
@@ -29,6 +31,7 @@ export class UsersService {
     private readonly deletionCodeService: DeletionCodeService,
     private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
+    private readonly plansService: PlansService,
   ) {}
 
   async createUser(user: UserType) {
@@ -57,7 +60,16 @@ export class UsersService {
         userId,
         manager,
       );
+
+      const freePlan = await this.getFreePlan();
+      if (freePlan?.id) {
+        await manager.update(User, userId, { planId: freePlan.id });
+      }
     });
+  }
+
+  private async getFreePlan(): Promise<Plan | null> {
+    return this.plansService.getBySlug('free');
   }
 
   async getUserByEmail(email: string) {

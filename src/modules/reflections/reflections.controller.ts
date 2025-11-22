@@ -29,7 +29,7 @@ import {
 import { AuthGuard } from '@guards/auth.guard';
 import { DocsResponseDto } from '@shared/docs-response.dto';
 
-@ApiTags('reflections')
+@ApiTags('Reflections')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('reflections')

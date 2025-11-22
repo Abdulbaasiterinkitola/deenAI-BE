@@ -1,10 +1,8 @@
 import React from 'react';
 
-interface WaitlistEmailProps {
-  name?: string;
-}
+interface WaitlistEmailProps {}
 
-const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
+const WaitlistEmail: React.FC<WaitlistEmailProps> = () => {
   return (
     <html lang="en">
       <head>
@@ -12,213 +10,64 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Deen AI — Welcome</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
           rel="stylesheet"
         />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        />
-        <style>
-          {`
-            :root {
-              --bg: #fbf9f8;
-              --muted: #6b6b6b;
-              --accent: #9a4a00;
-              --accent-2: #c37d2a;
-              --card-border: #e7d7cc;
-              --card-bg: #fff;
-              --check-bg: #fff6ef;
-            }
-            html,
-            body {
-              height: 100%;
-              margin: 0;
-              font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
-                "Helvetica Neue", Arial;
-              background: var(--bg);
-              color: #222;
-              -webkit-font-smoothing: antialiased;
-              -moz-osx-font-smoothing: grayscale;
-            }
-            .page {
-              min-height: 100vh;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              padding: 48px 24px;
-              box-sizing: border-box;
-            }
-            .wrapper {
-              width: 100%;
-              max-width: 820px;
-            }
-            .card {
-              background: var(--card-bg);
-              border: 1px solid var(--card-border);
-              border-radius: 20px;
-              padding: 48px 56px;
-              box-sizing: border-box;
-              box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
-            }
-            .logo {
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              justify-content: center;
-              margin-bottom: 8px;
-            }
-            .brand {
-              font-weight: 700;
-              color: #4b3221;
-            }
-            h1 {
-              font-family: "Playfair Display", serif;
-              font-weight: 700;
-              font-size: 34px;
-              line-height: 1.05;
-              margin: 12px 0 18px;
-              text-align: center;
-              color: #1f1f1f;
-            }
-            .lead {
-              color: var(--muted);
-              max-width: 760px;
-              margin: 0 auto 20px;
-              font-size: 15px;
-              line-height: 1.6;
-            }
-            .panel {
-              border: 1px solid var(--card-border);
-              border-radius: 12px;
-              padding: 18px 20px;
-              margin: 20px auto;
-              max-width: 620px;
-              background: linear-gradient(
-                180deg,
-                rgba(255, 255, 255, 0.99),
-                rgba(255, 255, 255, 0.98)
-              );
-            }
-            .panel h3 {
-              margin: 0 0 8px;
-              font-size: 16px;
-              color: #a65b05;
-              font-weight: 600;
-            }
-            .features {
-              margin: 10px 0 0;
-              padding: 0;
-              list-style: none;
-              display: grid;
-              gap: 10px;
-            }
-            .features li {
-              display: flex;
-              gap: 12px;
-              align-items: flex-start;
-              color: #4a4a4a;
-              font-size: 15px;
-            }
-            .check {
-              min-width: 24px;
-              height: 24px;
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              background: var(--check-bg);
-              border-radius: 6px;
-              color: var(--accent);
-              flex-shrink: 0;
-              box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.02);
-            }
-            .cta-wrap {
-              display: flex;
-              justify-content: center;
-              margin-top: 22px;
-            }
-            .btn {
-              background: var(--accent);
-              color: #fff;
-              padding: 10px 26px;
-              border-radius: 8px;
-              border: 0;
-              font-weight: 600;
-              cursor: pointer;
-              box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
-              text-decoration: none;
-            }
-            .small-note {
-              font-size: 13px;
-              color: var(--muted);
-              text-align: center;
-              margin-top: 14px;
-            }
-            .footer {
-              margin-top: 34px;
-              text-align: center;
-              color: var(--muted);
-            }
-            .footer .brand-line {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 12px;
-            }
-            .socials {
-              display: flex;
-              gap: 14px;
-              justify-content: center;
-              align-items: center;
-            }
-            .socials a {
-              display: inline-flex;
-              width: 34px;
-              height: 34px;
-              border-radius: 6px;
-              align-items: center;
-              justify-content: center;
-              background: #fff;
-              border: 1px solid var(--card-border);
-              color: #7a4b29;
-              text-decoration: none;
-            }
-            .socials i {
-              font-size: 16px;
-              color: #7a4b29;
-            }
-            .copyright {
-              font-size: 12px;
-              margin-top: 14px;
-              color: #b0a39a;
-            }
-
-            @media (max-width: 640px) {
-              .card {
-                padding: 28px 20px;
-                border-radius: 14px;
-              }
-              h1 {
-                font-size: 24px;
-              }
-              .lead {
-                font-size: 14px;
-                padding: 0 6px;
-              }
-              .panel {
-                padding: 12px;
-              }
-              .features li {
-                font-size: 14px;
-              }
-              .btn {
-                padding: 10px 18px;
-              }
-            }
-          `}
-        </style>
+        <style>{`
+          :root {
+            --bg: #fbf9f8;
+            --muted: #6b6b6b;
+            --accent: #9a4a00;
+            --accent-2: #c37d2a;
+            --card-border: #e7d7cc;
+            --card-bg: #fff;
+            --check-bg: #fff6ef;
+          }
+          html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: var(--bg);
+            color: #222;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          .page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 48px 24px; box-sizing: border-box; }
+          .wrapper { width: 100%; max-width: 820px; }
+          .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 48px 56px; box-sizing: border-box; box-shadow: 0 1px 0 rgba(0,0,0,0.02); }
+          .logo { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 8px; }
+          .brand { font-weight: 700; color: #4b3221; }
+          h1 { font-family: "Playfair Display", serif; font-weight: 700; font-size: 34px; line-height: 1.05; margin: 12px 0 18px; text-align: center; color: #1f1f1f; }
+          .lead { color: var(--muted); max-width: 760px; margin: 0 auto 20px; font-size: 15px; line-height: 1.6; }
+          .panel { border: 1px solid var(--card-border); border-radius: 12px; padding: 18px 20px; margin: 20px auto; max-width: 620px; background: linear-gradient(180deg, rgba(255,255,255,0.99), rgba(255,255,255,0.98)); }
+          .panel h3 { margin: 0 0 8px; font-size: 16px; color: #a65b05; font-weight: 600; }
+          .features { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+          .features li { display: flex; gap: 12px; align-items: flex-start; color: #4a4a4a; font-size: 15px; }
+          .check { min-width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; background: var(--check-bg); border-radius: 6px; color: var(--accent); flex-shrink: 0; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.02); }
+          .cta-wrap { display: flex; justify-content: center; margin-top: 22px; }
+          .btn { background: var(--accent); color: #fff; padding: 10px 26px; border-radius: 8px; border: 0; font-weight: 600; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,0.06); text-decoration: none; }
+          .small-note { font-size: 13px; color: var(--muted); text-align: center; margin-top: 14px; }
+          .footer { margin-top: 34px; text-align: center; color: var(--muted); }
+          .footer .brand-line { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+          .socials { display: flex; gap: 14px; justify-content: center; align-items: center; }
+          .socials a { display: inline-flex; width: 34px; height: 34px; border-radius: 6px; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--card-border); color: #7a4b29; text-decoration: none; }
+          .socials img { width: 16px; height: 16px; object-fit: contain; }
+          .copyright { font-size: 12px; margin-top: 14px; color: #b0a39a; }
+          @media (max-width: 640px) {
+            .card { padding: 28px 20px; border-radius: 14px; }
+            h1 { font-size: 24px; }
+            .lead { font-size: 14px; padding: 0 6px; }
+            .panel { padding: 12px; }
+            .features li { font-size: 14px; }
+            .btn { padding: 10px 18px; }
+          }
+        `}</style>
       </head>
       <body>
         <div className="page">
@@ -226,39 +75,50 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
             <div className="card" role="main" aria-labelledby="welcome-title">
               <div className="logo" aria-hidden="true">
                 <img
-                  src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
+                  src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533505/Logo_icon_exo0rq.svg"
                   alt="Deen AI Logo"
-                  width="200"
-                  height="48"
+                  width={200}
+                  height={48}
                 />
               </div>
 
               <h1 id="welcome-title">Welcome to Your Spiritual Journey</h1>
               <p className="lead">
-                Thank you for joining the Deen AI waitlist. We're truly honored to
-                have you as part of our growing community. <br /><br />
-                Your interest means a lot. It tells us you're ready for a deeper,
-                more meaningful connection with the Qur'an, supported by technology
-                that guides with clarity, gentleness, and intention.
+                Thank you for joining the Deen AI waitlist. We're truly honored
+                to have you as part of our growing community. <br />
+                <br />
+                Your interest means a lot. It tells us you're ready for a
+                deeper, more meaningful connection with the Qur'an, supported by
+                technology that guides with clarity, gentleness, and intention.
               </p>
 
               <div className="panel" role="region" aria-label="What to expect">
                 <h3>What to expect</h3>
                 <ul className="features">
                   <li>
-                    <span className="check" aria-hidden="true">✓</span>
+                    <span className="check" aria-hidden="true">
+                      ✓
+                    </span>
                     <span>AI powered guidance based on Quran and Hadith</span>
                   </li>
                   <li>
-                    <span className="check" aria-hidden="true">✓</span>
+                    <span className="check" aria-hidden="true">
+                      ✓
+                    </span>
                     <span>Read and reflect on Quranic verses</span>
                   </li>
                   <li>
-                    <span className="check" aria-hidden="true">✓</span>
-                    <span>Track your spiritual growth with personal reflections</span>
+                    <span className="check" aria-hidden="true">
+                      ✓
+                    </span>
+                    <span>
+                      Track your spiritual growth with personal reflections
+                    </span>
                   </li>
                   <li>
-                    <span className="check" aria-hidden="true">✓</span>
+                    <span className="check" aria-hidden="true">
+                      ✓
+                    </span>
                     <span>Tabish counter and prayer time reminders</span>
                   </li>
                 </ul>
@@ -271,40 +131,60 @@ const WaitlistEmail: React.FC<WaitlistEmailProps> = ({ name }) => {
               </p>
 
               <div className="cta-wrap">
-                <a className="btn" href="#">Learn More About Deen AI</a>
+                <a className="btn" href="#">
+                  Learn More About Deen AI
+                </a>
               </div>
 
               <p className="small-note">
-                BarakAllahu feek for believing in this journey with us. Something
-                beautiful is on the way.
+                BarakAllahu feek for believing in this journey with us.
+                Something beautiful is on the way.
               </p>
 
               <div className="footer" aria-hidden="false">
                 <div className="brand-line">
-                  <div style={{ height: '20px' }}></div>
-                  <div className="logo" style={{ margin: '0' }}>
+                  <div style={{ height: '20px' }} />
+                  <div className="logo" style={{ margin: 0 }}>
                     <img
-                      src="https://res.cloudinary.com/djbkecpu7/image/upload/v1763639598/logo_2_bvfhp5.png"
+                      src="https://res.cloudinary.com/dauiwma0j/image/upload/v1763533505/Logo_icon_exo0rq.svg"
                       alt="Deen AI Logo"
-                      width="200"
-                      height="40"
+                      width={200}
+                      height={40}
                     />
                   </div>
                   <div className="socials" style={{ marginTop: '6px' }}>
                     <a href="https://x.com/thedeenai" aria-label="x">
-                      <i className="fa-brands fa-x-twitter"></i>
+                      <img
+                        src="https://ottoman.emerj.net/icons/x.svg"
+                        alt="X (Twitter)"
+                        width={16}
+                        height={16}
+                      />
                     </a>
                     <a
                       href="https://instagram.com/thedeenai"
                       aria-label="instagram"
                     >
-                      <i className="fa-brands fa-instagram"></i>
+                      <img
+                        src="https://ottoman.emerj.net/icons/insta.svg"
+                        alt="Instagram"
+                        width={16}
+                        height={16}
+                      />
                     </a>
-                    <a href="https://youtube.com/@thedeenai" aria-label="youtube">
-                      <i className="fa-brands fa-youtube"></i>
+                    <a
+                      href="https://youtube.com/@the.deenai"
+                      aria-label="youtube"
+                    >
+                      <img
+                        src="https://ottoman.emerj.net/icons/yt.svg"
+                        alt="YouTube"
+                        width={16}
+                        height={16}
+                      />
                     </a>
                   </div>
-                  <div className="copyright">All rights reserved &copy; 2025</div>
+                  <div className="copyright">All rights reserved © 2025</div>
                 </div>
               </div>
             </div>

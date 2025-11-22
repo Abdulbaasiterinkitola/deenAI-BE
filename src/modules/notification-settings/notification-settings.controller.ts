@@ -1,53 +1,69 @@
 import {
   Controller,
   Get,
+  Patch,
+  Put,
   Req,
   UseGuards,
+  Body,
   HttpCode,
   HttpStatus,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { AuthGuard } from '@guards/auth.guard';
-import { NotificationSettingsService } from './notification-settings.service';
+import { Request } from 'express';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '../../guards/auth.guard';
+import { UpdateNotificationSettingsDto } from './dtos/update-notification-settings.dto';
+import { NotificationSettingsCoreService } from './services/notification-settings-core.service';
+import { User } from '../users/models/user.model';
+import { NotificationSettings } from './models/notification-setting.model';
 import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+  GetNotificationSettingsDocs,
+  UpdateNotificationSettingsDocs,
+} from './docs/notification-settings.doc';
 
-@ApiTags('notification-settings')
+interface AuthenticatedRequest extends Request {
+  user: User;
+}
+
+@ApiTags('Notification Settings')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('notification-settings')
 export class NotificationSettingsController {
   constructor(
-    private readonly notificationSettingsService: NotificationSettingsService,
+    private readonly notificationSettingsCoreService: NotificationSettingsCoreService,
   ) {}
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get authenticated user notification settings' })
-  @ApiResponse({
-    status: 200,
-    description: 'Notification settings retrieved successfully',
-  })
-  @ApiResponse({ status: 404, description: 'Notification settings not found' })
-  async getMe(@Req() req: any) {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new UnauthorizedException('User not authenticated');
-    }
+  @GetNotificationSettingsDocs()
+  async getMe(@Req() req: AuthenticatedRequest): Promise<NotificationSettings> {
+    return this.notificationSettingsCoreService.getSettings(req.user.id);
+  }
 
-    const settings = await this.notificationSettingsService.findByUserId(
-      userId as string,
+  @Patch('me')
+  @HttpCode(HttpStatus.OK)
+  @UpdateNotificationSettingsDocs()
+  async patchMe(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateNotificationSettingsDto,
+  ): Promise<NotificationSettings> {
+    return this.notificationSettingsCoreService.updateSettings(
+      req.user.id,
+      dto,
     );
+  }
 
-    if (!settings) {
-      throw new NotFoundException('Notification settings not found');
-    }
-
-    return settings;
+  @Put('me')
+  @HttpCode(HttpStatus.OK)
+  @UpdateNotificationSettingsDocs()
+  async putMe(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateNotificationSettingsDto,
+  ): Promise<NotificationSettings> {
+    return this.notificationSettingsCoreService.updateSettings(
+      req.user.id,
+      dto,
+    );
   }
 }

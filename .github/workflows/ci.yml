@@ -7,27 +7,35 @@ on:
       - main
       - dev
       - prod
+      
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    branches:
+      - dev
+    
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+
       - run: |
           if [ -f package-lock.json ]; then
             npm ci
           else
             npm install
           fi
+
       - run: npm run lint
       - run: npm test -- --coverage
       - run: npm run build
-      # - name: Security Scan
-      #   uses: snyk/actions/node@master
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #   continue-on-error: true   

@@ -20,7 +20,7 @@ import {
 import { AuthGuard } from '@guards/auth.guard';
 import { BookmarksDocs } from './docs/bookmarks.doc';
 
-@ApiTags('bookmarks')
+@ApiTags('Bookmarks')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('bookmarks')

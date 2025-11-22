@@ -13,6 +13,10 @@ jest.mock('nodemailer', () => ({
   }),
 }));
 
+// In-memory store for mocked DB
+const globalStore = new Map<string, any>();
+const globalReflectionCountStore = new Map<string, number>();
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
 jest.mock('typeorm', () => ({
   ...jest.requireActual('typeorm'),
@@ -22,12 +26,69 @@ jest.mock('typeorm', () => ({
     runMigrations: jest.fn().mockResolvedValue([]),
     entityMetadatas: [],
     query: jest.fn().mockResolvedValue([]),
-    getRepository: jest.fn().mockReturnValue({
-      create: jest.fn().mockReturnValue({ id: 'test-id' }),
-      save: jest.fn().mockResolvedValue({ id: 'test-id' }),
-      find: jest.fn().mockResolvedValue([]),
-      findOne: jest.fn().mockResolvedValue(null),
+    getRepository: jest.fn().mockImplementation(() => {
+      return {
+        create: jest
+          .fn()
+          .mockImplementation((dto: DeepPartial<ObjectLiteral>) => ({
+            ...dto,
+            id: 'test-id',
+          })),
+        save: jest
+          .fn()
+          .mockImplementation((data: DeepPartial<ObjectLiteral>) => {
+            const id = (data.id as string) || 'test-id';
+            const saved = { ...data, id } as Record<
+              string,
+              string | number | boolean | undefined
+            >;
+            globalStore.set(id, saved);
+            // Also index by email for user lookup
+            const email = saved.email as string | undefined;
+            if (email) {
+              globalStore.set(email, saved);
+            }
+            // Track reflection count
+            const userId = saved.userId as string | undefined;
+            const content = saved.content as string | undefined;
+            if (content && userId) {
+              const count = globalReflectionCountStore.get(userId) || 0;
+              globalReflectionCountStore.set(userId, count + 1);
+            }
+            return Promise.resolve(saved);
+          }),
+        find: jest.fn().mockResolvedValue([]),
+        findOne: jest
+          .fn()
+          .mockImplementation(
+            (options: { where?: DeepPartial<ObjectLiteral> }) => {
+              if (options.where && options.where.email) {
+                return Promise.resolve(
+                  globalStore.get(options.where.email as string) || null,
+                );
+              }
+              return Promise.resolve(null);
+            },
+          ),
+        count: jest
+          .fn()
+          .mockImplementation(
+            (options: { where?: DeepPartial<ObjectLiteral> }) => {
+              if (options.where && options.where.userId) {
+                return Promise.resolve(
+                  globalReflectionCountStore.get(
+                    options.where.userId as string,
+                  ) || 0,
+                );
+              }
+              return Promise.resolve(0);
+            },
+          ),
+      };
     }),
+    options: {
+      type: 'postgres',
+    },
   })),
 }));
 
@@ -120,21 +181,10 @@ export class TestApp {
     return this.app;
   }
 
-  static async cleanup(): Promise<void> {
-    if (this.dataSource && this.dataSource.isInitialized) {
-      const entities = this.dataSource.entityMetadatas;
-
-      await this.dataSource.query('SET session_replication_role = replica;');
-
-      for (let i = entities.length - 1; i >= 0; i--) {
-        const entity = entities[i];
-        await this.dataSource.query(
-          `TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE;`,
-        );
-      }
-
-      await this.dataSource.query('SET session_replication_role = DEFAULT;');
-    }
+  static cleanup(): void {
+    // Clear in-memory store if needed
+    globalStore.clear();
+    globalReflectionCountStore.clear();
   }
 
   static async teardown(): Promise<void> {

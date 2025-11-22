@@ -27,6 +27,14 @@ export class ReflectionsCoreService {
   ): Promise<Reflection> {
     this.reflectionsValidationService.validateReflectionContent(dto.content);
 
+    const reflectionCount = await this.reflectionsActionModel.count({ userId });
+    if (reflectionCount >= 10) {
+      throw new CustomHttpException(
+        'Free plan limit reached. You can only create 10 reflections.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const reflection = await this.reflectionsActionModel.create({
       createPayload: {
         userId,
