@@ -20,6 +20,7 @@ import { DeletionCodeService } from './services/deletion-code.service';
 import { EmailService } from '@modules/email/email.service';
 import { PlansService } from '@modules/plans/plans.service';
 import { Plan } from '@modules/plans/models/plan.model';
+import { PlanChangeResponseDto } from './dtos/plan-change-response.dto';
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
@@ -163,16 +164,19 @@ export class UsersService {
   async changeUserPlan(
     userId: string,
     planId: string,
-  ): Promise<{
-    success: boolean;
-    message: string;
-    newPlan: { id: string; name: string; slug: string };
-  }> {
+  ): Promise<PlanChangeResponseDto> {
     // Validate plan exists
     const plan = await this.plansService.getById(planId);
 
     // Update user's planId
-    await this.userRepo.update(userId, { planId });
+    const updateResult = await this.userRepo.update(userId, { planId });
+
+    if (updateResult.affected === 0) {
+      throw new CustomHttpException(
+        'User not found, plan not updated',
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     // Return response
     return {
