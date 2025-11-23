@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { NewPlanDto } from './new-plan.dto';
 
 export class PlanChangeResponseDto {
   @ApiProperty({
@@ -15,15 +16,7 @@ export class PlanChangeResponseDto {
 
   @ApiProperty({
     description: 'Details of the new plan',
-    example: {
-      id: '123e4567-e89b-12d3-a456-426614174000',
-      name: 'Premium (Monthly)',
-      slug: 'premium-monthly',
-    },
+    type: NewPlanDto,
   })
-  newPlan: {
-    id: string;
-    name: string;
-    slug: string;
-  };
+  newPlan: NewPlanDto;
 }
