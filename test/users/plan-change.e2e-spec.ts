@@ -7,7 +7,6 @@ describe('Plan Change (e2e)', () => {
   let app: INestApplication;
   let jwtService: JwtService;
   let token: string;
-  let userId: string;
 
   beforeAll(async () => {
     app = await TestApp.setup();
@@ -15,7 +14,6 @@ describe('Plan Change (e2e)', () => {
 
     const dataSource = TestApp.getDataSource();
     const user = await createTestUser(dataSource);
-    userId = user.id;
     token = jwtService.sign({ sub: user.id, email: user.email });
   });
 
@@ -40,7 +38,10 @@ describe('Plan Change (e2e)', () => {
 
     if (response.status === 200) {
       expect(response.body).toHaveProperty('success', true);
-      expect(response.body).toHaveProperty('message', 'Plan changed successfully');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Plan changed successfully',
+      );
       expect(response.body).toHaveProperty('newPlan');
       expect(response.body.newPlan).toHaveProperty('id');
       expect(response.body.newPlan).toHaveProperty('name');
