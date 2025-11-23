@@ -1,32 +1,42 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts", "tsx"],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts",
+    "tsx"
+  ],
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": "ci-test.e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": ["ts-jest", {
-      "tsconfig": {
-        "module": "commonjs",
-        "jsx": "react-jsx"
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": {
+          "module": "commonjs",
+          "jsx": "react-jsx"
+        }
       }
-    }],
-    "^.+\\.(t|j)sx$": ["ts-jest", {
-      "tsconfig": {
-        "module": "commonjs",
-        "jsx": "react-jsx"
+    ],
+    "^.+\\.(t|j)sx$": [
+      "ts-jest",
+      {
+        "tsconfig": {
+          "module": "commonjs",
+          "jsx": "react-jsx"
+        }
       }
-    }]
+    ]
   },
-  "setupFilesAfterEnv": ["<rootDir>/test-setup.ts"],
+  "setupFilesAfterEnv": [
+    "<rootDir>/test-env-setup.js"
+  ],
   "testTimeout": 60000,
   "maxWorkers": 1,
   "forceExit": true,
-  "detectOpenHandles": false,
+  "detectOpenHandles": true,
   "silent": true,
   "verbose": false,
-  "setupFilesAfterEnv": ["<rootDir>/test-env-setup.js"],
-  "forceExit": true,
-  "detectOpenHandles": true,
   "transformIgnorePatterns": [
     "node_modules/(?!(@react-email|react|uuid)/)"
   ],
@@ -36,6 +46,7 @@
     "^@database/(.*)$": "<rootDir>/../src/database/$1",
     "^@config/(.*)$": "<rootDir>/../src/config/$1",
     "^@entities/(.*)$": "<rootDir>/../src/entities/$1",
+    "^@guards/(.*)$": "<rootDir>/../src/guards/$1",
     "^@helpers/(.*)$": "<rootDir>/../src/shared/helpers/$1",
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
     "^.*/templates/(.*)$": "<rootDir>/__mocks__/email-templates",

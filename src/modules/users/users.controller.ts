@@ -7,6 +7,7 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
+  Patch,
 } from '@nestjs/common';
 import { Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -20,6 +21,9 @@ import { ApiResponse as TApiResponse } from './types/api-response.type';
 import { ConfirmAccountDeletionDto } from './dtos/confirm-account-deletion.dto';
 import { RequestAccountDeletionDocs } from './docs/request-account-deletion.doc';
 import { ConfirmAccountDeletionDocs } from './docs/confirm-account-deletion.doc';
+import { ChangePlanDto } from './dtos/change-plan.dto';
+import { PlanChangeResponseDto } from './dtos/plan-change-response.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard)
@@ -39,6 +43,24 @@ export class UsersController {
       meta: null,
       status_code: 200,
     };
+  }
+
+  @Patch('plan')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @ApiOperation({ summary: 'Change user subscription plan' })
+  @ApiResponse({
+    status: 200,
+    description: 'Plan changed successfully',
+    type: PlanChangeResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Plan not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async changePlan(
+    @AuthUser() user: User,
+    @Body() changePlanDto: ChangePlanDto,
+  ): Promise<PlanChangeResponseDto> {
+    return this.usersService.changeUserPlan(user.id, changePlanDto.planId);
   }
   /**
    * * POST endpoint to request account deletion
