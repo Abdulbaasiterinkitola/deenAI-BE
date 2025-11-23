@@ -160,6 +160,32 @@ export class UsersService {
     return UserProfileDto.fromEntity(user);
   }
 
+  async changeUserPlan(
+    userId: string,
+    planId: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    newPlan: { id: string; name: string; slug: string };
+  }> {
+    // Validate plan exists
+    const plan = await this.plansService.getById(planId);
+
+    // Update user's planId
+    await this.userRepo.update(userId, { planId });
+
+    // Return response
+    return {
+      success: true,
+      message: 'Plan changed successfully',
+      newPlan: {
+        id: plan.id,
+        name: plan.name,
+        slug: plan.slug,
+      },
+    };
+  }
+
   async requestAccountDeletion(user: User) {
     // Generate deletion code
     const deletionCode =
