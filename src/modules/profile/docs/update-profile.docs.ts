@@ -4,8 +4,8 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
-import { UpdateProfileDto } from '../dto/update-profile.dto';
 
 export class UpdateProfileDocs {
   static updateProfile() {
@@ -16,39 +16,41 @@ export class UpdateProfileDocs {
           'Allows authenticated users to update their profile information including avatar, language, and username. All fields are optional (partial update).',
       }),
       ApiBearerAuth(),
+      ApiConsumes('multipart/form-data'),
       ApiBody({
-        type: UpdateProfileDto,
-        description: 'Profile update data. All fields are optional.',
+        schema: {
+          type: 'object',
+          properties: {
+            username: { type: 'string', description: 'New username' },
+            language: { type: 'string', description: 'Language preference' },
+            avatar: {
+              type: 'string',
+              format: 'binary',
+              description: 'Image file to upload as avatar (JPEG/PNG/WebP/GIF)',
+            },
+          },
+          required: [],
+        },
         examples: {
           updateAll: {
             summary: 'Update all fields',
-            description: 'Update username, language, and avatar at once',
             value: {
               username: 'john_doe',
               language: 'en',
-              avatar: 'https://example.com/avatar.jpg',
+              avatar: '(binary file)',
             },
           },
           updateUsername: {
             summary: 'Update only username',
-            description: 'Partial update - only change username',
-            value: {
-              username: 'new_username',
-            },
+            value: { username: 'new_username' },
           },
           updateLanguage: {
             summary: 'Update only language',
-            description: 'Change user language preference',
-            value: {
-              language: 'ar',
-            },
+            value: { language: 'ar' },
           },
           clearAvatar: {
             summary: 'Remove avatar',
-            description: 'Set avatar to null to remove it',
-            value: {
-              avatar: null,
-            },
+            value: { avatar: null },
           },
         },
       }),

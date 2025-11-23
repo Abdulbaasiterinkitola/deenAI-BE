@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { ProfileModelAction } from '../profile.model-action';
-import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { SaveProfileDto } from '../dto/save-profile.dto';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { Profile } from '../models/profile.model';
 import { CustomHttpException } from '@shared/custom.exception';
@@ -39,7 +39,7 @@ export class ProfileCoreService {
   // Update a user's profile
   async updateProfile(
     userId: string,
-    updateData: UpdateProfileDto,
+    updateData: SaveProfileDto,
   ): Promise<Profile> {
     // Prepare the data to update
     const updatePayload: any = {};

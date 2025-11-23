@@ -4,12 +4,14 @@ import { ProfileCoreService } from './services/profile-core.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './models/profile.model';
+import { ProfileAvatarService } from './services/profile-avatar.service';
 
 @Injectable()
 export class ProfileService {
   constructor(
     private readonly profileValidationService: ProfileValidationService,
     private readonly profileCoreService: ProfileCoreService,
+    private readonly profileAvatarService: ProfileAvatarService,
   ) {}
 
   // Create a user's profile
@@ -45,11 +47,20 @@ export class ProfileService {
       );
     }
 
+    let avatarUrl: string | undefined;
+
+    if (updateData.avatar instanceof Object) {
+      avatarUrl = await this.profileAvatarService.updateAvatar(
+        userId,
+        updateData.avatar,
+      );
+    }
+
     // Step 3: Update the profile
-    const updatedProfile = await this.profileCoreService.updateProfile(
-      userId,
-      updateData,
-    );
+    const updatedProfile = await this.profileCoreService.updateProfile(userId, {
+      ...updateData,
+      avatar: avatarUrl,
+    });
 
     return updatedProfile;
   }
