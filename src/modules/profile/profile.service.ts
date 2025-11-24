@@ -64,8 +64,8 @@ export class ProfileService {
 
     return updatedProfile;
   }
-  
-  async getProfile(userId: string){
-     await this.profileCoreService.getProfile(userId)
+
+  async getProfile(userId: string) {
+    await this.profileCoreService.getProfile(userId);
   }
 }

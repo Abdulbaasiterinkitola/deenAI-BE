@@ -6,7 +6,7 @@ export class GetProfileDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Get user profile',
-        description: 'Fetch the authenticated user\'s profile.',
+        description: "Fetch the authenticated user's profile.",
       }),
       ApiBearerAuth(),
       ApiResponse({

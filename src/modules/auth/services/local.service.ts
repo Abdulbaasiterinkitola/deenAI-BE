@@ -29,62 +29,64 @@ export class LocalAuthService {
     private readonly configService: ConfigService,
   ) {}
 
- async register(dto: RegisterDto) {
-  const email = normalizeEmail(dto.email);
-  if (!email) {
-    throw new CustomHttpException('Email is required', HttpStatus.BAD_REQUEST);
-  }
+  async register(dto: RegisterDto) {
+    const email = normalizeEmail(dto.email);
+    if (!email) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
-  const existingUser = await this.usersService.getUserByEmail(email);
+    const existingUser = await this.usersService.getUserByEmail(email);
 
-  // Validate user creation
-  this.authValidationService.validateUserCreation(
-    email,
-    AuthProvider.LOCAL,
-    existingUser,
-  );
-
-  const hashedPassword = await bcrypt.hash(dto.password, 10);
-  const userData = {
-    name: dto.name,
-    email,
-    password: hashedPassword,
-    authProvider: AuthProvider.LOCAL,
-    isEmailVerified: true,
-  };
-
-  // Create user
-  await this.usersService.createUser(userData);
-
-  // Retrieve the newly created user
-  const createdUser = await this.usersService.getUserByEmail(email);
-  if (!createdUser) {
-    throw new CustomHttpException(
-      'Failed to retrieve created user',
-      HttpStatus.INTERNAL_SERVER_ERROR,
+    // Validate user creation
+    this.authValidationService.validateUserCreation(
+      email,
+      AuthProvider.LOCAL,
+      existingUser,
     );
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const userData = {
+      name: dto.name,
+      email,
+      password: hashedPassword,
+      authProvider: AuthProvider.LOCAL,
+      isEmailVerified: true,
+    };
+
+    // Create user
+    await this.usersService.createUser(userData);
+
+    // Retrieve the newly created user
+    const createdUser = await this.usersService.getUserByEmail(email);
+    if (!createdUser) {
+      throw new CustomHttpException(
+        'Failed to retrieve created user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    // Auto-generate a username helper
+    const generateUsername = (name: string, id: string) => {
+      const base = name?.replace(/\s+/g, '').toLowerCase() || 'user';
+      const suffix = id.slice(-6);
+      return `${base}_${suffix}`;
+    };
+
+    const autoUsername = generateUsername(createdUser.name, createdUser.id);
+
+    await this.profileService.createProfile(createdUser.id, {
+      username: autoUsername,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = createdUser;
+
+    return {
+      user: userWithoutPassword,
+    };
   }
-
-
-  // Auto-generate a username helper
-  const generateUsername = (name: string, id: string) => {
-    const base = name?.replace(/\s+/g, '').toLowerCase() || 'user';
-    const suffix = id.slice(-6); 
-    return `${base}_${suffix}`;
-  };
-
-  const autoUsername = generateUsername(createdUser.name, createdUser.id);
-
-  await this.profileService.createProfile(createdUser.id, {
-    username: autoUsername,
-  });
-
-  const { password, ...userWithoutPassword } = createdUser;
-
-  return {
-    user: userWithoutPassword,
-  };
-}
 
   async requestPasswordReset(dto: { email: string }) {
     const email = normalizeEmail(dto.email);

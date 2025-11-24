@@ -37,11 +37,10 @@ export class ProfileCoreService {
   }
 
   async getProfile(userId: string): Promise<Profile | null> {
-  return this.profileModelAction.get({
-    where: { userId },
-  });
-}
-
+    return this.profileModelAction.get({
+      where: { userId },
+    });
+  }
 
   // Update a user's profile
   async updateProfile(
