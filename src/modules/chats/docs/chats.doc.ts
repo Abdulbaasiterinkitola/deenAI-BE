@@ -101,6 +101,14 @@ export class ChatsDocs {
                 chatId: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
                 role: 'assistant',
                 content: 'Patience (Sabr) in Islam is...',
+                aiReferences: [
+                  {
+                    type: 'quran',
+                    surah: 2,
+                    startAyah: 153,
+                    endAyah: 153,
+                  },
+                ],
                 createdAt: '2025-01-01T12:00:05.000Z',
                 updatedAt: '2025-01-01T12:00:05.000Z',
               },

@@ -108,12 +108,13 @@
     "moduleFileExtensions": [
       "js",
       "json",
-      "ts"
+      "ts",
+      "tsx"
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)sx?$": "ts-jest"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
@@ -125,7 +126,8 @@
       "^@modules/(.*)$": "<rootDir>/modules/$1",
       "^@database/(.*)$": "<rootDir>/database/$1",
       "^@config/(.*)$": "<rootDir>/config/$1",
-      "^@entities/(.*)$": "<rootDir>/entities/$1"
+      "^@entities/(.*)$": "<rootDir>/entities/$1",
+      "^@helpers/(.*)$": "<rootDir>/shared/helpers/$1"
     }
   }
 }

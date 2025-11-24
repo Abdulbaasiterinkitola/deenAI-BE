@@ -20,7 +20,6 @@ export class UpdateProfileDto {
   @IsFile()
   @MaxFileSize(5 * 1024 * 1024) // 5MB
   @HasMimeType(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   avatar?: Express.Multer.File | null;
 
   @IsOptional()

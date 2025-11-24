@@ -1,6 +1,7 @@
 import { AbstractBaseEntity } from '@entities/base.entity';
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { Chat } from './chat.model';
+import { AIReference } from '../types';
 
 export enum MessageRole {
   USER = 'user',
@@ -22,6 +23,14 @@ export class ChatMessage extends AbstractBaseEntity {
 
   @Column({ type: 'text', nullable: false })
   content: string;
+
+  @Column({
+    name: 'ai_references',
+    type: 'jsonb',
+    nullable: true,
+    default: null,
+  })
+  aiReferences: AIReference[] | null;
 
   @ManyToOne(() => Chat, (chat) => chat.messages, {
     nullable: false,

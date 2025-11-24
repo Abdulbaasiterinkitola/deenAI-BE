@@ -3,7 +3,7 @@ import React from 'react';
 
 interface EmailVerificationProps {
   name: string;
-  code: string;
+  otp: string;
   expiryMinutes?: number;
   supportEmail?: string;
   verificationUrl?: string;
@@ -11,7 +11,7 @@ interface EmailVerificationProps {
 
 const EmailVerification: React.FC<EmailVerificationProps> = ({
   name,
-  code,
+  otp,
   expiryMinutes = 10,
   supportEmail = 'security@deenai.com',
   verificationUrl = '#',
@@ -124,7 +124,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
                                             fontFamily: "'Courier New', monospace",
                                           }}
                                         >
-                                          {code}
+                                          {otp}
                                         </div>
                                       </td>
                                     </tr>
