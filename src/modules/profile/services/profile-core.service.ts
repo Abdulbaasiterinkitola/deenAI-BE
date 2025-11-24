@@ -36,6 +36,13 @@ export class ProfileCoreService {
     return createdProfile;
   }
 
+  async getProfile(userId: string): Promise<Profile | null> {
+  return this.profileModelAction.get({
+    where: { userId },
+  });
+}
+
+
   // Update a user's profile
   async updateProfile(
     userId: string,

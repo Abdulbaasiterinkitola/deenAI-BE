@@ -156,9 +156,7 @@ export class UsersService {
     });
   }
 
-  getUserProfile(user: User): UserProfileDto {
-    return UserProfileDto.fromEntity(user);
-  }
+
 
   async requestAccountDeletion(user: User) {
     // Generate deletion code

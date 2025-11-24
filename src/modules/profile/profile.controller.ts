@@ -8,43 +8,30 @@ import {
   HttpCode,
   UseInterceptors,
   UploadedFile,
+  Get,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { CreateProfileDto } from './dto/create-profile.dto';
 import { AuthGuard } from '@guards/auth.guard';
 import { UpdateProfileDocs } from './docs/update-profile.docs';
-import { CreateProfileDocs } from './docs/create-profile.docs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
+import { GetProfileDocs } from './docs/get-profile.docs';
 
 @Controller('users/me/profile')
 @ApiTags('Profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @Post()
-  @HttpCode(201)
+  @Get()
+  @HttpCode(200)
   @UseGuards(AuthGuard)
-  @CreateProfileDocs.createProfile()
-  async createProfile(
-    @Req() request: any,
-    @Body() createProfileDto: CreateProfileDto,
-  ) {
+  @GetProfileDocs.getProfile()
+  async getProfile(@Req() request: any) {
     const user = request.user;
     const userId = user.id as string;
-
-    const profile = await this.profileService.createProfile(
-      userId,
-      createProfileDto,
-    );
-
-    return {
-      success: true,
-      message: 'Profile created successfully',
-      data: profile,
-    };
+    return this.profileService.getProfile(userId);
   }
 
   @Patch()
