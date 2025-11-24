@@ -136,6 +136,7 @@ export class GeminiService {
   ): Promise<{
     content: string;
     references: AIReference[];
+    text: string;
     usage: { inputTokens: number; outputTokens: number; totalTokens: number };
   }> {
     if (!this.isAvailable()) {
@@ -167,8 +168,7 @@ export class GeminiService {
       // Send the current user message with structured response instructions
       const prompt = this.buildStructuredPrompt(userMessage);
       const result = await chat.sendMessage(prompt);
-      const response = result.response;
-
+      const response = await result.response;
       let rawText = '';
       if (
         response.candidates &&
@@ -180,7 +180,7 @@ export class GeminiService {
         rawText = response.candidates[0].content.parts[0].text || '';
       }
 
-      // Extract usage metadata from the response
+      // Extract usage metadata from the response This includes promptTokenCount (input), candidatesTokenCount (output), and totalTokenCount
       const usageMetadata = response.usageMetadata;
 
       if (!rawText || rawText.trim().length === 0) {
@@ -195,6 +195,7 @@ export class GeminiService {
       // Return both the generated text and the token usage statistics
       return {
         ...parsedResponse,
+        text: rawText.trim(),
         usage: {
           inputTokens: usageMetadata?.promptTokenCount || 0,
           outputTokens: usageMetadata?.candidatesTokenCount || 0,
@@ -313,8 +314,19 @@ User message: "${userMessage}"
 Title:`;
 
       const result = await this.model.generateContent(prompt);
-      const response = result.response;
-      const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const response = await result.response;
+
+      let text = '';
+      if (
+        response.candidates &&
+        response.candidates.length > 0 &&
+        response.candidates[0].content &&
+        response.candidates[0].content.parts &&
+        response.candidates[0].content.parts.length > 0
+      ) {
+        text = response.candidates[0].content.parts[0].text || '';
+      }
+
       // Extract usage metadata from the response
       const usageMetadata = response.usageMetadata;
 
