@@ -83,3 +83,6 @@ compose.yml
 # Uploads and user-generated content
 uploads/
 !uploads/.gitkeep
+
+# Google Cloud Credentials
+flowing-bonito-479305-s9-af3fc3cdc423.json
