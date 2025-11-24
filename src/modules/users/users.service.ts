@@ -256,4 +256,12 @@ export class UsersService {
       message: 'Account deleted successfully',
     };
   }
+
+  async getUserPlan(userId: string): Promise<Plan | null> {
+    const user = await this.userCoreService.getUserById(userId);
+    if (!user || !user.planId) {
+      return null;
+    }
+    return (await this.plansService.getPlanById(user.planId)) as Plan;
+  }
 }

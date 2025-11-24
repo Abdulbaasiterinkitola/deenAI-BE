@@ -24,6 +24,8 @@ export class UserModelAction extends AbstractModelAction<User> {
       'password',
       'authProvider',
       'isEmailVerified',
+      'planId',
+      'billingStart',
     ];
 
     return await this.repository.findOne({
