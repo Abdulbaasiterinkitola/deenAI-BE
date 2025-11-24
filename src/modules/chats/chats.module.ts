@@ -11,12 +11,14 @@ import { ChatActionModel } from './action-models/chat.action-model';
 import { ChatMessageActionModel } from './action-models/chat-message.action-model';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { TokenUsageModule } from '@modules/token-usage/token-usage.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Chat, ChatMessage]),
     UsersModule,
     AuthModule,
+    TokenUsageModule, // Import TokenUsageModule to enable token tracking in ChatsService
   ],
   controllers: [ChatsController],
   providers: [

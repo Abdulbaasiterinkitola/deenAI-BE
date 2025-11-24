@@ -6,6 +6,7 @@ import { GeminiService } from './gemini.service';
 import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { CustomHttpException } from '@shared/custom.exception';
+import { TokenUsageService } from '@modules/token-usage/token-usage.service';
 
 /**
  * Core service for chat business logic
@@ -20,6 +21,7 @@ export class ChatsCoreService {
     private readonly chatMessageActionModel: ChatMessageActionModel,
     private readonly chatsValidationService: ChatsValidationService,
     private readonly geminiService: GeminiService,
+    private readonly tokenUsageService: TokenUsageService,
   ) {}
 
   /**
@@ -89,10 +91,13 @@ export class ChatsCoreService {
     }
 
     // Generate AI response
-    const aiResponseContent = await this.geminiService.generateResponse(
-      recentMessages,
-      messageContent,
-    );
+    // Now returns both the text response and the token usage statistics
+    const { text: aiResponseContent, usage: chatUsage } =
+      await this.geminiService.generateResponse(recentMessages, messageContent);
+
+    // Track token usage for the chat interaction
+    // This records the input, output, and total tokens used by the Gemini model
+    await this.tokenUsageService.trackUsage(userId, chatUsage);
 
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
@@ -113,8 +118,13 @@ export class ChatsCoreService {
     // Generate and update title if this is the first message (hasTitle is false)
     if (!chat.hasTitle) {
       try {
-        const generatedTitle =
+        // Generate title and get usage stats
+        const { title: generatedTitle } =
           await this.geminiService.generateTitle(messageContent);
+
+        // Note: We are NOT tracking token usage for title generation as per requirements.
+        // Only chat interactions consume tokens.
+
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,

@@ -71,13 +71,16 @@ export class GeminiService {
    * Generates an AI response based on the conversation history
    * @param messages - Array of chat messages (last 4 messages for context)
    * @param userMessage - The current user message
-   * @returns The AI-generated response
+   * @returns The AI-generated response and token usage
    * @throws {CustomHttpException} If API key is not configured
    */
   async generateResponse(
     messages: ChatMessage[],
     userMessage: string,
-  ): Promise<string> {
+  ): Promise<{
+    text: string;
+    usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  }> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
         'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
@@ -107,6 +110,9 @@ export class GeminiService {
       const result = await chat.sendMessage(userMessage);
       const response = await result.response;
       const text = response.text() as string;
+      // Extract usage metadata from the response
+      // This includes promptTokenCount (input), candidatesTokenCount (output), and totalTokenCount
+      const usageMetadata = response.usageMetadata;
 
       if (!text || text.trim().length === 0) {
         throw new CustomHttpException(
@@ -115,7 +121,15 @@ export class GeminiService {
         );
       }
 
-      return text.trim();
+      // Return both the generated text and the token usage statistics
+      return {
+        text: text.trim(),
+        usage: {
+          inputTokens: usageMetadata?.promptTokenCount || 0,
+          outputTokens: usageMetadata?.candidatesTokenCount || 0,
+          totalTokens: usageMetadata?.totalTokenCount || 0,
+        },
+      };
     } catch (error) {
       if (error instanceof CustomHttpException) {
         this.logger.error(
@@ -151,17 +165,25 @@ export class GeminiService {
   /**
    * Generates a title for a chat based on the first user message
    * @param userMessage - The first user message
-   * @returns A short, descriptive title (max 50 characters)
+   * @returns A short, descriptive title (max 50 characters) and token usage
    */
-  async generateTitle(userMessage: string): Promise<string> {
+  async generateTitle(userMessage: string): Promise<{
+    title: string;
+    usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  }> {
     if (!this.isAvailable()) {
       // Fallback to a truncated version of the message if API is not available
       this.logger.warn(
         'Gemini API not available, using fallback title generation',
       );
-      return userMessage.length > 50
-        ? userMessage.substring(0, 47) + '...'
-        : userMessage;
+      const title =
+        userMessage.length > 50
+          ? userMessage.substring(0, 47) + '...'
+          : userMessage;
+      return {
+        title,
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      };
     }
 
     try {
@@ -174,12 +196,19 @@ Title:`;
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text() as string;
+      // Extract usage metadata from the response
+      const usageMetadata = response.usageMetadata;
 
       if (!text || text.trim().length === 0) {
         // Fallback to a truncated version of the message
-        return userMessage.length > 50
-          ? userMessage.substring(0, 47) + '...'
-          : userMessage;
+        const title =
+          userMessage.length > 50
+            ? userMessage.substring(0, 47) + '...'
+            : userMessage;
+        return {
+          title,
+          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        };
       }
 
       let title = text.trim();
@@ -190,15 +219,28 @@ Title:`;
         title = title.substring(0, 47) + '...';
       }
 
-      return title;
+      // Return the generated title and token usage
+      return {
+        title,
+        usage: {
+          inputTokens: usageMetadata?.promptTokenCount || 0,
+          outputTokens: usageMetadata?.candidatesTokenCount || 0,
+          totalTokens: usageMetadata?.totalTokenCount || 0,
+        },
+      };
     } catch (error) {
       this.logger.error(
         `Failed to generate title: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       // Fallback to a truncated version of the message
-      return userMessage.length > 50
-        ? userMessage.substring(0, 47) + '...'
-        : userMessage;
+      const title =
+        userMessage.length > 50
+          ? userMessage.substring(0, 47) + '...'
+          : userMessage;
+      return {
+        title,
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      };
     }
   }
 }
