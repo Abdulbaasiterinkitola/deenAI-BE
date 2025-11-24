@@ -155,6 +155,9 @@ export class ChatsCoreService {
     // Track token usage
     await this.tokenUsageService.trackUsage(userId, usage);
 
+    // Initialize final usage with chat usage
+    const finalUsage = { ...usage };
+
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
       createPayload: {
@@ -182,6 +185,11 @@ export class ChatsCoreService {
         // Track token usage for the title generation
         await this.tokenUsageService.trackUsage(userId, titleUsage);
 
+        // Add title usage to final usage stats
+        finalUsage.inputTokens += titleUsage.inputTokens;
+        finalUsage.outputTokens += titleUsage.outputTokens;
+        finalUsage.totalTokens += titleUsage.totalTokens;
+
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
@@ -203,7 +211,7 @@ export class ChatsCoreService {
     return {
       userMessage,
       aiMessage,
-      usage,
+      usage: finalUsage,
     };
   }
 
