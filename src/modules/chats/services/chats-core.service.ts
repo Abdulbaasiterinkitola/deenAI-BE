@@ -184,7 +184,6 @@ export class ChatsCoreService {
 
         // Track token usage for the title generation
         await this.tokenUsageService.trackUsage(userId, titleUsage);
-
         // Add title usage to final usage stats
         finalUsage.inputTokens += titleUsage.inputTokens;
         finalUsage.outputTokens += titleUsage.outputTokens;
