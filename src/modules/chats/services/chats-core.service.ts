@@ -8,9 +8,6 @@ import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { SseMessage } from '../types';
 import { CustomHttpException } from '@shared/custom.exception';
-import { TokenUsageService } from '@modules/token-usage/token-usage.service';
-import { ConfigService } from '@nestjs/config';
-import { UsersService } from '@modules/users/users.service';
 
 /**
  * Core service for chat business logic
@@ -25,9 +22,6 @@ export class ChatsCoreService {
     private readonly chatMessageActionModel: ChatMessageActionModel,
     private readonly chatsValidationService: ChatsValidationService,
     private readonly geminiService: GeminiService,
-    private readonly tokenUsageService: TokenUsageService,
-    private readonly configService: ConfigService,
-    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -146,21 +140,10 @@ export class ChatsCoreService {
     }
 
     // Generate AI response
-    // Now returns both the text response and the token usage statistics
-    const recentMessages = await this.getLastMessages(chatId, 4);
-    const aiResponse = await this.geminiService.generateResponse(
+    const aiResponseContent = await this.geminiService.generateResponse(
       recentMessages,
       messageContent,
     );
-
-    const chatUsage = aiResponse.usage;
-
-    // Track token usage for the chat interaction
-    // This records the input, output, and total tokens used by the Gemini model
-    await this.tokenUsageService.trackUsage(userId, chatUsage);
-
-    // Initialize final usage with chat usage
-    const finalUsage = { ...chatUsage };
 
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
@@ -182,22 +165,8 @@ export class ChatsCoreService {
     // Generate and update title if this is the first message (hasTitle is false)
     if (!chat.hasTitle) {
       try {
-        // Generate title and get usage stats
-        const { title: generatedTitle, usage: titleUsage } =
+        const generatedTitle =
           await this.geminiService.generateTitle(messageContent);
-
-        // Track token usage for the title generation
-        await this.tokenUsageService.trackUsage(userId, titleUsage);
-        // Add title usage to final usage stats
-        finalUsage.inputTokens += titleUsage.inputTokens;
-        finalUsage.outputTokens += titleUsage.outputTokens;
-        finalUsage.totalTokens += titleUsage.totalTokens;
-
-        // Add title usage to final usage stats
-        finalUsage.inputTokens += titleUsage.inputTokens;
-        finalUsage.outputTokens += titleUsage.outputTokens;
-        finalUsage.totalTokens += titleUsage.totalTokens;
-
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
@@ -366,19 +335,20 @@ export class ChatsCoreService {
     return result.payload;
   }
 
- /**
+  /**
    * Deletes a chat and its messages
    * @param chatId - The ID of the chat
    * @param userId - The ID of the user
    */
- async deleteChat(chatId: string, userId: string): Promise<void> {
-  const chat = await this.chatActionModel.get({ id: chatId, userId });
-  this.chatsValidationService.validateChatOwnership(chat, userId);
+  async deleteChat(chatId: string, userId: string): Promise<void> {
+    const chat = await this.chatActionModel.get({ id: chatId, userId });
+    this.chatsValidationService.validateChatOwnership(chat, userId);
 
-   await this.chatActionModel.delete({ 
-    identifierOptions: { 
-      id: chatId, 
-      userId 
-    } 
-  })
-}}
+    await this.chatActionModel.delete({
+      identifierOptions: {
+        id: chatId,
+        userId,
+      },
+    });
+  }
+}
