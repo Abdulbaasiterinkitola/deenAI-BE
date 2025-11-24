@@ -67,6 +67,11 @@ export class ChatsCoreService {
   ): Promise<{
     userMessage: ChatMessage;
     aiMessage: ChatMessage;
+    usage: {
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+    };
   }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
@@ -151,6 +156,9 @@ export class ChatsCoreService {
     // This records the input, output, and total tokens used by the Gemini model
     await this.tokenUsageService.trackUsage(userId, chatUsage);
 
+    // Initialize final usage with chat usage
+    const finalUsage = { ...chatUsage };
+
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
       createPayload: {
@@ -177,6 +185,11 @@ export class ChatsCoreService {
         // Track token usage for the title generation
         await this.tokenUsageService.trackUsage(userId, titleUsage);
 
+        // Add title usage to final usage stats
+        finalUsage.inputTokens += titleUsage.inputTokens;
+        finalUsage.outputTokens += titleUsage.outputTokens;
+        finalUsage.totalTokens += titleUsage.totalTokens;
+
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
@@ -198,6 +211,7 @@ export class ChatsCoreService {
     return {
       userMessage,
       aiMessage,
+      usage: finalUsage,
     };
   }
 
