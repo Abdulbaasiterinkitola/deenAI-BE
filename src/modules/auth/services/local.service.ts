@@ -181,9 +181,10 @@ export class LocalAuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
-
+  const profile = await this.profileService.getProfile(user.id)
     return {
       user: userWithoutPassword,
+      profile
     };
   }
 }
