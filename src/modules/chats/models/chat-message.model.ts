@@ -23,6 +23,12 @@ export class ChatMessage extends AbstractBaseEntity {
   @Column({ type: 'text', nullable: false })
   content: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  reference: string | null;
+
+  @Column({ name: 'reference_link', type: 'varchar', nullable: true })
+  referenceLink: string | null;
+
   @ManyToOne(() => Chat, (chat) => chat.messages, {
     nullable: false,
     onDelete: 'CASCADE',
