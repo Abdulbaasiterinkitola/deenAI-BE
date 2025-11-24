@@ -8,6 +8,9 @@ import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { SseMessage } from '../types';
 import { CustomHttpException } from '@shared/custom.exception';
+import { TokenUsageService } from '@modules/token-usage/token-usage.service';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from '@modules/users/users.service';
 
 /**
  * Core service for chat business logic
@@ -22,6 +25,9 @@ export class ChatsCoreService {
     private readonly chatMessageActionModel: ChatMessageActionModel,
     private readonly chatsValidationService: ChatsValidationService,
     private readonly geminiService: GeminiService,
+    private readonly tokenUsageService: TokenUsageService,
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -139,19 +145,23 @@ export class ChatsCoreService {
       );
     }
 
+    // Get recent messages for context
+    const recentMessages = await this.getLastMessages(chatId, 6);
+
     // Generate AI response
-    const aiResponseContent = await this.geminiService.generateResponse(
-      recentMessages,
-      messageContent,
-    );
+    const { content, references, usage } =
+      await this.geminiService.generateResponse(recentMessages, messageContent);
+
+    // Track token usage
+    await this.tokenUsageService.trackUsage(userId, usage);
 
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
       createPayload: {
         chatId,
         role: MessageRole.ASSISTANT,
-        content: aiResponse.content,
-        aiReferences: aiResponse.references ?? null,
+        content: content,
+        aiReferences: references ?? null,
       },
     });
 
@@ -165,8 +175,13 @@ export class ChatsCoreService {
     // Generate and update title if this is the first message (hasTitle is false)
     if (!chat.hasTitle) {
       try {
-        const generatedTitle =
+        // Generate title and get usage stats
+        const { title: generatedTitle, usage: titleUsage } =
           await this.geminiService.generateTitle(messageContent);
+
+        // Track token usage for the title generation
+        await this.tokenUsageService.trackUsage(userId, titleUsage);
+
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
@@ -188,7 +203,7 @@ export class ChatsCoreService {
     return {
       userMessage,
       aiMessage,
-      usage: finalUsage,
+      usage,
     };
   }
 
