@@ -148,7 +148,7 @@ export class GeminiService {
         );
       }
 
-      const parsedResponse = this.parseAIResponse(rawText);
+      const parsedResponse = this.parseAIResponse(rawText as string);
       return parsedResponse;
     } catch (error) {
       if (error instanceof CustomHttpException) {
@@ -288,9 +288,9 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
         }
 
         if (ref.type === 'quran') {
-          const surah = parseInt(ref.surah);
-          const startAyah = parseInt(ref.startAyah);
-          const endAyah = parseInt(ref.endAyah);
+          const surah = parseInt(ref.surah as string);
+          const startAyah = parseInt(ref.startAyah as string);
+          const endAyah = parseInt(ref.endAyah as string);
 
           if (
             !isNaN(surah) &&
@@ -325,14 +325,14 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
             };
 
             if (ref.bookNumber !== undefined) {
-              const bookNumber = parseInt(ref.bookNumber);
+              const bookNumber = parseInt(ref.bookNumber as string);
               if (!isNaN(bookNumber)) {
                 hadithRef.bookNumber = bookNumber;
               }
             }
 
             if (ref.chapterNumber !== undefined) {
-              const chapterNumber = parseInt(ref.chapterNumber);
+              const chapterNumber = parseInt(ref.chapterNumber as string);
               if (!isNaN(chapterNumber)) {
                 hadithRef.chapterNumber = chapterNumber;
               }

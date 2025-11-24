@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TestApp, createTestUser } from '../test-setup';
 import { JwtService } from '@nestjs/jwt';
+import { App } from 'supertest/types';
 
 describe('Plan Change (e2e)', () => {
   let app: INestApplication;
@@ -27,7 +28,7 @@ describe('Plan Change (e2e)', () => {
     // This test demonstrates the endpoint structure and response format
     const mockPlanId = '123e4567-e89b-12d3-a456-426614174000';
 
-    const response = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer() as App)
       .patch('/api/v1/users/plan')
       .set('Authorization', `Bearer ${token}`)
       .send({ planId: mockPlanId });
@@ -52,7 +53,7 @@ describe('Plan Change (e2e)', () => {
   it('should return 404 for valid UUID but non-existent plan', async () => {
     const nonExistentPlanId = '00000000-0000-0000-0000-000000000000';
 
-    const response = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer() as App)
       .patch('/api/v1/users/plan')
       .set('Authorization', `Bearer ${token}`)
       .send({ planId: nonExistentPlanId });
@@ -63,14 +64,14 @@ describe('Plan Change (e2e)', () => {
   });
 
   it('should return 401 for unauthenticated request', async () => {
-    await request(app.getHttpServer())
+    await request(app.getHttpServer() as App)
       .patch('/api/v1/users/plan')
       .send({ planId: '123e4567-e89b-12d3-a456-426614174000' })
       .expect(401);
   });
 
   it('should return 400 for invalid planId format', async () => {
-    await request(app.getHttpServer())
+    await request(app.getHttpServer() as App)
       .patch('/api/v1/users/plan')
       .set('Authorization', `Bearer ${token}`)
       .send({ planId: 'invalid-uuid' })
@@ -78,7 +79,7 @@ describe('Plan Change (e2e)', () => {
   });
 
   it('should return 400 for missing planId', async () => {
-    await request(app.getHttpServer())
+    await request(app.getHttpServer() as App)
       .patch('/api/v1/users/plan')
       .set('Authorization', `Bearer ${token}`)
       .send({})
