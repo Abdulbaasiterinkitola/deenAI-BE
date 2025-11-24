@@ -308,9 +308,7 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
               endAyah,
             });
           } else {
-            this.logger.warn(
-              `Invalid Quran reference: ${JSON.stringify(ref)}`,
-            );
+            this.logger.warn(`Invalid Quran reference: ${JSON.stringify(ref)}`);
           }
         } else if (ref.type === 'hadith') {
           const collection = ref.collection?.toString().trim();

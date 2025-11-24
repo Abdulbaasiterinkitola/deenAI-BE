@@ -27,4 +27,3 @@ export class RefactorAiReferences2000000000000 implements MigrationInterface {
     `);
   }
 }
-
