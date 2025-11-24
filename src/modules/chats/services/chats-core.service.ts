@@ -66,7 +66,15 @@ export class ChatsCoreService {
     chatId: string,
     userId: string,
     messageContent: string,
-  ): Promise<{ userMessage: ChatMessage }> {
+  ): Promise<{
+    userMessage: ChatMessage;
+    aiMessage: ChatMessage;
+    usage: {
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+    };
+  }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
     this.chatsValidationService.validateMessageContent(messageContent);
@@ -140,19 +148,28 @@ export class ChatsCoreService {
 
     // Generate AI response
     // Now returns both the text response and the token usage statistics
-    const { text: aiResponseContent, usage: chatUsage } =
-      await this.geminiService.generateResponse(recentMessages, messageContent);
+    const recentMessages = await this.getLastMessages(chatId, 4);
+    const aiResponse = await this.geminiService.generateResponse(
+      recentMessages,
+      messageContent,
+    );
+
+    const chatUsage = aiResponse.usage;
 
     // Track token usage for the chat interaction
     // This records the input, output, and total tokens used by the Gemini model
     await this.tokenUsageService.trackUsage(userId, chatUsage);
+
+    // Initialize final usage with chat usage
+    const finalUsage = { ...chatUsage };
 
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
       createPayload: {
         chatId,
         role: MessageRole.ASSISTANT,
-        content: aiResponseContent,
+        content: aiResponse.content,
+        aiReferences: aiResponse.references ?? null,
       },
     });
 
@@ -173,6 +190,11 @@ export class ChatsCoreService {
         // Track token usage for the title generation
         await this.tokenUsageService.trackUsage(userId, titleUsage);
 
+        // Add title usage to final usage stats
+        finalUsage.inputTokens += titleUsage.inputTokens;
+        finalUsage.outputTokens += titleUsage.outputTokens;
+        finalUsage.totalTokens += titleUsage.totalTokens;
+
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
@@ -191,7 +213,11 @@ export class ChatsCoreService {
       }
     }
 
-    return { userMessage };
+    return {
+      userMessage,
+      aiMessage,
+      usage: finalUsage,
+    };
   }
 
   /**
