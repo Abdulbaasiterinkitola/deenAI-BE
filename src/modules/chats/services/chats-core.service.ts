@@ -7,6 +7,8 @@ import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { CustomHttpException } from '@shared/custom.exception';
 import { TokenUsageService } from '@modules/token-usage/token-usage.service';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from '@modules/users/users.service';
 
 /**
  * Core service for chat business logic
@@ -22,6 +24,8 @@ export class ChatsCoreService {
     private readonly chatsValidationService: ChatsValidationService,
     private readonly geminiService: GeminiService,
     private readonly tokenUsageService: TokenUsageService,
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -67,6 +71,54 @@ export class ChatsCoreService {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
     this.chatsValidationService.validateMessageContent(messageContent);
+
+    // Get user to check billing cycle and plan
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const userPlan = await this.usersService.getUserPlan(userId);
+
+    // Calculate usage for the current billing period
+    let billingStart = user.billingStart;
+
+    if (!billingStart) {
+      // If billingStart is missing:
+      if (userPlan && userPlan.slug !== 'free') {
+        // For Premium users
+        throw new CustomHttpException(
+          'Billing cycle start date is missing for premium user.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      // For Free users: Default to account creation
+      billingStart = user.createdAt;
+    }
+
+    const monthlyUsage = await this.tokenUsageService.calculateMonthlyUsage(
+      userId,
+      billingStart,
+    );
+
+    if (userPlan) {
+      const tokenLimit = userPlan.tokenLimit;
+
+      // Check if token limit is reached
+
+      if (monthlyUsage >= tokenLimit) {
+        if (userPlan.slug === 'free') {
+          throw new CustomHttpException(
+            'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
+            HttpStatus.PAYMENT_REQUIRED,
+          );
+        } else {
+          throw new CustomHttpException(
+            'Plan token limit reached. Renew your token quota to continue using AI chat features.',
+            HttpStatus.PAYMENT_REQUIRED,
+          );
+        }
+      }
+    }
 
     const chat = await this.chatActionModel.get({ id: chatId, userId });
     this.chatsValidationService.validateChatOwnership(chat, userId);
@@ -119,11 +171,11 @@ export class ChatsCoreService {
     if (!chat.hasTitle) {
       try {
         // Generate title and get usage stats
-        const { title: generatedTitle } =
+        const { title: generatedTitle, usage: titleUsage } =
           await this.geminiService.generateTitle(messageContent);
 
-        // Note: We are NOT tracking token usage for title generation as per requirements.
-        // Only chat interactions consume tokens.
+        // Track token usage for the title generation
+        await this.tokenUsageService.trackUsage(userId, titleUsage);
 
         await this.chatActionModel.update({
           updatePayload: {

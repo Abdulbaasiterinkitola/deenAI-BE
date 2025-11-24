@@ -124,6 +124,10 @@ export class ChatsDocs {
         status: 404,
         description: 'Chat not found',
       }),
+      ApiResponse({
+        status: 402,
+        description: 'Payment required - Token limit reached',
+      }),
     );
   }
   static getMessages() {
