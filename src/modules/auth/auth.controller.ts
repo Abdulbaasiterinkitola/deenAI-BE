@@ -20,8 +20,6 @@ import { AuthGuard } from '@guards/auth.guard';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import {
   RegisterDocs,
-  VerifyEmailDocs,
-  ResendVerificationDocs,
   LoginDocs,
   GoogleAuthDocs,
   ForgotPasswordDocs,
@@ -44,20 +42,6 @@ export class AuthController {
   @RegisterDocs.register()
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
-  }
-
-  @HttpCode(200)
-  @Post('verify-email')
-  @VerifyEmailDocs.verifyEmail()
-  async verifyEmail(@Body() dto: VerifyOtpDto) {
-    return this.authService.verifyEmail(dto);
-  }
-
-  @HttpCode(200)
-  @Post('resend-verification')
-  @ResendVerificationDocs.resendVerification()
-  async resendVerificationOtp(@Body() dto: RequestOtpDto) {
-    return this.authService.resendVerificationOtp(dto.email);
   }
 
   @HttpCode(200)

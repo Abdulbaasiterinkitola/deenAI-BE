@@ -1,6 +1,4 @@
 export { RegisterDocs } from './register.doc';
-export { VerifyEmailDocs } from './verify-email.doc';
-export { ResendVerificationDocs } from './resend-verification.doc';
 export { LoginDocs } from './login.doc';
 export { GoogleAuthDocs } from './google-auth.doc';
 export { ForgotPasswordDocs } from './forgot-password.doc';

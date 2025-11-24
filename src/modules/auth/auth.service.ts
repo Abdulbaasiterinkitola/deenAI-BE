@@ -39,14 +39,6 @@ export class AuthService {
     return await this.localAuthService.resetPasswordWithOtp(dto);
   }
 
-  async verifyEmail(dto: { email: string; otp: string }) {
-    return await this.localAuthService.verifyEmail(dto);
-  }
-
-  async resendVerificationOtp(email: string) {
-    return await this.localAuthService.resendVerificationOtp(email);
-  }
-
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
     const user = result.user;

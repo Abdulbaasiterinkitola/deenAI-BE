@@ -51,7 +51,7 @@ export class LocalAuthService {
       email,
       password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
-      isEmailVerified: false,
+      isEmailVerified: true,
     };
     await this.usersService.createUser(userData);
 
@@ -64,19 +64,6 @@ export class LocalAuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-    // Generate verification OTP
-    const verificationOtp = await this.otpService.generateOtp(email, 30); // 30 min expiry
-
-    await this.emailService.sendEmail(
-      email,
-      'Verify Your DeenAI Account',
-      'email-verification',
-      {
-        name: dto.name || 'User',
-        otp: verificationOtp,
-      },
-    );
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = createdUser;
@@ -164,86 +151,6 @@ export class LocalAuthService {
     return { message: 'Password has been successfully reset' };
   }
 
-  async verifyEmail(dto: { email: string; otp: string }) {
-    const email = normalizeEmail(dto.email);
-    if (!email) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const { otp } = dto;
-
-    const user = await this.usersService.getUserByEmail(email);
-    if (!user) {
-      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    if (user.isEmailVerified) {
-      throw new CustomHttpException(
-        'Email is already verified',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const valid = await this.otpService.validateOtp(email, otp);
-    if (!valid) {
-      throw new CustomHttpException(
-        'Invalid or expired OTP',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    // Mark email as verified
-    await this.usersService.markEmailAsVerified(email);
-
-    // Send welcome email after verification
-    await this.emailService.sendEmail(email, 'Welcome to DeenAI', 'welcome', {
-      name: user.name || 'User',
-    });
-
-    return { message: 'Email verified successfully' };
-  }
-
-  async resendVerificationOtp(email: string) {
-    const normalizedEmail = normalizeEmail(email);
-    if (!normalizedEmail) {
-      throw new CustomHttpException(
-        'Email is required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const user = await this.usersService.getUserByEmail(normalizedEmail);
-    if (!user) {
-      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    if (user.isEmailVerified) {
-      throw new CustomHttpException(
-        'Email is already verified',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const verificationOtp = await this.otpService.generateOtp(
-      normalizedEmail,
-      30,
-    );
-
-    await this.emailService.sendEmail(
-      normalizedEmail,
-      'Verify Your DeenAI Account',
-      'email-verification',
-      {
-        name: user.name || 'User',
-        otp: verificationOtp,
-      },
-    );
-
-    return { message: 'Verification OTP resent successfully' };
-  }
-
   async login(dto: LoginDto) {
     const email = normalizeEmail(dto.email);
     if (!email) {
@@ -256,14 +163,6 @@ export class LocalAuthService {
       email,
       dto.password,
     );
-
-    // Check if email is verified
-    if (!user.isEmailVerified) {
-      throw new CustomHttpException(
-        'Please verify your email before logging in',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
