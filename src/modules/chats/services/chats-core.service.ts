@@ -111,8 +111,7 @@ export class ChatsCoreService {
       const tokenLimit = userPlan.tokenLimit;
 
       // Check if token limit is reached
-
-      if (monthlyUsage >= tokenLimit) {
+      if (typeof tokenLimit === 'number' && monthlyUsage >= tokenLimit) {
         if (userPlan.slug === 'free') {
           throw new CustomHttpException(
             'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
