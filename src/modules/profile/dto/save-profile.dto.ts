@@ -4,24 +4,11 @@ import {
   Matches,
   MaxLength,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
-import { IsFile, MaxFileSize, HasMimeType } from 'nestjs-form-data';
-import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateProfileDto {
+export class SaveProfileDto {
   @IsOptional()
-  @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description: 'Profile image file (JPEG, PNG, WebP, GIF)',
-  })
-  @ValidateIf((o) => o.avatar instanceof Object)
-  @IsFile()
-  @MaxFileSize(5 * 1024 * 1024) // 5MB
-  @HasMimeType(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  avatar?: Express.Multer.File | null;
+  avatar?: string | null;
 
   @IsOptional()
   @IsString({ message: 'Language must be a string' })

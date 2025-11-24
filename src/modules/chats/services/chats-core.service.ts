@@ -193,4 +193,26 @@ export class ChatsCoreService {
 
     return result.payload;
   }
+  async getChatMessages(
+    chatId: string,
+    userId: string,
+    page: number = 1,
+    limit: number = 50,
+  ): Promise<ChatMessage[]> {
+    // Validate ownership first
+    const chat = await this.chatActionModel.get({ id: chatId, userId });
+    this.chatsValidationService.validateChatOwnership(chat, userId);
+    const result = await this.chatMessageActionModel.list({
+      filterRecordOptions: { chatId },
+      paginationPayload: {
+        page,
+        limit,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return result.payload;
+  }
 }

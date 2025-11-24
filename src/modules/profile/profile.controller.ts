@@ -6,6 +6,8 @@ import {
   UseGuards,
   Req,
   HttpCode,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
@@ -14,6 +16,8 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { AuthGuard } from '@guards/auth.guard';
 import { UpdateProfileDocs } from './docs/update-profile.docs';
 import { CreateProfileDocs } from './docs/create-profile.docs';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
 
 @Controller('users/me/profile')
 @ApiTags('Profile')
@@ -46,19 +50,30 @@ export class ProfileController {
   @Patch()
   @HttpCode(200)
   @UseGuards(AuthGuard)
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: multer.memoryStorage(),
+      limits: {
+        fileSize: Number(process.env.PROFILE_IMAGE_MAX_SIZE),
+      },
+    }),
+  )
   @UpdateProfileDocs.updateProfile()
   async updateProfile(
     @Req() request: any,
     @Body() updateProfileDto: UpdateProfileDto,
+    @UploadedFile() avatar?: Express.Multer.File,
   ) {
     // Get user from request (AuthGuard attaches full user object)
     const user = request.user;
     const userId = user.id as string;
 
+    const payload = { ...updateProfileDto, avatar };
+
     // Update the profile
     const updatedProfile = await this.profileService.updateProfile(
       userId,
-      updateProfileDto,
+      payload,
     );
 
     // Return success response

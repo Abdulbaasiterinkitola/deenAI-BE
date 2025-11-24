@@ -81,4 +81,27 @@ export class ChatsService {
       data: chats,
     };
   }
+  async getChatMessages(
+    chatId: string,
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: ChatMessage[];
+  }> {
+    const messages = await this.chatsCoreService.getChatMessages(
+      chatId,
+      userId,
+      page,
+      limit,
+    );
+
+    return {
+      success: true,
+      message: 'Messages retrieved successfully',
+      data: messages,
+    };
+  }
 }

@@ -12,6 +12,8 @@ import { ChatMessageActionModel } from './action-models/chat-message.action-mode
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { TokenUsageModule } from '@modules/token-usage/token-usage.module';
+import { ChatRetentionService } from './services/chat-retention.service';
+import { ChatCleanupService } from './services/chat-cleanup.service';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { TokenUsageModule } from '@modules/token-usage/token-usage.module';
     GeminiService,
     ChatActionModel,
     ChatMessageActionModel,
+    ChatRetentionService,
+    ChatCleanupService,
   ],
   exports: [ChatsService],
 })
