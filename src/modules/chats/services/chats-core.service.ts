@@ -189,11 +189,6 @@ export class ChatsCoreService {
         finalUsage.outputTokens += titleUsage.outputTokens;
         finalUsage.totalTokens += titleUsage.totalTokens;
 
-        // Add title usage to final usage stats
-        finalUsage.inputTokens += titleUsage.inputTokens;
-        finalUsage.outputTokens += titleUsage.outputTokens;
-        finalUsage.totalTokens += titleUsage.totalTokens;
-
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
