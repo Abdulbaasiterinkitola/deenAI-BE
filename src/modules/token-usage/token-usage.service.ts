@@ -44,4 +44,26 @@ export class TokenUsageService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  /**
+   * Calculates the total token usage for a specific user.
+   *
+   * @param userId - The ID of the user to fetch usage for.
+   * @returns The total number of tokens used by the user.
+   */
+  async calculateTotalUsage(userId: string): Promise<number> {
+    return this.tokenUsageActionModel.sumTotalTokens(userId);
+  }
+
+  /**
+   * Calculates the token usage for a user since a specific date.
+   * Typically used to calculate usage within the current billing cycle.
+   *
+   * @param userId - The ID of the user.
+   * @param since - The start date of the period (e.g., billing cycle start).
+   * @returns The total tokens used since the given date.
+   */
+  async calculateMonthlyUsage(userId: string, since: Date): Promise<number> {
+    return this.tokenUsageActionModel.sumTokensSince(userId, since);
+  }
 }

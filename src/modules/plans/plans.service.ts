@@ -36,4 +36,8 @@ export class PlansService {
   async getBySlug(slug: string): Promise<Plan | null> {
     return this.plansCoreService.getPlanBySlug(slug);
   }
+
+  async getPlanById(id: string): Promise<Plan | null> {
+    return this.plansCoreService.getPlanById(id);
+  }
 }
