@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
+import { AppleAuthValidator } from './validators/apple-auth.validator';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
@@ -22,6 +23,7 @@ import {
   RegisterDocs,
   LoginDocs,
   GoogleAuthDocs,
+  AppleAuthDocs,
   ForgotPasswordDocs,
   VerifyOtpDocs,
   ResetPasswordDocs,
@@ -56,6 +58,13 @@ export class AuthController {
   @GoogleAuthDocs.googleAuth()
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
     return await this.authService.googleLogin(googleAuthDto.idToken);
+  }
+
+  @HttpCode(200)
+  @Post('/apple')
+  @AppleAuthDocs.appleAuth()
+  async appleLogin(@Body() appleAuthDto: AppleAuthValidator) {
+    return await this.authService.appleLogin(appleAuthDto.idToken);
   }
   @HttpCode(200)
   @Post('forgot-password')

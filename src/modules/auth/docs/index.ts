@@ -1,6 +1,7 @@
 export { RegisterDocs } from './register.doc';
 export { LoginDocs } from './login.doc';
 export { GoogleAuthDocs } from './google-auth.doc';
+export { AppleAuthDocs } from './apple-auth.doc';
 export { ForgotPasswordDocs } from './forgot-password.doc';
 export { VerifyOtpDocs } from './verify-otp.doc';
 export { ResetPasswordDocs } from './reset-password.doc';

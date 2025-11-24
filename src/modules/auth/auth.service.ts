@@ -1,6 +1,7 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
+import { AppleAuthService } from './services/apple.service';
 import { TokenService } from './services/token.service';
 import RegisterDto from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private readonly localAuthService: LocalAuthService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly appleAuthService: AppleAuthService,
     private readonly tokenService: TokenService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -49,6 +51,13 @@ export class AuthService {
 
   async googleLogin(idToken: string) {
     const user = await this.googleAuthService.authenticate(idToken);
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+
+    return { tokens, user };
+  }
+
+  async appleLogin(idToken: string) {
+    const user = await this.appleAuthService.authenticate(idToken);
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
 
     return { tokens, user };

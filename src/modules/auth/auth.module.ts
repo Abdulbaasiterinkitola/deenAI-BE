@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '@modules/users/users.module';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
+import { AppleAuthService } from './services/apple.service';
 import { AuthValidationService } from './services/auth-validation.service';
 import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -22,6 +23,7 @@ import { OtpActionModel } from './action-models/otp.action-model';
     AuthService,
     LocalAuthService,
     GoogleAuthService,
+    AppleAuthService,
     TokenService,
     AuthGuard,
     OtpService,
