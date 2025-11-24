@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatsCoreService } from './services/chats-core.service';
 import { Chat } from './models/chat.model';
 import { ChatMessage } from './models/chat-message.model';
+import { AIResponseType } from './types';
 
 /**
  * Service for handling chat operations
@@ -50,6 +51,7 @@ export class ChatsService {
     data: {
       userMessage: ChatMessage;
       aiMessage: ChatMessage;
+      aiResponse: AIResponseType;
     };
   }> {
     const result = await this.chatsCoreService.sendMessage(

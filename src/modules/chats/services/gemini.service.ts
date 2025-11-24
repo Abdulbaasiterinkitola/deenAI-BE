@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
+import { AIResponseType } from '../types';
 
 /**
  * Islamic guidelines for the AI assistant
@@ -17,6 +18,17 @@ You are an Islamic AI assistant. Please follow these guidelines strictly:
 5. Be helpful, kind, and patient in your responses
 6. If you don't know something, admit it rather than guessing
 7. Always maintain a respectful tone when discussing religious matters
+8. Always include a reference link (with a title). Find trust worthy sources.
+`;
+
+const STRUCTURED_RESPONSE_INSTRUCTIONS = `
+Respond ONLY in valid JSON that matches the schema below (no backticks or prose):
+{
+  "content": "the final answer for the user in markdown-safe plain text",
+  "reference": "a short, human-readable title of the cited source, or null if unavailable",
+  "referenceLink": "an https URL pointing to the cited source, or null if unavailable"
+}
+Never invent links. If you are unsure, set both "reference" and "referenceLink" to null.
 `;
 
 @Injectable()
@@ -77,7 +89,7 @@ export class GeminiService {
   async generateResponse(
     messages: ChatMessage[],
     userMessage: string,
-  ): Promise<string> {
+  ): Promise<AIResponseType> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
         'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
@@ -103,19 +115,23 @@ export class GeminiService {
         systemInstruction: systemInstruction,
       });
 
-      // Send the current user message
-      const result = await chat.sendMessage(userMessage);
-      const response = await result.response;
-      const text = response.text() as string;
+      // Send the current user message with structured response instructions
+      const prompt = this.buildStructuredPrompt(userMessage);
+      const result = await chat.sendMessage(prompt);
+      const rawText =
+        typeof result.response?.text === 'function'
+          ? result.response.text()
+          : '';
 
-      if (!text || text.trim().length === 0) {
+      if (!rawText || rawText.trim().length === 0) {
         throw new CustomHttpException(
           'Empty response from AI',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
 
-      return text.trim();
+      const parsedResponse = this.parseAIResponse(rawText);
+      return parsedResponse;
     } catch (error) {
       if (error instanceof CustomHttpException) {
         this.logger.error(
@@ -200,5 +216,57 @@ Title:`;
         ? userMessage.substring(0, 47) + '...'
         : userMessage;
     }
+  }
+
+  /**
+   * Ensures the AI always receives the JSON instructions appended to the user prompt
+   */
+  private buildStructuredPrompt(userMessage: string): string {
+    return `${userMessage.trim()}
+
+${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
+  }
+
+  /**
+   * Parses the raw Gemini response, extracting the JSON payload and validating the shape
+   */
+  private parseAIResponse(rawText: string): AIResponseType {
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new CustomHttpException(
+        'AI response was not in the expected JSON format',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    let parsed: Record<string, any>;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch (error) {
+      this.logger.error(
+        `Failed to parse AI response JSON: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw new CustomHttpException(
+        'Unable to parse AI response',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const content = (parsed.content ?? '').toString().trim();
+
+    if (!content) {
+      throw new CustomHttpException(
+        'AI response did not include content',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      content,
+      reference: parsed.reference ? parsed.reference.toString().trim() : null,
+      referenceLink: parsed.referenceLink
+        ? parsed.referenceLink.toString().trim()
+        : null,
+    };
   }
 }

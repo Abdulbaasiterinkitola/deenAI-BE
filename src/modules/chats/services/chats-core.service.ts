@@ -5,6 +5,7 @@ import { ChatsValidationService } from './chats-validation.service';
 import { GeminiService } from './gemini.service';
 import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
+import { AIResponseType } from '../types';
 import { CustomHttpException } from '@shared/custom.exception';
 
 /**
@@ -61,6 +62,7 @@ export class ChatsCoreService {
   ): Promise<{
     userMessage: ChatMessage;
     aiMessage: ChatMessage;
+    aiResponse: AIResponseType;
   }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
@@ -89,7 +91,7 @@ export class ChatsCoreService {
     }
 
     // Generate AI response
-    const aiResponseContent = await this.geminiService.generateResponse(
+    const aiResponse = await this.geminiService.generateResponse(
       recentMessages,
       messageContent,
     );
@@ -99,7 +101,9 @@ export class ChatsCoreService {
       createPayload: {
         chatId,
         role: MessageRole.ASSISTANT,
-        content: aiResponseContent,
+        content: aiResponse.content,
+        reference: aiResponse.reference ?? null,
+        referenceLink: aiResponse.referenceLink ?? null,
       },
     });
 
@@ -136,6 +140,7 @@ export class ChatsCoreService {
     return {
       userMessage,
       aiMessage,
+      aiResponse,
     };
   }
 
