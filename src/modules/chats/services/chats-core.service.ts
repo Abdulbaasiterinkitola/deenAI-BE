@@ -62,7 +62,6 @@ export class ChatsCoreService {
   ): Promise<{
     userMessage: ChatMessage;
     aiMessage: ChatMessage;
-    aiResponse: AIResponseType;
   }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
@@ -102,8 +101,7 @@ export class ChatsCoreService {
         chatId,
         role: MessageRole.ASSISTANT,
         content: aiResponse.content,
-        reference: aiResponse.reference ?? null,
-        referenceLink: aiResponse.referenceLink ?? null,
+        aiReferences: aiResponse.references ?? null,
       },
     });
 
@@ -140,7 +138,6 @@ export class ChatsCoreService {
     return {
       userMessage,
       aiMessage,
-      aiResponse,
     };
   }
 

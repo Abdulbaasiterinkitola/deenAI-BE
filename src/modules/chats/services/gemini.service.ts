@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
-import { AIResponseType } from '../types';
+import { AIResponseType, AIReference } from '../types';
 
 /**
  * Islamic guidelines for the AI assistant
@@ -18,17 +18,35 @@ You are an Islamic AI assistant. Please follow these guidelines strictly:
 5. Be helpful, kind, and patient in your responses
 6. If you don't know something, admit it rather than guessing
 7. Always maintain a respectful tone when discussing religious matters
-8. Always include a reference link (with a title). Find trust worthy sources.
+8. REQUIRED: Every response MUST include at least one Quran verse or Hadith reference to support your answer. This is mandatory for all responses.
 `;
 
 const STRUCTURED_RESPONSE_INSTRUCTIONS = `
 Respond ONLY in valid JSON that matches the schema below (no backticks or prose):
 {
   "content": "the final answer for the user in markdown-safe plain text",
-  "reference": "a short, human-readable title of the cited source, or null if unavailable",
-  "referenceLink": "an https URL pointing to the cited source, or null if unavailable"
+  "references": [
+    {
+      "type": "quran",
+      "surah": 2,
+      "startAyah": 153,
+      "endAyah": 153
+    },
+    {
+      "type": "hadith",
+      "collection": "Sahih Bukhari",
+      "hadithNumber": 1,
+      "bookNumber": 2,
+      "chapterNumber": 3
+    }
+  ]
 }
-Never invent links. If you are unsure, set both "reference" and "referenceLink" to null.
+REQUIRED: The "references" array MUST contain at least one Quran verse or Hadith reference. This is mandatory for every response.
+- For Quran: always include surah (1-114), startAyah, and endAyah (can be the same if single verse)
+- For Hadith: include collection name (e.g., "Sahih Bukhari", "Sahih Muslim", "Sunan Abu Dawud", "Jami' at-Tirmidhi", "Sunan an-Nasa'i", "Sunan Ibn Majah"), hadithNumber (number or string), and optionally bookNumber and chapterNumber if available
+- Include all Quran verses and Hadiths cited in your response
+- Never invent references. Only include authentic references that you actually cited in your response
+- If you cannot find an appropriate reference, you must still provide one that is relevant to the topic, even if it's a general verse about seeking knowledge or guidance
 `;
 
 @Injectable()
@@ -261,12 +279,88 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
       );
     }
 
+    // Parse references array - REQUIRED: at least one reference must be present
+    const references: AIReference[] = [];
+    if (Array.isArray(parsed.references)) {
+      for (const ref of parsed.references) {
+        if (!ref || typeof ref !== 'object') {
+          continue;
+        }
+
+        if (ref.type === 'quran') {
+          const surah = parseInt(ref.surah);
+          const startAyah = parseInt(ref.startAyah);
+          const endAyah = parseInt(ref.endAyah);
+
+          if (
+            !isNaN(surah) &&
+            !isNaN(startAyah) &&
+            !isNaN(endAyah) &&
+            surah >= 1 &&
+            surah <= 114 &&
+            startAyah >= 1 &&
+            endAyah >= startAyah
+          ) {
+            references.push({
+              type: 'quran',
+              surah,
+              startAyah,
+              endAyah,
+            });
+          } else {
+            this.logger.warn(
+              `Invalid Quran reference: ${JSON.stringify(ref)}`,
+            );
+          }
+        } else if (ref.type === 'hadith') {
+          const collection = ref.collection?.toString().trim();
+          const hadithNumber = ref.hadithNumber;
+
+          if (collection && hadithNumber !== undefined) {
+            const hadithRef: AIReference = {
+              type: 'hadith',
+              collection,
+              hadithNumber:
+                typeof hadithNumber === 'number'
+                  ? hadithNumber
+                  : hadithNumber.toString(),
+            };
+
+            if (ref.bookNumber !== undefined) {
+              const bookNumber = parseInt(ref.bookNumber);
+              if (!isNaN(bookNumber)) {
+                hadithRef.bookNumber = bookNumber;
+              }
+            }
+
+            if (ref.chapterNumber !== undefined) {
+              const chapterNumber = parseInt(ref.chapterNumber);
+              if (!isNaN(chapterNumber)) {
+                hadithRef.chapterNumber = chapterNumber;
+              }
+            }
+
+            references.push(hadithRef);
+          } else {
+            this.logger.warn(
+              `Invalid Hadith reference: ${JSON.stringify(ref)}`,
+            );
+          }
+        }
+      }
+    }
+
+    // Validate that at least one reference is present (mandatory requirement)
+    if (references.length === 0) {
+      throw new CustomHttpException(
+        'AI response must include at least one Quran verse or Hadith reference',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     return {
       content,
-      reference: parsed.reference ? parsed.reference.toString().trim() : null,
-      referenceLink: parsed.referenceLink
-        ? parsed.referenceLink.toString().trim()
-        : null,
+      references,
     };
   }
 }
