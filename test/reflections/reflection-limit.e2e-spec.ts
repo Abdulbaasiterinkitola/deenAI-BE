@@ -32,6 +32,7 @@ describe('Reflections Limit (e2e)', () => {
         .post('/api/v1/reflections')
         .set('Authorization', `Bearer ${token}`)
         .send({
+          type: 'quran',
           startAyah: 1,
           endAyah: 5,
           surah: 2,
@@ -52,6 +53,7 @@ describe('Reflections Limit (e2e)', () => {
       .post('/api/v1/reflections')
       .set('Authorization', `Bearer ${token}`)
       .send({
+        type: 'quran',
         startAyah: 1,
         endAyah: 5,
         surah: 2,

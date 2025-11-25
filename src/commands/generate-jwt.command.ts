@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 
@@ -29,6 +29,6 @@ export class GenerateJwtCommand {
       expiresIn,
       secret:
         this.configService.get<string>('auth.jwtSecret') || 'fallback-secret',
-    } as any);
+    } as JwtSignOptions);
   }
 }

@@ -1,10 +1,24 @@
 /**
  * Type definition for creating a new reflection
  */
-export type CreateReflectionType = {
+export type QuranReflectionType = {
+  type: 'quran';
   surah: number;
   startAyah: number;
   endAyah: number;
+};
+
+export type HadithReflectionType = {
+  type: 'hadith';
+  hadithNumber: number;
+  collectionId: string;
+  bookNumber: number;
+};
+
+export type CreateReflectionType = (
+  | QuranReflectionType
+  | HadithReflectionType
+) & {
   content: string;
 };
 
@@ -30,9 +44,13 @@ export type ReflectionQueryType = {
 export type ReflectionResponseType = {
   id: string;
   content: string;
-  surah: number;
-  startAyah: number;
-  endAyah: number;
+  type: 'quran' | 'hadith';
+  surah?: number | null;
+  startAyah?: number | null;
+  endAyah?: number | null;
+  collectionId?: string | null;
+  hadithNumber?: number | null;
+  bookNumber?: number | null;
   userId: string;
   createdAt: Date;
   updatedAt: Date;

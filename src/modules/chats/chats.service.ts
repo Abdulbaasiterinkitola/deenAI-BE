@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { ChatsCoreService } from './services/chats-core.service';
 import { Chat } from './models/chat.model';
 import { ChatMessage } from './models/chat-message.model';
+import { SseMessage } from './types';
 
 /**
+ *
  * Service for handling chat operations
  * Acts as a facade for the core service and handles business logic
  */
@@ -50,9 +53,10 @@ export class ChatsService {
     data: {
       userMessage: ChatMessage;
       aiMessage: ChatMessage;
+      usage: { inputTokens: number; outputTokens: number; totalTokens: number };
     };
   }> {
-    const result = await this.chatsCoreService.sendMessage(
+    const data = await this.chatsCoreService.sendMessage(
       chatId,
       userId,
       messageContent,
@@ -60,10 +64,28 @@ export class ChatsService {
     return {
       success: true,
       message: 'Message sent successfully',
-      data: result,
+      data,
     };
   }
 
+  /**
+   * Streams the AI response for a chat.
+   * @param chatId - The ID of the chat.
+   * @param userId - The ID of the user.
+   * @returns An observable for Server-Sent Events.
+   */
+  streamResponse(chatId: string, userId: string): Observable<SseMessage> {
+    return this.chatsCoreService.streamResponse(chatId, userId);
+  }
+
+  /**
+   * Saves the final AI message after streaming is complete.
+   * @param chatId - The ID of the chat.
+   * @param fullResponse - The complete AI response content.
+   */
+  async saveAiMessage(chatId: string, fullResponse: string): Promise<void> {
+    await this.chatsCoreService.saveAiMessage(chatId, fullResponse);
+  }
   /**
    * Gets all chats for a user
    * @param userId - The ID of the user

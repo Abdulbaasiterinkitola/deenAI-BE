@@ -41,8 +41,6 @@ export class AuthService {
     return await this.localAuthService.resetPasswordWithOtp(dto);
   }
 
-
-
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
     const user = result.user;

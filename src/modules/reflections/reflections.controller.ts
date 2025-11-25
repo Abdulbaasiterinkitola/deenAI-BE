@@ -26,8 +26,10 @@ import {
   ReflectionIdDto,
   PaginatedReflectionsResponseDto,
 } from './dtos/reflection.dto';
+import { CreateReflectionType } from './types/reflection';
 import { AuthGuard } from '@guards/auth.guard';
 import { DocsResponseDto } from '@shared/docs-response.dto';
+import { CreateReflectionDoc } from './docs/reflection.doc';
 
 @ApiTags('Reflections')
 @ApiBearerAuth()
@@ -112,49 +114,30 @@ export class ReflectionsController {
    * Requires authentication
    */
   @Post()
-  @ApiOperation({
-    summary: 'Create a new reflection',
-    description: 'Creates a new reflection for the authenticated user.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Reflection successfully created',
-    schema: {
-      example: {
-        success: true,
-        message: 'Reflection created successfully',
-        data: {
-          id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
-          content:
-            'Today I learned about the importance of patience in software development.',
-          userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
-          createdAt: '2025-01-01T12:00:00.000Z',
-          updatedAt: '2025-01-01T12:00:00.000Z',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Validation error',
-    schema: {
-      example: {
-        success: false,
-        message: 'Validation failed',
-        errors: {
-          content: ['Reflection content cannot be empty'],
-        },
-        status_code: 400,
-      },
-    },
-  })
+  @CreateReflectionDoc.create()
   async createReflection(
     @Body() createReflectionDto: CreateReflectionDto,
     @Request() req: any,
   ): Promise<any> {
     const userId = req.user?.id as string;
+    const createPayload: CreateReflectionType =
+      createReflectionDto.type === 'quran'
+        ? {
+            type: 'quran',
+            content: createReflectionDto.content,
+            surah: createReflectionDto.surah!,
+            startAyah: createReflectionDto.startAyah!,
+            endAyah: createReflectionDto.endAyah!,
+          }
+        : {
+            type: 'hadith',
+            content: createReflectionDto.content,
+            collectionId: createReflectionDto.collectionId!,
+            hadithNumber: createReflectionDto.hadithNumber!,
+            bookNumber: createReflectionDto.bookNumber!,
+          };
     const reflection = await this.reflectionsService.createReflection(
-      createReflectionDto,
+      createPayload,
       userId,
     );
 
@@ -217,7 +200,11 @@ export class ReflectionsController {
           id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
           content:
             'Today I learned about the importance of patience in software development.',
+          type: 'quran',
           userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
+          surah: 32,
+          startAyah: 1,
+          endAyah: 5,
           createdAt: '2025-01-01T12:00:00.000Z',
           updatedAt: '2025-01-01T12:00:00.000Z',
         },
@@ -262,6 +249,10 @@ export class ReflectionsController {
         data: {
           id: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
           content: 'Updated reflection content with new insights.',
+          type: 'hadith',
+          collectionId: 'bukhari',
+          hadithNumber: 1234,
+          bookNumber: 5,
           userId: 'b8f03d5f-4g32-5b6e-b9bf-68c034g2fbd8',
           createdAt: '2025-01-01T12:00:00.000Z',
           updatedAt: '2025-01-01T13:00:00.000Z',

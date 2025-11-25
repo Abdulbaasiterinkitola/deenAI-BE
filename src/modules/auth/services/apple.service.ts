@@ -1,5 +1,5 @@
 import { UsersService } from '@modules/users/users.service';
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthProvider } from '@modules/users/enums';
 import { UserType } from '@modules/users/types/user';
@@ -7,6 +7,7 @@ import { CustomHttpException } from '@shared/custom.exception';
 import { User } from '@modules/users/models/user.model';
 import { AuthValidationService } from './auth-validation.service';
 import { normalizeEmail } from '@helpers/email.helper';
+import { EmailService } from '@modules/email/email.service';
 
 interface AppleTokenResponse {
   email?: string;
@@ -24,10 +25,13 @@ interface AppleUserData {
 
 @Injectable()
 export class AppleAuthService {
+  private readonly logger = new Logger(AppleAuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly authValidationService: AuthValidationService,
+    private readonly emailService: EmailService,
   ) {}
 
   async authenticate(token: string): Promise<User> {
@@ -135,7 +139,14 @@ export class AppleAuthService {
       };
 
       await this.usersService.createUser(userData);
-      return await this.usersService.getUserByEmail(email);
+      const newUser = await this.usersService.getUserByEmail(email);
+
+      // Send welcome email for new users
+      if (newUser) {
+        await this.sendWelcomeEmail(newUser);
+      }
+
+      return newUser;
     }
 
     this.authValidationService.validateAuthProviderConflict(
@@ -166,5 +177,24 @@ export class AppleAuthService {
       `This account uses ${existingUser.authProvider} authentication. Please sign in with your ${existingUser.authProvider} account.`,
       401,
     );
+  }
+
+  private async sendWelcomeEmail(user: User): Promise<void> {
+    try {
+      await this.emailService.sendEmail(
+        user.email,
+        'Welcome to Deen AI',
+        'welcome',
+        { name: user.name },
+      );
+      this.logger.log(
+        `Welcome email sent to new Apple OAuth user: ${user.email}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send welcome email to ${user.email}: ${(error as Error).message}`,
+      );
+      // Don't throw error - user creation should not fail due to email issues
+    }
   }
 }

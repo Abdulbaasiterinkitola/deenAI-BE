@@ -1,9 +1,9 @@
 import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { AIResponseType, AIReference } from '../types';
+import { VertexAI } from '@google-cloud/vertexai';
 
 /**
  * Islamic guidelines for the AI assistant
@@ -62,6 +62,7 @@ Respond ONLY in valid JSON that matches the schema below (no backticks or prose)
       "collection": "Sahih Bukhari",
       "hadithNumber": 1,
       "bookNumber": 2,
+      "chapterNumber": 3
     }
   ]
 }
@@ -76,49 +77,51 @@ REQUIRED: The "references" array MUST contain at least one Quran verse or Hadith
 @Injectable()
 export class GeminiService {
   private readonly logger = new Logger(GeminiService.name);
-  private genAI: GoogleGenerativeAI | null = null;
-  private model: any = null;
-  private readonly apiKey: string | undefined;
+  private vertexAI: VertexAI;
+  private model: any;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('GEMINI_API_KEY');
-
-    if (!this.apiKey) {
-      this.logger.warn(
-        'GEMINI_API_KEY is not configured. AI chat features will be unavailable.',
-      );
-    } else {
-      this.initializeGemini();
-    }
+    this.initializeGemini();
   }
 
   /**
    * Initializes the Gemini AI client
-   * @throws {CustomHttpException} If API key is not configured
    */
   private initializeGemini(): void {
-    if (!this.apiKey) {
-      throw new CustomHttpException(
-        'Gemini API key is not configured',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+    try {
+      const projectId = this.configService.get<string>('GOOGLE_PROJECT_ID');
+      const location =
+        this.configService.get<string>('GOOGLE_LOCATION') || 'us-central1';
+      const endpointId = this.configService.get<string>(
+        'GOOGLE_MODEL_ENDPOINT_ID',
       );
-    }
 
-    this.genAI = new GoogleGenerativeAI(this.apiKey);
-    this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-001',
-    });
+      if (!projectId || !endpointId) {
+        this.logger.warn(
+          'Google Cloud Project ID or Endpoint ID is not configured. AI chat features will be unavailable.',
+        );
+        return;
+      }
+
+      this.vertexAI = new VertexAI({
+        project: projectId,
+        location: location,
+      });
+
+      this.model = this.vertexAI.preview.getGenerativeModel({
+        model: `projects/${projectId}/locations/${location}/endpoints/${endpointId}`,
+      });
+    } catch (error) {
+      this.logger.error('Failed to initialize Vertex AI', error);
+    }
   }
 
   /**
    * Checks if Gemini API is available
-   * @returns true if API key is configured, false otherwise
+   * @returns true if model is initialized, false otherwise
    */
   private isAvailable(): boolean {
-    if (!this.apiKey || !this.genAI || !this.model) {
-      return false;
-    }
-    return true;
+    return !!this.model;
   }
 
   /**
@@ -138,7 +141,7 @@ export class GeminiService {
   }> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
-        'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
+        'AI service is not available. Please check server configuration.',
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
@@ -152,6 +155,7 @@ export class GeminiService {
 
       // Format system instruction correctly (must be an object with parts array)
       const systemInstruction = {
+        role: 'system',
         parts: [{ text: ISLAMIC_GUIDELINES }],
       };
 
@@ -164,9 +168,18 @@ export class GeminiService {
       // Send the current user message with structured response instructions
       const prompt = this.buildStructuredPrompt(userMessage);
       const result = await chat.sendMessage(prompt);
-      const response = await result.response;
-      const rawText =
-        typeof response.text === 'function' ? response.text() : '';
+      const response = result.response;
+
+      let rawText = '';
+      if (
+        response.candidates &&
+        response.candidates.length > 0 &&
+        response.candidates[0].content &&
+        response.candidates[0].content.parts &&
+        response.candidates[0].content.parts.length > 0
+      ) {
+        rawText = response.candidates[0].content.parts[0].text || '';
+      }
 
       // Extract usage metadata from the response
       const usageMetadata = response.usageMetadata;
@@ -178,7 +191,7 @@ export class GeminiService {
         );
       }
 
-      const parsedResponse = this.parseAIResponse(rawText as string);
+      const parsedResponse = this.parseAIResponse(rawText);
 
       // Return both the generated text and the token usage statistics
       return {
@@ -222,6 +235,54 @@ export class GeminiService {
   }
 
   /**
+   * Generates a streaming AI response based on the conversation history
+   * @param messages - Array of chat messages for context
+   * @param userMessage - The current user message
+   * @returns An async iterator that yields response chunks
+   */
+  async *generateResponseStream(
+    messages: ChatMessage[],
+    userMessage: string,
+  ): AsyncGenerator<string> {
+    if (!this.isAvailable()) {
+      throw new CustomHttpException(
+        'AI service is not available. Please check server configuration.',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    try {
+      const conversationHistory = messages.map((msg) => ({
+        role: msg.role === MessageRole.USER ? 'user' : 'model',
+        parts: [{ text: msg.content }],
+      }));
+
+      const systemInstruction = {
+        role: 'system',
+        parts: [{ text: ISLAMIC_GUIDELINES }],
+      };
+
+      const chat = this.model.startChat({
+        history: conversationHistory,
+        systemInstruction: systemInstruction,
+      });
+
+      const prompt = this.buildStructuredPrompt(userMessage);
+      const result = await chat.sendMessageStream(prompt);
+
+      for await (const chunk of result.stream) {
+        const chunkText =
+          chunk.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (chunkText) {
+          yield chunkText;
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Gemini streaming error: ${error}`);
+      throw new CustomHttpException('AI service streaming error', 500);
+    }
+  }
+  /**
    * Generates a title for a chat based on the first user message
    * @param userMessage - The first user message
    * @returns A short, descriptive title (max 50 characters) and token usage
@@ -253,8 +314,8 @@ User message: "${userMessage}"
 Title:`;
 
       const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text() as string;
+      const response = result.response;
+      const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
       // Extract usage metadata from the response
       const usageMetadata = response.usageMetadata;
 
@@ -315,7 +376,7 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
   /**
    * Parses the raw Gemini response, extracting the JSON payload and validating the shape
    */
-  private parseAIResponse(rawText: string): AIResponseType {
+  public parseAIResponse(rawText: string): AIResponseType {
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new CustomHttpException(
@@ -427,5 +488,146 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
       content,
       references,
     };
+  }
+
+  /**
+   * Creates a lightweight parser that extracts readable text from the streamed
+   * JSON payload so clients receive human-friendly chunks instead of partial
+   * JSON blobs.
+   */
+  createContentStreamParser(): {
+    consume: (chunk: string) => string;
+  } {
+    const keyPattern = '"content"';
+    let keyIndex = 0;
+    let awaitingColon = false;
+    let awaitingOpeningQuote = false;
+    let inContent = false;
+    let escapeNext = false;
+    let unicodePending = 0;
+    let unicodeBuffer = '';
+
+    const reset = () => {
+      keyIndex = 0;
+      awaitingColon = false;
+      awaitingOpeningQuote = false;
+    };
+
+    return {
+      consume: (chunk: string): string => {
+        let emitted = '';
+
+        for (const char of chunk) {
+          if (unicodePending > 0) {
+            unicodeBuffer += char;
+            unicodePending--;
+
+            if (unicodePending === 0) {
+              emitted += this.decodeUnicodeEscape(unicodeBuffer);
+              unicodeBuffer = '';
+              escapeNext = false;
+            }
+            continue;
+          }
+
+          if (!inContent) {
+            if (awaitingOpeningQuote) {
+              if (this.isWhitespace(char)) {
+                continue;
+              }
+              if (char === '"') {
+                inContent = true;
+                escapeNext = false;
+                continue;
+              }
+              reset();
+            }
+
+            if (awaitingColon) {
+              if (this.isWhitespace(char)) {
+                continue;
+              }
+              if (char === ':') {
+                awaitingColon = false;
+                awaitingOpeningQuote = true;
+                continue;
+              }
+              reset();
+            }
+
+            if (char === keyPattern[keyIndex]) {
+              keyIndex++;
+              if (keyIndex === keyPattern.length) {
+                awaitingColon = true;
+              }
+            } else {
+              keyIndex = char === keyPattern[0] ? 1 : 0;
+            }
+            continue;
+          }
+
+          if (escapeNext) {
+            if (char === 'u') {
+              unicodePending = 4;
+              unicodeBuffer = '';
+              continue;
+            }
+
+            emitted += this.resolveSimpleEscape(char);
+            escapeNext = false;
+            continue;
+          }
+
+          if (char === '\\') {
+            escapeNext = true;
+            continue;
+          }
+
+          if (char === '"') {
+            inContent = false;
+            reset();
+            continue;
+          }
+
+          emitted += char;
+        }
+
+        return emitted;
+      },
+    };
+  }
+
+  private isWhitespace(char: string): boolean {
+    return char === ' ' || char === '\n' || char === '\r' || char === '\t';
+  }
+
+  private resolveSimpleEscape(char: string): string {
+    switch (char) {
+      case 'n':
+        return '\n';
+      case 't':
+        return '\t';
+      case 'r':
+        return '\r';
+      case '"':
+        return '"';
+      case '\\':
+        return '\\';
+      case '/':
+        return '/';
+      default:
+        return char;
+    }
+  }
+
+  private decodeUnicodeEscape(buffer: string): string {
+    const codePoint = parseInt(buffer, 16);
+
+    if (Number.isNaN(codePoint)) {
+      this.logger.warn(`Invalid unicode escape sequence: \\u${buffer}`);
+      return '';
+    }
+
+    return String.fromCharCode(codePoint);
   }
 }
