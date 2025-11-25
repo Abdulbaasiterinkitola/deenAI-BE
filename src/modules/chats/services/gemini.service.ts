@@ -183,6 +183,52 @@ export class GeminiService {
   }
 
   /**
+   * Generates a streaming AI response based on the conversation history
+   * @param messages - Array of chat messages for context
+   * @param userMessage - The current user message
+   * @returns An async iterator that yields response chunks
+   */
+  async *generateResponseStream(
+    messages: ChatMessage[],
+    userMessage: string,
+  ): AsyncGenerator<string> {
+    if (!this.isAvailable()) {
+      throw new CustomHttpException(
+        'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    try {
+      const conversationHistory = messages.map((msg) => ({
+        role: msg.role === MessageRole.USER ? 'user' : 'model',
+        parts: [{ text: msg.content }],
+      }));
+
+      const systemInstruction = {
+        parts: [{ text: ISLAMIC_GUIDELINES }],
+      };
+
+      const chat = this.model.startChat({
+        history: conversationHistory,
+        systemInstruction: systemInstruction,
+      });
+
+      const prompt = this.buildStructuredPrompt(userMessage);
+      const result = await chat.sendMessageStream(prompt);
+
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        if (chunkText) {
+          yield chunkText;
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Gemini streaming error: ${error}`);
+      throw new CustomHttpException('AI service streaming error', 500);
+    }
+  }
+  /**
    * Generates a title for a chat based on the first user message
    * @param userMessage - The first user message
    * @returns A short, descriptive title (max 50 characters)
@@ -248,7 +294,7 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
   /**
    * Parses the raw Gemini response, extracting the JSON payload and validating the shape
    */
-  private parseAIResponse(rawText: string): AIResponseType {
+  public parseAIResponse(rawText: string): AIResponseType {
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new CustomHttpException(
