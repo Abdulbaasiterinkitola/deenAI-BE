@@ -407,4 +407,145 @@ ${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
       references,
     };
   }
+
+  /**
+   * Creates a lightweight parser that extracts readable text from the streamed
+   * JSON payload so clients receive human-friendly chunks instead of partial
+   * JSON blobs.
+   */
+  createContentStreamParser(): {
+    consume: (chunk: string) => string;
+  } {
+    const keyPattern = '"content"';
+    let keyIndex = 0;
+    let awaitingColon = false;
+    let awaitingOpeningQuote = false;
+    let inContent = false;
+    let escapeNext = false;
+    let unicodePending = 0;
+    let unicodeBuffer = '';
+
+    const reset = () => {
+      keyIndex = 0;
+      awaitingColon = false;
+      awaitingOpeningQuote = false;
+    };
+
+    return {
+      consume: (chunk: string): string => {
+        let emitted = '';
+
+        for (const char of chunk) {
+          if (unicodePending > 0) {
+            unicodeBuffer += char;
+            unicodePending--;
+
+            if (unicodePending === 0) {
+              emitted += this.decodeUnicodeEscape(unicodeBuffer);
+              unicodeBuffer = '';
+              escapeNext = false;
+            }
+            continue;
+          }
+
+          if (!inContent) {
+            if (awaitingOpeningQuote) {
+              if (this.isWhitespace(char)) {
+                continue;
+              }
+              if (char === '"') {
+                inContent = true;
+                escapeNext = false;
+                continue;
+              }
+              reset();
+            }
+
+            if (awaitingColon) {
+              if (this.isWhitespace(char)) {
+                continue;
+              }
+              if (char === ':') {
+                awaitingColon = false;
+                awaitingOpeningQuote = true;
+                continue;
+              }
+              reset();
+            }
+
+            if (char === keyPattern[keyIndex]) {
+              keyIndex++;
+              if (keyIndex === keyPattern.length) {
+                awaitingColon = true;
+              }
+            } else {
+              keyIndex = char === keyPattern[0] ? 1 : 0;
+            }
+            continue;
+          }
+
+          if (escapeNext) {
+            if (char === 'u') {
+              unicodePending = 4;
+              unicodeBuffer = '';
+              continue;
+            }
+
+            emitted += this.resolveSimpleEscape(char);
+            escapeNext = false;
+            continue;
+          }
+
+          if (char === '\\') {
+            escapeNext = true;
+            continue;
+          }
+
+          if (char === '"') {
+            inContent = false;
+            reset();
+            continue;
+          }
+
+          emitted += char;
+        }
+
+        return emitted;
+      },
+    };
+  }
+
+  private isWhitespace(char: string): boolean {
+    return char === ' ' || char === '\n' || char === '\r' || char === '\t';
+  }
+
+  private resolveSimpleEscape(char: string): string {
+    switch (char) {
+      case 'n':
+        return '\n';
+      case 't':
+        return '\t';
+      case 'r':
+        return '\r';
+      case '"':
+        return '"';
+      case '\\':
+        return '\\';
+      case '/':
+        return '/';
+      default:
+        return char;
+    }
+  }
+
+  private decodeUnicodeEscape(buffer: string): string {
+    const codePoint = parseInt(buffer, 16);
+
+    if (Number.isNaN(codePoint)) {
+      this.logger.warn(`Invalid unicode escape sequence: \\u${buffer}`);
+      return '';
+    }
+
+    return String.fromCharCode(codePoint);
+  }
 }
