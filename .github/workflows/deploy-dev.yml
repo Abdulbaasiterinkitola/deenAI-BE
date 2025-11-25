@@ -52,4 +52,4 @@ jobs:
           npm run migration:run || echo "Migration failed or not needed"
           
           # Restart application
-          pm2 restart deenai-backend || pm2 start dist/main.js --name deenai-backend
+          pm2 restart deenai-backend-dev || pm2 start dist/main.js --name deenai-backend-dev
