@@ -36,6 +36,26 @@ export class ProfileCoreService {
     return createdProfile;
   }
 
+  async getProfile(userId: string): Promise<Profile | null> {
+    return this.profileModelAction.get(
+      { userId },
+      {
+        select: {
+          id: true,
+          userId: true,
+          avatar: true,
+          language: true,
+          username: true,
+          user: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+      ['user'],
+    );
+  }
+
   // Update a user's profile
   async updateProfile(
     userId: string,
@@ -58,6 +78,9 @@ export class ProfileCoreService {
       updatePayload.username = updateData.username
         ? updateData.username.toLowerCase()
         : null;
+    }
+    if (updateData.name !== undefined && updatePayload.user) {
+      updatePayload.user.name = updateData.name;
     }
 
     // Update the profile in the database

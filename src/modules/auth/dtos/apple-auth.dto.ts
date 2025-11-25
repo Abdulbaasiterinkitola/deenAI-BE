@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class AppleAuthRequestDto {
   @ApiProperty({
-    example: 'eyJraWQiOiJBSURrZXkiLCJhbGciOiJSUzI1NiJ9....',
+    example: 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ij...',
     description: 'Apple ID token received from Apple Sign-In',
   })
   @IsNotEmpty({ message: 'ID token is required' })
@@ -21,19 +21,17 @@ export class AppleAuthResponseDto {
   @ApiProperty({
     type: 'object',
     properties: {
-      tokens: {
-        type: 'object',
-        properties: {
-          accessToken: { type: 'string' },
-          refreshToken: { type: 'string' },
-        },
+      token: {
+        type: 'string',
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        description: 'JWT access token',
       },
       user: {
         type: 'object',
         properties: {
           id: { type: 'string', example: 'uuid' },
-          name: { type: 'string', example: 'Jane Doe' },
-          email: { type: 'string', example: 'user@apple.com' },
+          name: { type: 'string', example: 'John Doe' },
+          email: { type: 'string', example: 'user@privaterelay.appleid.com' },
           authProvider: { type: 'string', example: 'apple' },
           isEmailVerified: { type: 'boolean', example: true },
           createdAt: { type: 'string', example: '2023-01-01T00:00:00.000Z' },
@@ -43,10 +41,7 @@ export class AppleAuthResponseDto {
     },
   })
   data: {
-    tokens: {
-      accessToken: string;
-      refreshToken: string;
-    };
+    token: string;
     user: {
       id: string;
       name: string;

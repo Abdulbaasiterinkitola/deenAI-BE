@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { normalizeEmail } from '@helpers/email.helper';
 import { CustomHttpException } from '@shared/custom.exception';
+import { ProfileService } from '@modules/profile/profile.service';
 
 @Injectable()
 export class LocalAuthService {
@@ -24,6 +25,7 @@ export class LocalAuthService {
     private readonly authValidationService: AuthValidationService,
     private readonly otpService: OtpService,
     private readonly jwtService: JwtService,
+    private readonly profileService: ProfileService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -38,7 +40,7 @@ export class LocalAuthService {
 
     const existingUser = await this.usersService.getUserByEmail(email);
 
-    // Validate user creation using validation service
+    // Validate user creation
     this.authValidationService.validateUserCreation(
       email,
       AuthProvider.LOCAL,
@@ -53,11 +55,12 @@ export class LocalAuthService {
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: true,
     };
+
+    // Create user
     await this.usersService.createUser(userData);
 
-    // Get the created user
+    // Retrieve the newly created user
     const createdUser = await this.usersService.getUserByEmail(email);
-
     if (!createdUser) {
       throw new CustomHttpException(
         'Failed to retrieve created user',
@@ -65,6 +68,18 @@ export class LocalAuthService {
       );
     }
 
+    // Auto-generate a username helper
+    const generateUsername = (name: string, id: string) => {
+      const base = name?.replace(/\s+/g, '').toLowerCase() || 'user';
+      const suffix = id.slice(-6);
+      return `${base}_${suffix}`;
+    };
+
+    const autoUsername = generateUsername(createdUser.name, createdUser.id);
+
+    await this.profileService.createProfile(createdUser.id, {
+      username: autoUsername,
+    });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = createdUser;
 
@@ -166,9 +181,10 @@ export class LocalAuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
-
+  const profile = await this.profileService.getProfile(user.id)
     return {
       user: userWithoutPassword,
+      profile
     };
   }
 }

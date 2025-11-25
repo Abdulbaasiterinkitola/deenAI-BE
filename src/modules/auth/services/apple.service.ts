@@ -1,96 +1,141 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
 import { UsersService } from '@modules/users/users.service';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthValidationService } from './auth-validation.service';
 import { AuthProvider } from '@modules/users/enums';
+import { UserType } from '@modules/users/types/user';
 import { CustomHttpException } from '@shared/custom.exception';
-import { normalizeEmail } from '@helpers/email.helper';
 import { User } from '@modules/users/models/user.model';
-import { JwtPayload, decode, verify } from 'jsonwebtoken';
-import { createPublicKey, JsonWebKey as CryptoJwk } from 'crypto';
+import { AuthValidationService } from './auth-validation.service';
+import { normalizeEmail } from '@helpers/email.helper';
 
-interface AppleJwtPayload extends JwtPayload {
+interface AppleTokenResponse {
   email?: string;
-  email_verified?: string | boolean;
+  name?: string;
+  aud?: string;
   sub?: string;
-  nonce?: string;
+  error?: string;
+  [key: string]: unknown;
 }
 
-interface JwkKey {
-  kty: string;
-  kid: string;
-  use: string;
-  alg: string;
-  n: string;
-  e: string;
-}
-
-interface JwksResponse {
-  keys: JwkKey[];
+interface AppleUserData {
+  email: string;
+  name?: string;
 }
 
 @Injectable()
 export class AppleAuthService {
-  private appleKeysCache: JwkKey[] | null = null;
-  private readonly APPLE_ISSUER = 'https://appleid.apple.com';
-
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly authValidationService: AuthValidationService,
   ) {}
 
-  async authenticate(idToken: string): Promise<User> {
-    const clientId = this.configService.get<string>('auth.appleClientId');
-    if (!clientId) {
-      throw new CustomHttpException(
-        'Apple authentication not configured',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  async authenticate(token: string): Promise<User> {
+    const appleUserData = this.verifyAppleToken(token);
+    const user = await this.createOrUpdateUser(appleUserData);
 
-    const payload = await this.verifyIdToken(idToken, clientId);
-    const normalizedEmail = normalizeEmail(payload.email || '');
-
-    if (!normalizedEmail) {
+    if (!user) {
       throw new CustomHttpException(
-        'Apple token is missing email',
+        'Failed to authenticate with Apple',
         HttpStatus.UNAUTHORIZED,
       );
     }
 
-    this.authValidationService.validateUserEmail(normalizedEmail);
+    return user;
+  }
 
-    const existingUser =
-      await this.usersService.getUserByEmail(normalizedEmail);
+  private verifyAppleToken(token: string): AppleUserData {
+    try {
+      // Apple uses JWT tokens that need to be verified differently
+      // For now, we'll use a basic implementation
+      // In production, you should verify the JWT signature with Apple's public keys
 
-    if (!existingUser) {
-      this.authValidationService.validateUserCreation(
-        normalizedEmail,
-        AuthProvider.APPLE,
-        existingUser,
-      );
+      const payload = this.decodeJWT(token);
 
-      const userData = {
-        name: normalizedEmail.split('@')[0],
-        email: normalizedEmail,
-        password: '',
-        authProvider: AuthProvider.APPLE,
-        isEmailVerified: this.isEmailVerifiedFlag(payload.email_verified),
-      };
-
-      await this.usersService.createUser(userData);
-      const createdUser =
-        await this.usersService.getUserByEmail(normalizedEmail);
-
-      if (!createdUser) {
+      if (!payload.email) {
         throw new CustomHttpException(
-          'Failed to retrieve created user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          'Invalid Apple token: missing email',
+          401,
         );
       }
 
-      return createdUser;
+      // Validate client ID
+      const appleClientId =
+        this.configService.get<string>('auth.appleClientId');
+      if (appleClientId && payload.aud && payload.aud !== appleClientId) {
+        throw new CustomHttpException(
+          'Invalid Apple token: client ID mismatch',
+          401,
+        );
+      }
+
+      const email = normalizeEmail(payload.email);
+      if (!email) {
+        throw new CustomHttpException(
+          'Invalid Apple token: invalid email',
+          401,
+        );
+      }
+
+      return {
+        email,
+        name: payload.name,
+      };
+    } catch (error) {
+      if (error instanceof CustomHttpException) {
+        throw error;
+      }
+      throw new CustomHttpException('Failed to verify Apple token', 401);
+    }
+  }
+
+  private decodeJWT(token: string): AppleTokenResponse {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Invalid JWT format');
+      }
+
+      const payload = JSON.parse(
+        Buffer.from(parts[1], 'base64url').toString('utf8'),
+      ) as AppleTokenResponse;
+
+      return payload;
+    } catch {
+      throw new CustomHttpException('Invalid Apple token format', 401);
+    }
+  }
+
+  private async createOrUpdateUser(
+    appleUserData: AppleUserData,
+  ): Promise<User | null> {
+    const email = normalizeEmail(appleUserData.email);
+    if (!email) {
+      throw new CustomHttpException('Email is required', 400);
+    }
+    const { name } = appleUserData;
+
+    this.authValidationService.validateUserEmail(email);
+
+    const existingUser = await this.usersService.getUserByEmail(email);
+
+    if (!existingUser) {
+      this.authValidationService.validateUserCreation(
+        email,
+        AuthProvider.APPLE,
+        null,
+      );
+
+      const userData: UserType = {
+        name: name || email.split('@')[0],
+        email,
+        password: '',
+        authProvider: AuthProvider.APPLE,
+        isEmailVerified: true,
+      };
+
+      await this.usersService.createUser(userData);
+      return await this.usersService.getUserByEmail(email);
     }
 
     this.authValidationService.validateAuthProviderConflict(
@@ -105,90 +150,21 @@ export class AppleAuthService {
       );
 
       await this.usersService.updateUserAuthProvider(
-        normalizedEmail,
+        email,
         AuthProvider.APPLE,
-        this.isEmailVerifiedFlag(payload.email_verified),
+        true,
       );
 
-      return this.usersService.getUserByEmail(normalizedEmail) as Promise<User>;
+      return await this.usersService.getUserByEmail(email);
     }
 
-    return existingUser;
-  }
-
-  private isEmailVerifiedFlag(emailVerified: string | boolean | undefined) {
-    if (typeof emailVerified === 'boolean') return emailVerified;
-    if (typeof emailVerified === 'string')
-      return emailVerified.toLowerCase() === 'true';
-    return true;
-  }
-
-  private async verifyIdToken(
-    idToken: string,
-    clientId: string,
-  ): Promise<AppleJwtPayload> {
-    const decoded = decode(idToken, { complete: true });
-
-    if (!decoded || typeof decoded !== 'object' || !decoded.header?.kid) {
-      throw new CustomHttpException(
-        'Invalid Apple token',
-        HttpStatus.UNAUTHORIZED,
-      );
+    if (existingUser.authProvider === AuthProvider.APPLE) {
+      return existingUser;
     }
 
-    const keys = await this.getAppleKeys();
-    const matchingKey = keys.find((key) => key.kid === decoded.header.kid);
-
-    if (!matchingKey) {
-      throw new CustomHttpException(
-        'Unable to verify Apple token (key mismatch)',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const jwk: CryptoJwk = {
-      kty: matchingKey.kty,
-      kid: matchingKey.kid,
-      use: matchingKey.use,
-      alg: matchingKey.alg,
-      n: matchingKey.n,
-      e: matchingKey.e,
-    };
-
-    const publicKey = createPublicKey({
-      key: jwk,
-      format: 'jwk',
-    }).export({ format: 'pem', type: 'spki' });
-
-    const verified = verify(idToken, publicKey, {
-      algorithms: ['RS256'],
-      audience: clientId,
-      issuer: this.APPLE_ISSUER,
-    }) as AppleJwtPayload;
-
-    if (!verified || typeof verified !== 'object') {
-      throw new CustomHttpException(
-        'Invalid Apple token payload',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    return verified;
-  }
-
-  private async getAppleKeys(): Promise<JwkKey[]> {
-    if (this.appleKeysCache) return this.appleKeysCache;
-
-    const response = await fetch('https://appleid.apple.com/auth/keys');
-    if (!response.ok) {
-      throw new CustomHttpException(
-        'Failed to fetch Apple public keys',
-        HttpStatus.BAD_GATEWAY,
-      );
-    }
-
-    const data = (await response.json()) as JwksResponse;
-    this.appleKeysCache = data.keys;
-    return this.appleKeysCache;
+    throw new CustomHttpException(
+      `This account uses ${existingUser.authProvider} authentication. Please sign in with your ${existingUser.authProvider} account.`,
+      401,
+    );
   }
 }

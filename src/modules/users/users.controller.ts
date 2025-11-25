@@ -1,5 +1,4 @@
 import {
-  Get,
   UseInterceptors,
   ClassSerializerInterceptor,
   HttpCode,
@@ -17,8 +16,6 @@ import { AuthGuard } from '@guards/auth.guard';
 import { AuthUser } from '@guards/auth-user.decorator';
 
 import { User } from './models/user.model';
-import { UserProfileDto } from './dtos/user-profile.dto';
-import { ApiResponse as TApiResponse } from './types/api-response.type';
 import { ConfirmAccountDeletionDto } from './dtos/confirm-account-deletion.dto';
 import { RequestAccountDeletionDocs } from './docs/request-account-deletion.doc';
 import { ConfirmAccountDeletionDocs } from './docs/confirm-account-deletion.doc';
@@ -34,20 +31,6 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly subscriptionsService: SubscriptionsService,
   ) {}
-
-  @UseGuards(AuthGuard)
-  @Get('me')
-  getProfile(@AuthUser() user: User): TApiResponse<UserProfileDto> {
-    const profileData = this.usersService.getUserProfile(user);
-    return {
-      success: true,
-      status: 'success',
-      data: profileData,
-      message: 'User profile retrieved successfully',
-      meta: null,
-      status_code: 200,
-    };
-  }
 
   @Patch('plan')
   @HttpCode(HttpStatus.OK)
