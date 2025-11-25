@@ -42,7 +42,6 @@ export class UsersService {
       );
     }
     const normalizedUser: UserType = { ...user, email };
-    let userNameForWelcomeEmail = normalizedUser.name;
 
     await this.userRepo.manager.transaction(async (manager) => {
       const userCreated = await this.userCoreService.createUser(
@@ -56,10 +55,6 @@ export class UsersService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      userNameForWelcomeEmail =
-        userCreated.data?.name ||
-        userNameForWelcomeEmail ||
-        email.split('@')[0];
       await this.notificationSettingsService.createUserNotificationSettings(
         userId,
         manager,
@@ -70,25 +65,6 @@ export class UsersService {
         await manager.update(User, userId, { planId: freePlan.id });
       }
     });
-
-    await this.sendWelcomeEmail(email, userNameForWelcomeEmail);
-  }
-
-  private async sendWelcomeEmail(email: string, name?: string) {
-    const fallbackName = name || email.split('@')[0];
-    try {
-      await this.emailService.sendEmail(
-        email,
-        'Welcome to Deen AI',
-        'welcome',
-        { name: fallbackName },
-      );
-      this.logger.log(`Welcome email sent to ${email}`);
-    } catch (error) {
-      this.logger.warn(
-        `Failed to send welcome email to ${email}: ${(error as Error).message}`,
-      );
-    }
   }
 
   private async getFreePlan(): Promise<Plan | null> {
