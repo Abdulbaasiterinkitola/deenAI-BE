@@ -68,14 +68,13 @@ export class UsersController {
    */
   @Patch('me/pause')
   @HttpCode(HttpStatus.OK)
-  // You can add API documentation here later if you use Swagger
   async pauseAccount(@AuthUser() user: User) {
     const pausedUser = await this.usersService.pauseAccount(user.id);
     return {
       status_code: HttpStatus.OK,
       message: 'Account successfully paused',
       data: {
-        user: this.usersService.getUserProfile(pausedUser),
+        user: pausedUser,
       },
     };
   }
@@ -85,14 +84,13 @@ export class UsersController {
    */
   @Patch('me/reactivate')
   @HttpCode(HttpStatus.OK)
-  // You can add API documentation here later if you use Swagger
   async reactivateAccount(@AuthUser() user: User) {
     const reactivatedUser = await this.usersService.reactivateAccount(user.id);
     return {
       status_code: HttpStatus.OK,
       message: 'Account successfully reactivated',
       data: {
-        user: this.usersService.getUserProfile(reactivatedUser),
+        user: reactivatedUser,
       },
     };
   }
