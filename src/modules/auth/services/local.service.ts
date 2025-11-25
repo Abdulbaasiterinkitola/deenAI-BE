@@ -80,6 +80,10 @@ export class LocalAuthService {
     await this.profileService.createProfile(createdUser.id, {
       username: autoUsername,
     });
+
+    // Send welcome email for new users
+    await this.sendWelcomeEmail(createdUser);
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = createdUser;
 
@@ -186,5 +190,22 @@ export class LocalAuthService {
       user: userWithoutPassword,
       profile
     };
+  }
+
+  private async sendWelcomeEmail(user: any): Promise<void> {
+    try {
+      await this.emailService.sendEmail(
+        user.email,
+        'Welcome to Deen AI',
+        'welcome',
+        { name: user.name },
+      );
+      this.logger.log(`Welcome email sent to new local auth user: ${user.email}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send welcome email to ${user.email}: ${(error as Error).message}`,
+      );
+      // Don't throw error - user creation should not fail due to email issues
+    }
   }
 }
