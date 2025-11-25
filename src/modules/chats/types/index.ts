@@ -20,11 +20,6 @@ export type AIResponseType = {
   references: AIReference[]; // Required: at least one reference must be present
 };
 
-export type AIResponseType = {
-  content: string;
-  references: AIReference[]; // Required: at least one reference must be present
-};
-
 export interface SseMessage {
   data: string;
 }
