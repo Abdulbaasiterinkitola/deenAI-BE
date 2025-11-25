@@ -12,27 +12,30 @@ export class GoogleAuthRequestDto {
 
   @ApiProperty({
     example: 'web',
-    description: 'Platform from which the request is made. Optional but recommended for better client ID validation. If not provided, token will be validated against all configured client IDs.',
+    description:
+      'Platform from which the request is made. Optional but recommended for better client ID validation. If not provided, token will be validated against all configured client IDs.',
     enum: ['web', 'android', 'ios'],
     required: false,
     examples: {
       web: {
         value: 'web',
-        description: 'Web application using Google OAuth2 web flow'
+        description: 'Web application using Google OAuth2 web flow',
       },
       android: {
-        value: 'android', 
-        description: 'Android app using Google Sign-In SDK'
+        value: 'android',
+        description: 'Android app using Google Sign-In SDK',
       },
       ios: {
         value: 'ios',
-        description: 'iOS app using Google Sign-In SDK'
-      }
-    }
+        description: 'iOS app using Google Sign-In SDK',
+      },
+    },
   })
   @IsOptional()
   @IsString({ message: 'Platform must be a string' })
-  @IsIn(['web', 'android', 'ios'], { message: 'Platform must be web, android, or ios' })
+  @IsIn(['web', 'android', 'ios'], {
+    message: 'Platform must be web, android, or ios',
+  })
   platform?: string;
 }
 

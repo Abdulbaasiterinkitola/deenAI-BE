@@ -49,9 +49,9 @@ export class AppleAuthService {
       // Apple uses JWT tokens that need to be verified differently
       // For now, we'll use a basic implementation
       // In production, you should verify the JWT signature with Apple's public keys
-      
+
       const payload = this.decodeJWT(token);
-      
+
       if (!payload.email) {
         throw new CustomHttpException(
           'Invalid Apple token: missing email',
@@ -60,7 +60,8 @@ export class AppleAuthService {
       }
 
       // Validate client ID
-      const appleClientId = this.configService.get<string>('auth.appleClientId');
+      const appleClientId =
+        this.configService.get<string>('auth.appleClientId');
       if (appleClientId && payload.aud && payload.aud !== appleClientId) {
         throw new CustomHttpException(
           'Invalid Apple token: client ID mismatch',
@@ -96,7 +97,7 @@ export class AppleAuthService {
       }
 
       const payload = JSON.parse(
-        Buffer.from(parts[1], 'base64url').toString('utf8')
+        Buffer.from(parts[1], 'base64url').toString('utf8'),
       ) as AppleTokenResponse;
 
       return payload;

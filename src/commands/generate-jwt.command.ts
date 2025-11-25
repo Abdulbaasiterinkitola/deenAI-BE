@@ -14,7 +14,11 @@ export class GenerateJwtCommand {
     return crypto.randomBytes(64).toString('hex');
   }
 
-  generateToken(userId: string = 'test-user', email: string = 'test@example.com', expiresIn: string = '1h'): string {
+  generateToken(
+    userId: string = 'test-user',
+    email: string = 'test@example.com',
+    expiresIn: string = '1h',
+  ): string {
     const payload = {
       sub: userId,
       email: email,
@@ -23,7 +27,8 @@ export class GenerateJwtCommand {
 
     return this.jwtService.sign(payload, {
       expiresIn,
-      secret: this.configService.get<string>('auth.jwtSecret') || 'fallback-secret',
+      secret:
+        this.configService.get<string>('auth.jwtSecret') || 'fallback-secret',
     });
   }
 }

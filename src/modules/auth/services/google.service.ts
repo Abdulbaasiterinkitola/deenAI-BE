@@ -43,7 +43,10 @@ export class GoogleAuthService {
     return user;
   }
 
-  private async verifyGoogleToken(token: string, platform?: string): Promise<GoogleUserData> {
+  private async verifyGoogleToken(
+    token: string,
+    platform?: string,
+  ): Promise<GoogleUserData> {
     try {
       const tokenInfoUrl = `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${token}`;
       const response = await fetch(tokenInfoUrl);

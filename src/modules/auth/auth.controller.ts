@@ -57,7 +57,10 @@ export class AuthController {
   @Post('/google')
   @GoogleAuthDocs.googleAuth()
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
-    return await this.authService.googleLogin(googleAuthDto.idToken, googleAuthDto.platform);
+    return await this.authService.googleLogin(
+      googleAuthDto.idToken,
+      googleAuthDto.platform,
+    );
   }
 
   @HttpCode(200)

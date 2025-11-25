@@ -16,9 +16,10 @@ import {
 export class GoogleAuthDocs {
   static googleAuth() {
     return applyDecorators(
-      ApiOperation({ 
+      ApiOperation({
         summary: 'Google OAuth login (Multi-platform support)',
-        description: 'Authenticate users with Google OAuth2. Supports web, Android, and iOS platforms. The platform parameter is optional but recommended for better client ID validation.'
+        description:
+          'Authenticate users with Google OAuth2. Supports web, Android, and iOS platforms. The platform parameter is optional but recommended for better client ID validation.',
       }),
       ApiBody({ type: GoogleAuthValidator }),
       ApiResponse({
@@ -58,19 +59,20 @@ export class GoogleAuthDocs {
                 success: false,
                 status: 'error',
                 message: 'Invalid Google token',
-                status_code: 401
-              }
+                status_code: 401,
+              },
             },
             clientIdMismatch: {
               value: {
                 success: false,
-                status: 'error', 
-                message: 'Invalid Google token: client ID mismatch for android platform',
-                status_code: 401
-              }
-            }
-          }
-        }
+                status: 'error',
+                message:
+                  'Invalid Google token: client ID mismatch for android platform',
+                status_code: 401,
+              },
+            },
+          },
+        },
       }),
       ApiBadRequestResponse({
         description: 'Invalid request parameters',
@@ -83,10 +85,11 @@ export class GoogleAuthDocs {
           example: {
             success: false,
             status: 'error',
-            message: 'This account uses local authentication. Please sign in with your local account.',
-            status_code: 409
-          }
-        }
+            message:
+              'This account uses local authentication. Please sign in with your local account.',
+            status_code: 409,
+          },
+        },
       }),
       ApiResponse({
         status: 422,
@@ -101,9 +104,9 @@ export class GoogleAuthDocs {
             success: false,
             status: 'error',
             message: 'No OAuth client IDs configured',
-            status_code: 500
-          }
-        }
+            status_code: 500,
+          },
+        },
       }),
     );
   }
