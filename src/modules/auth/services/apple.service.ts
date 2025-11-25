@@ -31,7 +31,7 @@ export class AppleAuthService {
   ) {}
 
   async authenticate(token: string): Promise<User> {
-    const appleUserData = await this.verifyAppleToken(token);
+    const appleUserData = this.verifyAppleToken(token);
     const user = await this.createOrUpdateUser(appleUserData);
 
     if (!user) {
@@ -44,7 +44,7 @@ export class AppleAuthService {
     return user;
   }
 
-  private async verifyAppleToken(token: string): Promise<AppleUserData> {
+  private verifyAppleToken(token: string): AppleUserData {
     try {
       // Apple uses JWT tokens that need to be verified differently
       // For now, we'll use a basic implementation
@@ -97,10 +97,10 @@ export class AppleAuthService {
 
       const payload = JSON.parse(
         Buffer.from(parts[1], 'base64url').toString('utf8')
-      );
+      ) as AppleTokenResponse;
 
       return payload;
-    } catch (error) {
+    } catch {
       throw new CustomHttpException('Invalid Apple token format', 401);
     }
   }

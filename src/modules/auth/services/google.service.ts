@@ -65,7 +65,7 @@ export class GoogleAuthService {
       }
 
       // Validate client ID against all configured client IDs
-      this.validateClientId(data.aud, platform);
+      this.validateClientId(data.aud as string, platform);
 
       const email = normalizeEmail(data.email);
       if (!email) {

@@ -41,11 +41,11 @@ export class AuthService {
     return await this.localAuthService.resetPasswordWithOtp(dto);
   }
 
-  async verifyEmail(dto: { email: string; otp: string }) {
+  async verifyEmail(dto: { email: string; otp: string }): Promise<{ message: string }> {
     return await this.localAuthService.verifyEmail(dto);
   }
 
-  async resendVerificationOtp(email: string) {
+  async resendVerificationOtp(email: string): Promise<{ message: string }> {
     return await this.localAuthService.resendVerificationOtp(email);
   }
 
