@@ -26,6 +26,7 @@ export class ReflectionsCoreService {
     userId: string,
   ): Promise<Reflection> {
     this.reflectionsValidationService.validateReflectionContent(dto.content);
+    this.reflectionsValidationService.validateReflectionSource(dto);
 
     const reflectionCount = await this.reflectionsActionModel.count({ userId });
     if (reflectionCount >= 10) {

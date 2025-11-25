@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
@@ -9,6 +9,7 @@ import {
   IsInt,
   Min,
   IsIn,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
@@ -18,31 +19,81 @@ import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
  */
 export class CreateReflectionDto {
   @ApiProperty({
+    description: 'Type of the reflection source',
+    enum: ['quran', 'hadith'],
+    example: 'quran',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(['quran', 'hadith'])
+  type: 'quran' | 'hadith';
+
+  @ApiProperty({
     description: 'The number of the start Ayah',
     example: 1,
+    required: false,
   })
+  @ValidateIf((dto) => dto.type === 'quran')
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  startAyah: number;
+  startAyah?: number;
 
   @ApiProperty({
     description: 'The number of the end Ayah',
     example: 10,
+    required: false,
   })
+  @ValidateIf((dto) => dto.type === 'quran')
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  endAyah: number;
+  endAyah?: number;
 
   @ApiProperty({
     description: 'The number of the Surah',
     example: 32,
+    required: false,
   })
+  @ValidateIf((dto) => dto.type === 'quran')
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  surah: number;
+  surah?: number;
+
+  @ApiProperty({
+    description: 'Hadith number within the collection',
+    example: 1234,
+    required: false,
+  })
+  @ValidateIf((dto) => dto.type === 'hadith')
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  hadithNumber?: number;
+
+  @ApiProperty({
+    description: 'Hadith collection identifier (e.g., bukhari)',
+    example: 'bukhari',
+    required: false,
+  })
+  @ValidateIf((dto) => dto.type === 'hadith')
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(255)
+  collectionId?: string;
+
+  @ApiProperty({
+    description: 'Book number inside the collection',
+    example: 5,
+    required: false,
+  })
+  @ValidateIf((dto) => dto.type === 'hadith')
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  bookNumber?: number;
 
   @ApiProperty({
     description: 'The content of the reflection',
@@ -142,22 +193,47 @@ export class ReflectionResponseDto {
   content: string;
 
   @ApiProperty({
+    description: 'Source type of the reflection',
+    enum: ['quran', 'hadith'],
+    example: 'quran',
+  })
+  type: 'quran' | 'hadith';
+
+  @ApiPropertyOptional({
     description: 'Surah number',
     example: 32,
   })
-  surah: number;
+  surah?: number | null;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Start ayah number',
     example: 1,
   })
-  startAyah: number;
+  startAyah?: number | null;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'End ayah number',
     example: 5,
   })
-  endAyah: number;
+  endAyah?: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Hadith collection identifier',
+    example: 'bukhari',
+  })
+  collectionId?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Hadith number',
+    example: 1234,
+  })
+  hadithNumber?: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Hadith book number',
+    example: 5,
+  })
+  bookNumber?: number | null;
 
   @ApiProperty({
     description: 'User identifier',

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Reflection } from '../models/reflection.model';
 import { CustomHttpException } from '@shared/custom.exception';
 import { HttpStatus } from '@nestjs/common';
+import { CreateReflectionType } from '../types/reflection';
 
 /**
  * Service responsible for validating reflection-related data and operations
@@ -39,6 +40,47 @@ export class ReflectionsValidationService {
     if (content.length > 10000) {
       throw new CustomHttpException(
         'Reflection content cannot exceed 10,000 characters',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  /**
+   * Validates the contextual metadata for a reflection based on its type
+   * @param payload - The reflection payload to validate
+   */
+  validateReflectionSource(payload: CreateReflectionType): void {
+    if (payload.type === 'quran') {
+      const { surah, startAyah, endAyah } = payload;
+      if (
+        !this.isPositiveInteger(surah) ||
+        !this.isPositiveInteger(startAyah) ||
+        !this.isPositiveInteger(endAyah)
+      ) {
+        throw new CustomHttpException(
+          'Quran reflections require surah, startAyah, and endAyah',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      if ((startAyah as number) > (endAyah as number)) {
+        throw new CustomHttpException(
+          'startAyah cannot be greater than endAyah',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return;
+    }
+
+    const { hadithNumber, collectionId, bookNumber } = payload;
+    if (
+      !this.isPositiveInteger(hadithNumber) ||
+      !collectionId ||
+      !this.isPositiveInteger(bookNumber)
+    ) {
+      throw new CustomHttpException(
+        'Hadith reflections require hadithNumber, collectionId, and bookNumber',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -124,5 +166,9 @@ export class ReflectionsValidationService {
         );
       }
     }
+  }
+
+  private isPositiveInteger(value?: number | null): value is number {
+    return Number.isInteger(value) && (value as number) > 0;
   }
 }
