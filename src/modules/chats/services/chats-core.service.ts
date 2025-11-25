@@ -127,27 +127,36 @@ export class ChatsCoreService {
 
     return from(chatPromise).pipe(
       mergeMap(async () => {
-        // Get context: last 4 messages + the very last user message
-        const recentMessages = await this.getLastMessages(chatId, 5);
-        const userMessage = recentMessages.find(
-          (m) => m.role === MessageRole.USER,
-        );
+        const recentMessages = await this.getLastMessages(chatId, 6);
+        const latestMessage =
+          recentMessages[recentMessages.length - 1] ?? undefined;
 
-        if (!userMessage) {
-          throw new CustomHttpException('User message not found', 404);
+        if (!latestMessage || latestMessage.role !== MessageRole.USER) {
+          throw new CustomHttpException(
+            'No pending user message to respond to',
+            HttpStatus.BAD_REQUEST,
+          );
         }
 
+        const contextMessages = recentMessages.slice(0, -1);
+        const limitedContext = contextMessages.slice(-4);
         const stream = this.geminiService.generateResponseStream(
-          recentMessages,
-          userMessage.content,
+          limitedContext,
+          latestMessage.content,
         );
+        const parser = this.geminiService.createContentStreamParser();
 
         return new Observable<SseMessage>((subscriber) => {
           (async () => {
             let fullResponse = '';
+
             for await (const chunk of stream) {
               fullResponse += chunk;
-              subscriber.next({ data: chunk });
+              const readableChunk = parser.consume(chunk);
+
+              if (readableChunk) {
+                subscriber.next({ data: readableChunk });
+              }
             }
             // After streaming, save the full message
             await this.saveAiMessage(chatId, fullResponse);
