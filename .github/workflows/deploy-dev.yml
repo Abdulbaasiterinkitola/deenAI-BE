@@ -53,3 +53,4 @@ jobs:
           
           # Restart application
           pm2 restart deenai-backend-dev || pm2 start dist/main.js --name deenai-backend-dev
+      
