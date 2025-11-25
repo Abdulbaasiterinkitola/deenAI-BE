@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Observable, from, map, mergeMap } from 'rxjs';
+import { Observable, from, mergeMap } from 'rxjs';
 import { ChatActionModel } from '../action-models/chat.action-model';
 import { ChatMessageActionModel } from '../action-models/chat-message.action-model';
 import { ChatsValidationService } from './chats-validation.service';
