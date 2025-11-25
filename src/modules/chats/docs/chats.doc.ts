@@ -138,7 +138,8 @@ export class ChatsDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Get paginated chat messages',
-        description: 'Retrieves chat messages in pages of 50',
+        description:
+          'Retrieves chat messages in pages (newest to oldest) with configurable page and limit.',
       }),
       ApiParam({
         name: 'id',
@@ -148,10 +149,43 @@ export class ChatsDocs {
         name: 'page',
         required: false,
         example: 1,
+        description: 'Page number (defaults to 1)',
+      }),
+      ApiQuery({
+        name: 'limit',
+        required: false,
+        example: 50,
+        description: 'Messages per page (defaults to 50)',
       }),
       ApiResponse({
         status: 200,
         description: 'Messages retrieved successfully',
+        schema: {
+          example: {
+            success: true,
+            message: 'Messages retrieved successfully',
+            data: [
+              {
+                id: 'c9f13e5f-5h43-6c7f-d0cg-79d145h3gce9',
+                chatId: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
+                role: 'assistant',
+                content: 'Patience (Sabr) in Islam is...',
+                aiReferences: null,
+                createdAt: '2025-01-01T12:00:05.000Z',
+                updatedAt: '2025-01-01T12:00:05.000Z',
+              },
+              {
+                id: 'd0g24f6g-6i54-7d8g-e1dh-80e256i4hdf0',
+                chatId: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
+                role: 'user',
+                content: 'What is the meaning of patience in Islam?',
+                aiReferences: null,
+                createdAt: '2025-01-01T12:00:00.000Z',
+                updatedAt: '2025-01-01T12:00:00.000Z',
+              },
+            ],
+          },
+        },
       }),
       ApiResponse({
         status: 401,
