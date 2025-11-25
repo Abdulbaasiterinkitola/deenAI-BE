@@ -6,11 +6,8 @@ import { ChatsValidationService } from './chats-validation.service';
 import { GeminiService } from './gemini.service';
 import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
+import { SseMessage } from '../types';
 import { CustomHttpException } from '@shared/custom.exception';
-
-interface SseMessage {
-  data: string;
-}
 
 /**
  * Core service for chat business logic
