@@ -140,12 +140,12 @@ export class AppleAuthService {
 
       await this.usersService.createUser(userData);
       const newUser = await this.usersService.getUserByEmail(email);
-      
+
       // Send welcome email for new users
       if (newUser) {
         await this.sendWelcomeEmail(newUser);
       }
-      
+
       return newUser;
     }
 
@@ -187,7 +187,9 @@ export class AppleAuthService {
         'welcome',
         { name: user.name },
       );
-      this.logger.log(`Welcome email sent to new Apple OAuth user: ${user.email}`);
+      this.logger.log(
+        `Welcome email sent to new Apple OAuth user: ${user.email}`,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to send welcome email to ${user.email}: ${(error as Error).message}`,
