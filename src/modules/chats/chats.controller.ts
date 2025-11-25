@@ -14,12 +14,9 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ChatsService } from './chats.service';
 import { SendMessageDto, ChatIdDto } from './dtos/chat.dto';
 import { AuthGuard } from '@guards/auth.guard';
+import { SseMessage } from './types';
 import { ChatsDocs } from './docs/chats.doc';
 import { GetMessagesQueryDto } from './dtos/get-message.dto';
-
-interface SseMessage {
-  data: string;
-}
 
 @ApiTags('Chats')
 @ApiBearerAuth()

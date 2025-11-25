@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ChatsCoreService } from './services/chats-core.service';
-interface SseMessage {
-  data: string;
-}
-
 import { Chat } from './models/chat.model';
 import { ChatMessage } from './models/chat-message.model';
+import { SseMessage } from './types';
 
 /**
  *
