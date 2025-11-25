@@ -29,6 +29,6 @@ export class GenerateJwtCommand {
       expiresIn,
       secret:
         this.configService.get<string>('auth.jwtSecret') || 'fallback-secret',
-    });
+    } as any);
   }
 }
