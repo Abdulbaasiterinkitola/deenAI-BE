@@ -41,6 +41,14 @@ export class AuthService {
     return await this.localAuthService.resetPasswordWithOtp(dto);
   }
 
+  async verifyEmail(dto: { email: string; otp: string }) {
+    return await this.localAuthService.verifyEmail(dto);
+  }
+
+  async resendVerificationOtp(email: string) {
+    return await this.localAuthService.resendVerificationOtp(email);
+  }
+
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
     const user = result.user;
@@ -49,8 +57,8 @@ export class AuthService {
     return { tokens, user };
   }
 
-  async googleLogin(idToken: string) {
-    const user = await this.googleAuthService.authenticate(idToken);
+  async googleLogin(idToken: string, platform?: string) {
+    const user = await this.googleAuthService.authenticate(idToken, platform);
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
 
     return { tokens, user };

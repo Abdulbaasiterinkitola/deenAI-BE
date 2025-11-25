@@ -29,8 +29,8 @@ export class GoogleAuthService {
     private readonly authValidationService: AuthValidationService,
   ) {}
 
-  async authenticate(token: string): Promise<User> {
-    const googleUserData = await this.verifyGoogleToken(token);
+  async authenticate(token: string, platform?: string): Promise<User> {
+    const googleUserData = await this.verifyGoogleToken(token, platform);
     const user = await this.createOrUpdateUser(googleUserData);
 
     if (!user) {
@@ -43,7 +43,7 @@ export class GoogleAuthService {
     return user;
   }
 
-  private async verifyGoogleToken(token: string): Promise<GoogleUserData> {
+  private async verifyGoogleToken(token: string, platform?: string): Promise<GoogleUserData> {
     try {
       const tokenInfoUrl = `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${token}`;
       const response = await fetch(tokenInfoUrl);
@@ -64,16 +64,8 @@ export class GoogleAuthService {
         );
       }
 
-      // Validate client ID if configured
-      const googleClientId = this.configService.get<string>(
-        'auth.googleClientId',
-      );
-      if (googleClientId && data.aud && data.aud !== googleClientId) {
-        throw new CustomHttpException(
-          'Invalid Google token: client ID mismatch',
-          401,
-        );
-      }
+      // Validate client ID against all configured client IDs
+      this.validateClientId(data.aud, platform);
 
       const email = normalizeEmail(data.email);
       if (!email) {
@@ -92,6 +84,51 @@ export class GoogleAuthService {
         throw error;
       }
       throw new CustomHttpException('Failed to verify Google token', 401);
+    }
+  }
+
+  private validateClientId(tokenAudience?: string, platform?: string): void {
+    if (!tokenAudience) {
+      throw new CustomHttpException(
+        'Invalid Google token: missing audience',
+        401,
+      );
+    }
+
+    // Get all valid client IDs
+    const clientIds = {
+      web: this.configService.get<string>('auth.googleClientId'),
+      android: this.configService.get<string>('auth.androidClientId'),
+      ios: this.configService.get<string>('auth.appleClientId'),
+    };
+
+    const validClientIds = Object.values(clientIds).filter(Boolean);
+
+    if (validClientIds.length === 0) {
+      throw new CustomHttpException(
+        'No OAuth client IDs configured',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    // If platform is specified, validate against specific client ID
+    if (platform && clientIds[platform as keyof typeof clientIds]) {
+      const expectedClientId = clientIds[platform as keyof typeof clientIds];
+      if (tokenAudience !== expectedClientId) {
+        throw new CustomHttpException(
+          `Invalid Google token: client ID mismatch for ${platform} platform`,
+          401,
+        );
+      }
+      return;
+    }
+
+    // Otherwise, validate against all configured client IDs
+    if (!validClientIds.includes(tokenAudience)) {
+      throw new CustomHttpException(
+        'Invalid Google token: client ID not recognized',
+        401,
+      );
     }
   }
 
