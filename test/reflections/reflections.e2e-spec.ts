@@ -21,6 +21,7 @@ describe('Reflections Controller (e2e)', () => {
       return request(app.getHttpServer() as App)
         .post('/api/v1/reflections')
         .send({
+          type: 'quran',
           startAyah: 1,
           endAyah: 5,
           surah: 2,
