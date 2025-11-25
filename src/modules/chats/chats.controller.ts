@@ -5,15 +5,21 @@ import {
   Body,
   Param,
   UseGuards,
+  Sse,
   Request,
   Query,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ChatsService } from './chats.service';
 import { SendMessageDto, ChatIdDto } from './dtos/chat.dto';
 import { AuthGuard } from '@guards/auth.guard';
 import { ChatsDocs } from './docs/chats.doc';
 import { GetMessagesQueryDto } from './dtos/get-message.dto';
+
+interface SseMessage {
+  data: string;
+}
 
 @ApiTags('Chats')
 @ApiBearerAuth()
@@ -61,6 +67,20 @@ export class ChatsController {
       userId,
       sendMessageDto.message,
     );
+  }
+
+  /**
+   * GET endpoint to stream AI response for a chat
+   * Requires authentication and chat ownership
+   */
+  @Sse(':id/stream')
+  @ChatsDocs.sendMessage() // You might want to create a new doc for this
+  streamMessage(
+    @Param() params: ChatIdDto,
+    @Request() req: any,
+  ): Observable<SseMessage> {
+    const userId = req.user?.id as string;
+    return this.chatsService.streamResponse(params.id, userId);
   }
   @Get(':id/messages')
   @ChatsDocs.getMessages()
