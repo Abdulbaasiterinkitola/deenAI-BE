@@ -39,4 +39,3 @@ export class AddHadithReflectionSupport2001000000001
     `);
   }
 }
-

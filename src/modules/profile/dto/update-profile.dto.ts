@@ -36,13 +36,12 @@ export class UpdateProfileDto {
     message: 'Username can only contain letters, numbers, and underscores',
   })
   username?: string | null;
-    @IsOptional()
+  @IsOptional()
   @IsString({ message: 'Username must be a string' })
   @MinLength(3, { message: 'Username must be at least 3 characters long' })
   @MaxLength(30, { message: 'Username must not exceed 30 characters' })
-  @Matches(/^[a-zA-Z]+$/
-, {
+  @Matches(/^[a-zA-Z]+$/, {
     message: 'Username can only contain letters, numbers, and underscores',
   })
-  name: string
+  name: string;
 }

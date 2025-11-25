@@ -15,7 +15,10 @@ export type HadithReflectionType = {
   bookNumber: number;
 };
 
-export type CreateReflectionType = (QuranReflectionType | HadithReflectionType) & {
+export type CreateReflectionType = (
+  | QuranReflectionType
+  | HadithReflectionType
+) & {
   content: string;
 };
 

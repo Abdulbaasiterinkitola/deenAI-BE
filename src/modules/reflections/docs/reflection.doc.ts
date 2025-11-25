@@ -111,7 +111,13 @@ export const CreateReflectionDoc = {
             },
             {
               type: 'object',
-              required: ['type', 'collectionId', 'hadithNumber', 'bookNumber', 'content'],
+              required: [
+                'type',
+                'collectionId',
+                'hadithNumber',
+                'bookNumber',
+                'content',
+              ],
               properties: {
                 type: { type: 'string', enum: ['hadith'] },
                 collectionId: { type: 'string' },
@@ -256,7 +262,10 @@ export const CreateReflectionDoc = {
                 message: { type: 'string' },
                 errors: {
                   type: 'object',
-                  additionalProperties: { type: 'array', items: { type: 'string' } },
+                  additionalProperties: {
+                    type: 'array',
+                    items: { type: 'string' },
+                  },
                 },
                 status_code: { type: 'integer', example: 400 },
               },

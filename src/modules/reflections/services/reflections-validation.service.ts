@@ -63,7 +63,7 @@ export class ReflectionsValidationService {
         );
       }
 
-      if ((startAyah as number) > (endAyah as number)) {
+      if (startAyah > endAyah) {
         throw new CustomHttpException(
           'startAyah cannot be greater than endAyah',
           HttpStatus.BAD_REQUEST,

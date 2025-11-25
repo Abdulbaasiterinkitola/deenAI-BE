@@ -185,22 +185,24 @@ export class LocalAuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
-  const profile = await this.profileService.getProfile(user.id)
+    const profile = await this.profileService.getProfile(user.id);
     return {
       user: userWithoutPassword,
-      profile
+      profile,
     };
   }
 
   private async sendWelcomeEmail(user: any): Promise<void> {
     try {
       await this.emailService.sendEmail(
-        user.email,
+        user.email as string,
         'Welcome to Deen AI',
         'welcome',
         { name: user.name },
       );
-      this.logger.log(`Welcome email sent to new local auth user: ${user.email}`);
+      this.logger.log(
+        `Welcome email sent to new local auth user: ${user.email}`,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to send welcome email to ${user.email}: ${(error as Error).message}`,
