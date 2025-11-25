@@ -69,11 +69,7 @@ export class ChatsCoreService {
   ): Promise<{
     userMessage: ChatMessage;
     aiMessage: ChatMessage;
-    usage: {
-      inputTokens: number;
-      outputTokens: number;
-      totalTokens: number;
-    };
+    usage: { inputTokens: number; outputTokens: number; totalTokens: number };
   }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
