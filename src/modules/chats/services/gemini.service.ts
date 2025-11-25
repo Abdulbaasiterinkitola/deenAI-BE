@@ -62,7 +62,6 @@ Respond ONLY in valid JSON that matches the schema below (no backticks or prose)
       "collection": "Sahih Bukhari",
       "hadithNumber": 1,
       "bookNumber": 2,
-      "chapterNumber": 3
     }
   ]
 }
