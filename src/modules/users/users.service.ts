@@ -120,6 +120,18 @@ export class UsersService {
     );
   }
 
+  async updateUserName(email: string, name: string) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.userCoreService.updateUserName(normalizedEmail, name);
+  }
+
   async setCurrentRefreshToken(refreshToken: string, userId: string) {
     const currentRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userRepo.update(userId, {
