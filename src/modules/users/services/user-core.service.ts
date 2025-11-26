@@ -69,4 +69,11 @@ export default class UserCoreService {
       identifierOptions: { email },
     });
   }
+
+  async updateUserName(email: string, name: string) {
+    return await this.userModelAction.update({
+      updatePayload: { name },
+      identifierOptions: { email },
+    });
+  }
 }
