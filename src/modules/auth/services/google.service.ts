@@ -185,12 +185,9 @@ export class GoogleAuthService {
     if (existingUser.authProvider === AuthProvider.LOCAL) {
       this.logger.log(`Linking Google OAuth to existing LOCAL user: ${email}`);
 
-      // Update user to support Google auth while keeping local capability
-      await this.usersService.updateUserAuthProvider(
-        email,
-        AuthProvider.GOOGLE,
-        true, // Google verifies the email
-      );
+      // Keep the user as LOCAL but mark email as verified (don't change authProvider)
+      // This allows both email/password and Google OAuth to work
+      await this.usersService.markEmailAsVerified(email);
 
       // Update name if Google provides a better one and current name is generic
       if (

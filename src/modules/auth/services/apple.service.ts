@@ -153,12 +153,9 @@ export class AppleAuthService {
     if (existingUser.authProvider === AuthProvider.LOCAL) {
       this.logger.log(`Linking Apple OAuth to existing LOCAL user: ${email}`);
 
-      // Update user to support Apple auth while keeping local capability
-      await this.usersService.updateUserAuthProvider(
-        email,
-        AuthProvider.APPLE,
-        true,
-      );
+      // Keep the user as LOCAL but mark email as verified (don't change authProvider)
+      // This allows both email/password and Apple OAuth to work
+      await this.usersService.markEmailAsVerified(email);
 
       // Update name if Apple provides a better one and current name is generic
       if (
