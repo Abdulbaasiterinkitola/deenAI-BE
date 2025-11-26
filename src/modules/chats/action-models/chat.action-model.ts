@@ -9,4 +9,15 @@ export class ChatActionModel extends AbstractModelAction<Chat> {
   constructor(@InjectRepository(Chat) repository: Repository<Chat>) {
     super(repository, Chat);
   }
+  async deleteUserChat(options: {
+    id: string;
+    userId: string;
+  }): Promise<boolean> {
+    const result = await this.repository.delete({
+      id: options.id,
+      userId: options.userId,
+    });
+
+    return (result.affected ?? 0) > 0;
+  }
 }
