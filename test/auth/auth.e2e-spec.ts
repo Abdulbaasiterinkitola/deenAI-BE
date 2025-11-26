@@ -96,4 +96,24 @@ describe('Auth Controller (e2e)', () => {
         });
     });
   });
+
+  describe('POST /api/v1/auth/apple', () => {
+    it('should validate required fields', () => {
+      return request(app.getHttpServer() as App)
+        .post('/api/v1/auth/apple')
+        .send({})
+        .expect((res) => {
+          expect([400, 401, 422]).toContain(res.status);
+        });
+    });
+
+    it('should reject invalid token', () => {
+      return request(app.getHttpServer() as App)
+        .post('/api/v1/auth/apple')
+        .send({ idToken: 'invalid-token' })
+        .expect((res) => {
+          expect([400, 401, 422]).toContain(res.status);
+        });
+    });
+  });
 });
