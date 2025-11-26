@@ -184,7 +184,7 @@ export class GoogleAuthService {
     // Handle existing LOCAL user signing in with Google
     if (existingUser.authProvider === AuthProvider.LOCAL) {
       this.logger.log(`Linking Google OAuth to existing LOCAL user: ${email}`);
-      
+
       // Update user to support Google auth while keeping local capability
       await this.usersService.updateUserAuthProvider(
         email,
@@ -193,12 +193,17 @@ export class GoogleAuthService {
       );
 
       // Update name if Google provides a better one and current name is generic
-      if (name && name !== email.split('@')[0] && 
-          (existingUser.name === email.split('@')[0] || !existingUser.name)) {
+      if (
+        name &&
+        name !== email.split('@')[0] &&
+        (existingUser.name === email.split('@')[0] || !existingUser.name)
+      ) {
         await this.usersService.updateUserName(email, name);
       }
 
-      this.logger.log(`Successfully linked Google OAuth to existing user: ${email}`);
+      this.logger.log(
+        `Successfully linked Google OAuth to existing user: ${email}`,
+      );
       return await this.usersService.getUserByEmail(email);
     }
 
@@ -221,7 +226,7 @@ export class GoogleAuthService {
 
     // Fallback for unknown auth providers
     throw new CustomHttpException(
-      `This account uses ${existingUser.authProvider} authentication. Please sign in with your ${existingUser.authProvider} account.`,
+      `This account uses ${String(existingUser.authProvider)} authentication. Please sign in with your ${String(existingUser.authProvider)} account.`,
       409,
     );
   }
