@@ -19,6 +19,9 @@ import { DeletionCodeService } from './services/deletion-code.service';
 import { EmailService } from '@modules/email/email.service';
 import { PlansService } from '@modules/plans/plans.service';
 import { Plan } from '@modules/plans/models/plan.model';
+import UserValidationService from './services/user-validation.service';
+import { UserModelAction } from './action-models/user.action-model';
+import { UserStatus } from './enums/user-status.enum';
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
@@ -31,6 +34,8 @@ export class UsersService {
     private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
     private readonly plansService: PlansService,
+    private readonly userValidationService: UserValidationService,
+    private readonly userModelAction: UserModelAction,
   ) {}
 
   async createUser(user: UserType) {
@@ -43,26 +48,22 @@ export class UsersService {
     }
     const normalizedUser: UserType = { ...user, email };
 
+    // This is your refactored, correct implementation.
     await this.userRepo.manager.transaction(async (manager) => {
-      const userCreated = await this.userCoreService.createUser(
-        normalizedUser,
-        manager,
-      );
-      const userId = userCreated.data?.id;
-      if (!userId) {
-        throw new CustomHttpException(
-          'Failed to retrieve newly created user ID',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      // Directly create the user entity
+      const userEntity = this.userRepo.create(normalizedUser);
+      const savedUser = await manager.save(userEntity);
+
+      // Create notification settings for the new user
       await this.notificationSettingsService.createUserNotificationSettings(
-        userId,
+        savedUser.id,
         manager,
       );
 
+      // Assign the free plan
       const freePlan = await this.getFreePlan();
       if (freePlan?.id) {
-        await manager.update(User, userId, { planId: freePlan.id });
+        await manager.update(User, savedUser.id, { planId: freePlan.id });
       }
     });
   }

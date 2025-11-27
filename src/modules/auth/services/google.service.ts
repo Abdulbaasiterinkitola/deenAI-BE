@@ -2,6 +2,7 @@ import { UsersService } from '@modules/users/users.service';
 import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthProvider } from '@modules/users/enums';
+import { UserStatus } from '@modules/users/enums/user-status.enum';
 import { UserType } from '@modules/users/types/user';
 import { CustomHttpException } from '@shared/custom.exception';
 import { User } from '@modules/users/models/user.model';
@@ -168,6 +169,7 @@ export class GoogleAuthService {
         password: '', // No password for OAuth users
         authProvider: AuthProvider.GOOGLE,
         isEmailVerified: true, // Google verifies the email
+        status: UserStatus.ACTIVE,
       };
 
       await this.usersService.createUser(userData);

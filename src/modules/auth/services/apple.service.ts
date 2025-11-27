@@ -8,6 +8,7 @@ import { User } from '@modules/users/models/user.model';
 import { AuthValidationService } from './auth-validation.service';
 import { normalizeEmail } from '@helpers/email.helper';
 import { EmailService } from '@modules/email/email.service';
+import { UserStatus } from '@modules/users/enums/user-status.enum';
 
 interface AppleTokenResponse {
   email?: string;
@@ -136,6 +137,7 @@ export class AppleAuthService {
         password: '',
         authProvider: AuthProvider.APPLE,
         isEmailVerified: true,
+        status: UserStatus.ACTIVE,
       };
 
       await this.usersService.createUser(userData);

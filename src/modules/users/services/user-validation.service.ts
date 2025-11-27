@@ -7,6 +7,7 @@ import { User } from '../models/user.model';
 import * as bcrypt from 'bcrypt';
 import { EntityManager } from 'typeorm';
 import { normalizeEmail } from '@helpers/email.helper';
+import { UserStatus } from '../enums/user-status.enum';
 
 @Injectable()
 export default class UserValidationService {
@@ -77,5 +78,43 @@ export default class UserValidationService {
     if (!user) {
       throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
     }
+  }
+
+  async validateUserCanBePaused(userId: string): Promise<User> {
+    const user = await this.userModelAction.get({ id: userId });
+
+    if (!user) {
+      throw new CustomHttpException(
+        'User account not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (user.status === UserStatus.PAUSED) {
+      throw new CustomHttpException(
+        'Account is already paused',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return user;
+  }
+
+  async validateUserCanBeReactivated(userId: string): Promise<User> {
+    const user = await this.userModelAction.get({ id: userId });
+
+    if (!user) {
+      throw new CustomHttpException(
+        'User account not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (user.status === UserStatus.ACTIVE) {
+      throw new CustomHttpException(
+        'Account is already active',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return user;
   }
 }
