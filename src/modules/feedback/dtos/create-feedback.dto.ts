@@ -17,5 +17,6 @@ export class CreateFeedbackDto {
   })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(5000)
   description: string;
 }

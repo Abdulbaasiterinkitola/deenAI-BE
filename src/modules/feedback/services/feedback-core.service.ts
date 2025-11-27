@@ -31,7 +31,7 @@ export class FeedbackCoreService {
 
       // Try to notify PM but do not fail the whole request if email fails
       this.sendEmailToPM(name, title, description).catch((err) => {
-        this.logger.error('Failed to send feedback email to PM', err as any);
+        this.logger.error('Failed to send feedback email to PM', err);
       });
 
       return feedback;
