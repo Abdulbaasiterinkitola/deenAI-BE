@@ -181,40 +181,50 @@ export class GoogleAuthService {
       return newUser;
     }
 
-    // Check for auth provider conflicts using validation service
-    this.authValidationService.validateAuthProviderConflict(
-      existingUser,
-      AuthProvider.GOOGLE,
-    );
-
-    // Update existing user if they were using LOCAL auth before
+    // Handle existing LOCAL user signing in with Google
     if (existingUser.authProvider === AuthProvider.LOCAL) {
-      // Validate auth provider update using validation service
-      this.authValidationService.validateAuthProviderUpdate(
-        existingUser,
-        AuthProvider.GOOGLE,
-      );
+      this.logger.log(`Linking Google OAuth to existing LOCAL user: ${email}`);
 
-      // Update auth provider to GOOGLE
-      await this.usersService.updateUserAuthProvider(
-        email,
-        AuthProvider.GOOGLE,
-        true, // Google verifies the email
-      );
+      // Keep the user as LOCAL but mark email as verified (don't change authProvider)
+      // This allows both email/password and Google OAuth to work
+      await this.usersService.markEmailAsVerified(email);
 
-      // Return updated user
+      // Update name if Google provides a better one and current name is generic
+      if (
+        name &&
+        name !== email.split('@')[0] &&
+        (existingUser.name === email.split('@')[0] || !existingUser.name)
+      ) {
+        await this.usersService.updateUserName(email, name);
+      }
+
+      this.logger.log(
+        `Successfully linked Google OAuth to existing user: ${email}`,
+      );
       return await this.usersService.getUserByEmail(email);
     }
 
     // If user already exists with GOOGLE auth, return them
     if (existingUser.authProvider === AuthProvider.GOOGLE) {
-      return existingUser;
+      // Update name if Google provides a better one
+      if (name && name !== existingUser.name && name !== email.split('@')[0]) {
+        await this.usersService.updateUserName(email, name);
+      }
+      return await this.usersService.getUserByEmail(email);
     }
 
-    // This should theoretically never be reached due to the validateAuthProviderConflict check above
+    // Handle other auth providers (APPLE, etc.)
+    if (existingUser.authProvider === AuthProvider.APPLE) {
+      throw new CustomHttpException(
+        'This email is already registered with Apple Sign-In. Please use Apple Sign-In to continue.',
+        409,
+      );
+    }
+
+    // Fallback for unknown auth providers
     throw new CustomHttpException(
-      `This account uses ${existingUser.authProvider} authentication. Please sign in with your ${existingUser.authProvider} account.`,
-      401,
+      `This account uses ${String(existingUser.authProvider)} authentication. Please sign in with your ${String(existingUser.authProvider)} account.`,
+      409,
     );
   }
 

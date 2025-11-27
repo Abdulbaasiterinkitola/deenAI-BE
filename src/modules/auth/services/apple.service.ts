@@ -149,33 +149,50 @@ export class AppleAuthService {
       return newUser;
     }
 
-    this.authValidationService.validateAuthProviderConflict(
-      existingUser,
-      AuthProvider.APPLE,
-    );
-
+    // Handle existing LOCAL user signing in with Apple
     if (existingUser.authProvider === AuthProvider.LOCAL) {
-      this.authValidationService.validateAuthProviderUpdate(
-        existingUser,
-        AuthProvider.APPLE,
-      );
+      this.logger.log(`Linking Apple OAuth to existing LOCAL user: ${email}`);
 
-      await this.usersService.updateUserAuthProvider(
-        email,
-        AuthProvider.APPLE,
-        true,
-      );
+      // Keep the user as LOCAL but mark email as verified (don't change authProvider)
+      // This allows both email/password and Apple OAuth to work
+      await this.usersService.markEmailAsVerified(email);
 
+      // Update name if Apple provides a better one and current name is generic
+      if (
+        name &&
+        name !== email.split('@')[0] &&
+        (existingUser.name === email.split('@')[0] || !existingUser.name)
+      ) {
+        await this.usersService.updateUserName(email, name);
+      }
+
+      this.logger.log(
+        `Successfully linked Apple OAuth to existing user: ${email}`,
+      );
       return await this.usersService.getUserByEmail(email);
     }
 
+    // If user already exists with APPLE auth, return them
     if (existingUser.authProvider === AuthProvider.APPLE) {
-      return existingUser;
+      // Update name if Apple provides a better one
+      if (name && name !== existingUser.name && name !== email.split('@')[0]) {
+        await this.usersService.updateUserName(email, name);
+      }
+      return await this.usersService.getUserByEmail(email);
     }
 
+    // Handle other auth providers (GOOGLE, etc.)
+    if (existingUser.authProvider === AuthProvider.GOOGLE) {
+      throw new CustomHttpException(
+        'This email is already registered with Google Sign-In. Please use Google Sign-In to continue.',
+        409,
+      );
+    }
+
+    // Fallback for unknown auth providers
     throw new CustomHttpException(
-      `This account uses ${existingUser.authProvider} authentication. Please sign in with your ${existingUser.authProvider} account.`,
-      401,
+      `This account uses ${String(existingUser.authProvider)} authentication. Please sign in with your ${String(existingUser.authProvider)} account.`,
+      409,
     );
   }
 

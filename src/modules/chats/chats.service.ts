@@ -126,4 +126,26 @@ export class ChatsService {
       data: messages,
     };
   }
+
+  /**
+   * Deletes a specific chat
+   * @param chatId - The ID of the chat
+   * @param userId - The ID of the user
+   */
+  async deleteChat(
+    chatId: string,
+    userId: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: null;
+  }> {
+    await this.chatsCoreService.deleteChat(chatId, userId);
+
+    return {
+      success: true,
+      message: 'Chat deleted successfully',
+      data: null,
+    };
+  }
 }
