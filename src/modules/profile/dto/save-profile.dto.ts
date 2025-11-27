@@ -1,10 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class SaveProfileDto {
   @IsOptional()
@@ -24,12 +18,13 @@ export class SaveProfileDto {
     message: 'Username can only contain letters, numbers, and underscores',
   })
   username?: string | null;
-  @IsOptional()
-  @IsString({ message: 'Username must be a string' })
-  @MinLength(3, { message: 'Username must be at least 3 characters long' })
-  @MaxLength(30, { message: 'Username must not exceed 30 characters' })
+
+  @IsOptional()  
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(3, { message: 'Name must be at least 3 characters long' })
+  @MaxLength(30, { message: 'Name must not exceed 30 characters' })
   @Matches(/^[a-zA-Z]+$/, {
-    message: 'Username can only contain letters, numbers, and underscores',
+    message: 'Name can only contain letters',
   })
-  name: string;
+  name?: string | null;
 }

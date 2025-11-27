@@ -4,12 +4,15 @@ import { SaveProfileDto } from '../dto/save-profile.dto';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { Profile } from '../models/profile.model';
 import { CustomHttpException } from '@shared/custom.exception';
+import { UserModelAction } from '@modules/users/action-models/user.action-model';
 
 @Injectable()
 export class ProfileCoreService {
-  constructor(private readonly profileModelAction: ProfileModelAction) {}
+  constructor(
+    private readonly profileModelAction: ProfileModelAction,
+    private readonly userModelAction: UserModelAction,
+  ) {}
 
-  // Create a user's profile
   async createProfile(
     userId: string,
     createData: CreateProfileDto,
@@ -56,44 +59,70 @@ export class ProfileCoreService {
     );
   }
 
-  // Update a user's profile
   async updateProfile(
     userId: string,
     updateData: SaveProfileDto,
   ): Promise<Profile> {
-    // Prepare the data to update
-    const updatePayload: any = {};
+    // Prepare profile update payload (only Profile table fields)
+    const profileUpdatePayload: Partial<Profile> = {};
 
-    // Only include fields that were actually sent
-    if (updateData.avatar !== undefined) {
-      updatePayload.avatar = updateData.avatar;
+    // Avatar: only update if provided and not null
+    if (updateData.avatar !== undefined && updateData.avatar !== null) {
+      profileUpdatePayload.avatar = updateData.avatar;
     }
 
-    if (updateData.language !== undefined) {
-      updatePayload.language = updateData.language;
+    // Language: only update if provided, not null, and not empty
+    if (updateData.language !== undefined && updateData.language !== null && updateData.language.trim() !== '') {
+      profileUpdatePayload.language = updateData.language;
     }
 
-    if (updateData.username !== undefined) {
-      // Store username in lowercase for consistency
-      updatePayload.username = updateData.username
-        ? updateData.username.toLowerCase()
-        : null;
-    }
-    if (updateData.name !== undefined && updatePayload.user) {
-      updatePayload.user.name = updateData.name;
+    // Username: only update if provided, not null, and not empty
+    if (updateData.username !== undefined && updateData.username !== null && updateData.username.trim() !== '') {
+      profileUpdatePayload.username = updateData.username.toLowerCase();
     }
 
-    // Update the profile in the database
-    const updatedProfile = await this.profileModelAction.update({
-      updatePayload,
-      identifierOptions: { userId },
-      transactionOptions: { useTransaction: false },
-    });
+    // Update profile fields if any exist
+    if (Object.keys(profileUpdatePayload).length > 0) {
+      const updatedProfile = await this.profileModelAction.update({
+        updatePayload: profileUpdatePayload,
+        identifierOptions: { userId },
+        transactionOptions: { useTransaction: false },
+      });
 
-    if (!updatedProfile) {
-      throw new Error('Failed to update profile');
+      if (!updatedProfile) {
+        throw new CustomHttpException(
+          'Failed to update profile',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
 
-    return updatedProfile;
+    // Update user name separately (it's on the User table, not Profile)
+    if (updateData.name !== undefined && updateData.name !== null && updateData.name.trim() !== '') {
+      const updatedUser = await this.userModelAction.update({
+        updatePayload: { name: updateData.name },
+        identifierOptions: { id: userId },
+        transactionOptions: { useTransaction: false },
+      });
+
+      if (!updatedUser) {
+        throw new CustomHttpException(
+          'Failed to update user name',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+
+    // Fetch and return the complete profile with user relation
+    const profile = await this.getProfile(userId);
+
+    if (!profile) {
+      throw new CustomHttpException(
+        'Profile not found after update',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return profile;
   }
 }
