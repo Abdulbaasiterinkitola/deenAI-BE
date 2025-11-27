@@ -27,14 +27,22 @@ export class UpdateProfileDto {
   @IsString({ message: 'Language must be a string' })
   @MinLength(2, { message: 'Language code must be at least 2 characters' })
   @MaxLength(10, { message: 'Language code must not exceed 10 characters' })
-  @Transform(({ value }: { value: string }) => (value === '' ? null : value))
+  @Transform(({ value }: { value: string }) => {
+    if (!value || typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    return trimmed === '' ? null : trimmed;
+  })
   language?: string | null;
 
   @IsOptional()
   @IsString({ message: 'Username must be a string' })
   @MinLength(3, { message: 'Username must be at least 3 characters long' })
   @MaxLength(30, { message: 'Username must not exceed 30 characters' })
-  @Transform(({ value }: { value: string }) => (value === '' ? null : value))
+  @Transform(({ value }: { value: string }) => {
+    if (!value || typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    return trimmed === '' ? null : trimmed;
+  })
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Username can only contain letters, numbers, and underscores',
   })
@@ -44,9 +52,13 @@ export class UpdateProfileDto {
   @IsString({ message: 'Name must be a string' })
   @MinLength(3, { message: 'Name must be at least 3 characters long' })
   @MaxLength(30, { message: 'Name must not exceed 30 characters' })
-  @Transform(({ value }: { value: string }) => (value === '' ? null : value))
+  @Transform(({ value }: { value: string }) => {
+    if (!value || typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    return trimmed === '' ? null : trimmed;
+  })
   @Matches(/^[a-zA-Z\s]+$/, {
     message: 'Name can only contain letters and spaces',
   })
-  name?: string;
+  name?: string | null;
 }
