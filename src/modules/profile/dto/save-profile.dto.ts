@@ -24,12 +24,18 @@ export class SaveProfileDto {
     message: 'Username can only contain letters, numbers, and underscores',
   })
   username?: string | null;
+
   @IsOptional()
-  @IsString({ message: 'Username must be a string' })
-  @MinLength(3, { message: 'Username must be at least 3 characters long' })
-  @MaxLength(30, { message: 'Username must not exceed 30 characters' })
-  @Matches(/^[a-zA-Z]+$/, {
-    message: 'Username can only contain letters, numbers, and underscores',
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(2, { message: 'Name must be at least 2 characters long' })
+  @MaxLength(100, { message: 'Name must not exceed 100 characters' })
+  name?: string | null;
+
+  @IsOptional()
+  @IsString({ message: 'Timezone must be a string' })
+  @Matches(/^([A-Z][a-z]+\/[A-Z][a-z_]+(?:\/[A-Z][a-z_]+)?|UTC)$/, {
+    message:
+      'Invalid timezone format. Use IANA timezone format (e.g., America/New_York, Europe/London, Asia/Dubai)',
   })
-  name: string;
+  timezone?: string | null;
 }
