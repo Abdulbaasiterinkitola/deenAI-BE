@@ -253,24 +253,19 @@ export class ChatsCoreService {
     return result.payload;
   }
 
-  /**
+ /**
    * Deletes a chat and its messages
    * @param chatId - The ID of the chat
    * @param userId - The ID of the user
    */
-  async deleteChat(chatId: string, userId: string): Promise<void> {
-    const chat = await this.chatActionModel.get({ id: chatId, userId });
-    this.chatsValidationService.validateChatOwnership(chat, userId);
-    const success = await this.chatActionModel.deleteUserChat({
-      id: chatId,
-      userId,
-    });
+ async deleteChat(chatId: string, userId: string): Promise<void> {
+  const chat = await this.chatActionModel.get({ id: chatId, userId });
+  this.chatsValidationService.validateChatOwnership(chat, userId);
 
-    if (!success) {
-      throw new CustomHttpException(
-        'Failed to delete chat',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-}
+   await this.chatActionModel.delete({ 
+    identifierOptions: { 
+      id: chatId, 
+      userId 
+    } 
+  })
+}}
