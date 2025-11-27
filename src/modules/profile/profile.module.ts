@@ -13,7 +13,11 @@ import { UserModelAction } from '@modules/users/action-models/user.action-model'
 import { User } from '@modules/users/models/user.model';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Profile, User]), UsersModule, forwardRef(() => AuthModule)],
+  imports: [
+    TypeOrmModule.forFeature([Profile, User]),
+    UsersModule,
+    forwardRef(() => AuthModule),
+  ],
   controllers: [ProfileController],
   providers: [
     ProfileService,

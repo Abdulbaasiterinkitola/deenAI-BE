@@ -72,12 +72,20 @@ export class ProfileCoreService {
     }
 
     // Language: only update if provided, not null, and not empty
-    if (updateData.language !== undefined && updateData.language !== null && updateData.language.trim() !== '') {
+    if (
+      updateData.language !== undefined &&
+      updateData.language !== null &&
+      updateData.language.trim() !== ''
+    ) {
       profileUpdatePayload.language = updateData.language;
     }
 
     // Username: only update if provided, not null, and not empty
-    if (updateData.username !== undefined && updateData.username !== null && updateData.username.trim() !== '') {
+    if (
+      updateData.username !== undefined &&
+      updateData.username !== null &&
+      updateData.username.trim() !== ''
+    ) {
       profileUpdatePayload.username = updateData.username.toLowerCase();
     }
 
@@ -98,7 +106,11 @@ export class ProfileCoreService {
     }
 
     // Update user name separately (it's on the User table, not Profile)
-    if (updateData.name !== undefined && updateData.name !== null && updateData.name.trim() !== '') {
+    if (
+      updateData.name !== undefined &&
+      updateData.name !== null &&
+      updateData.name.trim() !== ''
+    ) {
       const updatedUser = await this.userModelAction.update({
         updatePayload: { name: updateData.name },
         identifierOptions: { id: userId },

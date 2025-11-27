@@ -6,7 +6,8 @@ export class GetProfileDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Get user profile',
-        description: "Fetch the authenticated user's profile including user information.",
+        description:
+          "Fetch the authenticated user's profile including user information.",
       }),
       ApiBearerAuth(),
       ApiResponse({
@@ -27,7 +28,7 @@ export class GetProfileDocs {
                   username: 'john_doe',
                   user: {
                     name: 'John Doe',
-                    email: 'john@example.com'
+                    email: 'john@example.com',
                   },
                   createdAt: '2025-01-15T10:00:00.000Z',
                   updatedAt: '2025-01-15T10:00:00.000Z',
@@ -47,7 +48,7 @@ export class GetProfileDocs {
                   username: null,
                   user: {
                     name: 'Jane Smith',
-                    email: 'jane@example.com'
+                    email: 'jane@example.com',
                   },
                   createdAt: '2025-01-15T10:00:00.000Z',
                   updatedAt: '2025-01-15T10:00:00.000Z',
