@@ -45,7 +45,8 @@ export class UpdateProfileDocs {
           },
           updateTimezone: {
             summary: 'Update timezone',
-            description: 'Set user timezone for accurate prayer times and streaks',
+            description:
+              'Set user timezone for accurate prayer times and streaks',
             value: {
               timezone: 'America/New_York',
             },

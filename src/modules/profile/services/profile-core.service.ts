@@ -8,14 +8,13 @@ import { Profile } from '../models/profile.model';
 import { User } from '@modules/users/models/user.model';
 import { CustomHttpException } from '@shared/custom.exception';
 
-
 @Injectable()
 export class ProfileCoreService {
   constructor(
     private readonly profileModelAction: ProfileModelAction,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   // Create a user's profile
   async createProfile(
