@@ -144,4 +144,20 @@ export class ChatsService {
       data: null,
     };
   }
+
+  async renameChat(
+    chatId: string,
+    userId: string,
+    newTitle: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    await this.chatsCoreService.renameChat(chatId, userId, newTitle);
+
+    return {
+      success: true,
+      message: 'Chat renamed successfully',
+    };
+  }
 }

@@ -231,4 +231,35 @@ export class ChatsDocs {
       }),
     );
   }
-}
+  static renameChat() {
+    return applyDecorators(
+      ApiParam({
+        name: 'id',
+        description: 'The unique identifier of the chat',
+        example: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
+      }),
+      ApiOperation({
+        summary: 'Rename a chat',
+        description: 'Renames a specific chat owned by the authenticated user.',
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Chat renamed successfully',
+        schema: {
+          example: {
+            success: true,
+            message: 'Chat renamed successfully',
+          },
+        },
+      }),
+      ApiResponse({
+        status: 403,
+        description: 'Access denied - You do not own this chat',
+      }),
+      ApiResponse({
+        status: 404,
+        description: 'Chat not found',
+      }),
+    );
+  }
+} 

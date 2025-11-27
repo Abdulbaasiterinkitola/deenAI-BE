@@ -268,4 +268,26 @@ export class ChatsCoreService {
       userId 
     } 
   })
+
+}
+async renameChat(chatId: string, userId: string, newTitle: string): Promise<Chat> {
+  const chat = await this.chatActionModel.get({ id: chatId, userId });
+  this.chatsValidationService.validateChatOwnership(chat, userId);
+
+  const updatedChat = await this.chatActionModel.update({
+    updatePayload: {
+      title: newTitle,
+      hasTitle: !!newTitle,
+    },
+    identifierOptions: { id: chatId, userId },
+  });
+
+  if (!updatedChat) {
+    throw new CustomHttpException(
+      'Failed to rename chat',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  return updatedChat;
 }}
