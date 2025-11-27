@@ -63,35 +63,35 @@ export class UsersController {
     return await this.usersService.confirmAccountDeletion(user, body.otp);
   }
 
-  /**
-   * Pauses the authenticated user's account.
-   */
-  @Patch('me/pause')
-  @HttpCode(HttpStatus.OK)
-  async pauseAccount(@AuthUser() user: User) {
-    const pausedUser = await this.usersService.pauseAccount(user.id);
-    return {
-      status_code: HttpStatus.OK,
-      message: 'Account successfully paused',
-      data: {
-        user: pausedUser,
-      },
-    };
-  }
+  // /**
+  //  * Pauses the authenticated user's account.
+  //  */
+  // @Patch('me/pause')
+  // @HttpCode(HttpStatus.OK)
+  // async pauseAccount(@AuthUser() user: User) {
+  //   const pausedUser = await this.usersService.pauseAccount(user.id);
+  //   return {
+  //     status_code: HttpStatus.OK,
+  //     message: 'Account successfully paused',
+  //     data: {
+  //       user: pausedUser,
+  //     },
+  //   };
+  // }
 
-  /**
-   * Reactivates the authenticated user's paused account.
-   */
-  @Patch('me/reactivate')
-  @HttpCode(HttpStatus.OK)
-  async reactivateAccount(@AuthUser() user: User) {
-    const reactivatedUser = await this.usersService.reactivateAccount(user.id);
-    return {
-      status_code: HttpStatus.OK,
-      message: 'Account successfully reactivated',
-      data: {
-        user: reactivatedUser,
-      },
-    };
-  }
+  // /**
+  //  * Reactivates the authenticated user's paused account.
+  //  */
+  // @Patch('me/reactivate')
+  // @HttpCode(HttpStatus.OK)
+  // async reactivateAccount(@AuthUser() user: User) {
+  //   const reactivatedUser = await this.usersService.reactivateAccount(user.id);
+  //   return {
+  //     status_code: HttpStatus.OK,
+  //     message: 'Account successfully reactivated',
+  //     data: {
+  //       user: reactivatedUser,
+  //     },
+  //   };
+  // }
 }

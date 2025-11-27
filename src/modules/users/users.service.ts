@@ -21,7 +21,6 @@ import { PlansService } from '@modules/plans/plans.service';
 import { Plan } from '@modules/plans/models/plan.model';
 import UserValidationService from './services/user-validation.service';
 import { UserModelAction } from './action-models/user.action-model';
-import { UserStatus } from './enums/user-status.enum';
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
