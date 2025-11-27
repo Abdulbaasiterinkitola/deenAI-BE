@@ -13,7 +13,7 @@ export class UpdateProfileDocs {
       ApiOperation({
         summary: 'Update user profile',
         description:
-          'Allows authenticated users to update their profile information including avatar, language, and username. All fields are optional (partial update).',
+          'Allows authenticated users to update their profile information including avatar, language, username, and timezone. All fields are optional (partial update).',
       }),
       ApiBearerAuth(),
       ApiBody({
@@ -41,6 +41,13 @@ export class UpdateProfileDocs {
             description: 'Change user language preference',
             value: {
               language: 'ar',
+            },
+          },
+          updateTimezone: {
+            summary: 'Update timezone',
+            description: 'Set user timezone for accurate prayer times and streaks',
+            value: {
+              timezone: 'America/New_York',
             },
           },
           clearAvatar: {

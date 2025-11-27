@@ -6,11 +6,16 @@ import { ProfileModelAction } from './profile.model-action';
 import { ProfileValidationService } from './services/profile-validation.service';
 import { ProfileCoreService } from './services/profile-core.service';
 import { Profile } from './models/profile.model';
+import { User } from '@modules/users/models/user.model';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Profile]), AuthModule, UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Profile, User]),
+    AuthModule,
+    UsersModule,
+  ],
   controllers: [ProfileController],
   providers: [
     ProfileService,
@@ -20,4 +25,4 @@ import { UsersModule } from '@modules/users/users.module';
   ],
   exports: [ProfileService, ProfileModelAction], // Export if other modules need to use it
 })
-export class ProfileModule {}
+export class ProfileModule { }

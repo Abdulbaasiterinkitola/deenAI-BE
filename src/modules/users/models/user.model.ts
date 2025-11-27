@@ -35,6 +35,9 @@ export class User extends AbstractBaseEntity {
   @Column({ name: 'plan_id', type: 'uuid', nullable: true })
   planId: string | null;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  timezone: string | null;
+
   @ManyToOne(() => Plan, { nullable: true })
   @JoinColumn({ name: 'plan_id' })
   plan: Plan | null;

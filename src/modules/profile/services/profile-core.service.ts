@@ -1,13 +1,21 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ProfileModelAction } from '../profile.model-action';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { Profile } from '../models/profile.model';
+import { User } from '@modules/users/models/user.model';
 import { CustomHttpException } from '@shared/custom.exception';
+
 
 @Injectable()
 export class ProfileCoreService {
-  constructor(private readonly profileModelAction: ProfileModelAction) {}
+  constructor(
+    private readonly profileModelAction: ProfileModelAction,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) { }
 
   // Create a user's profile
   async createProfile(
@@ -58,6 +66,13 @@ export class ProfileCoreService {
       updatePayload.username = updateData.username
         ? updateData.username.toLowerCase()
         : null;
+    }
+
+    // Handle timezone update (stored in User model, not Profile)
+    if (updateData.timezone !== undefined) {
+      await this.userRepository.update(userId, {
+        timezone: updateData.timezone,
+      });
     }
 
     // Update the profile in the database
