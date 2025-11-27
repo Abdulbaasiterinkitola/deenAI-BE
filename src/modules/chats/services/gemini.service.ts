@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
+import { AIResponseType, AIReference } from '../types';
 
 /**
  * Islamic guidelines for the AI assistant
@@ -17,6 +18,35 @@ You are an Islamic AI assistant. Please follow these guidelines strictly:
 5. Be helpful, kind, and patient in your responses
 6. If you don't know something, admit it rather than guessing
 7. Always maintain a respectful tone when discussing religious matters
+8. REQUIRED: Every response MUST include at least one Quran verse or Hadith reference to support your answer. This is mandatory for all responses.
+`;
+
+const STRUCTURED_RESPONSE_INSTRUCTIONS = `
+Respond ONLY in valid JSON that matches the schema below (no backticks or prose):
+{
+  "content": "the final answer for the user in markdown-safe plain text",
+  "references": [
+    {
+      "type": "quran",
+      "surah": 2,
+      "startAyah": 153,
+      "endAyah": 153
+    },
+    {
+      "type": "hadith",
+      "collection": "Sahih Bukhari",
+      "hadithNumber": 1,
+      "bookNumber": 2,
+      "chapterNumber": 3
+    }
+  ]
+}
+REQUIRED: The "references" array MUST contain at least one Quran verse or Hadith reference. This is mandatory for every response.
+- For Quran: always include surah (1-114), startAyah, and endAyah (can be the same if single verse)
+- For Hadith: include collection name (e.g., "Sahih Bukhari", "Sahih Muslim", "Sunan Abu Dawud", "Jami' at-Tirmidhi", "Sunan an-Nasa'i", "Sunan Ibn Majah"), hadithNumber (number or string), and optionally bookNumber and chapterNumber if available
+- Include all Quran verses and Hadiths cited in your response
+- Never invent references. Only include authentic references that you actually cited in your response
+- If you cannot find an appropriate reference, you must still provide one that is relevant to the topic, even if it's a general verse about seeking knowledge or guidance
 `;
 
 @Injectable()
@@ -77,7 +107,7 @@ export class GeminiService {
   async generateResponse(
     messages: ChatMessage[],
     userMessage: string,
-  ): Promise<string> {
+  ): Promise<AIResponseType> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
         'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
@@ -103,19 +133,23 @@ export class GeminiService {
         systemInstruction: systemInstruction,
       });
 
-      // Send the current user message
-      const result = await chat.sendMessage(userMessage);
-      const response = await result.response;
-      const text = response.text() as string;
+      // Send the current user message with structured response instructions
+      const prompt = this.buildStructuredPrompt(userMessage);
+      const result = await chat.sendMessage(prompt);
+      const rawText =
+        typeof result.response?.text === 'function'
+          ? result.response.text()
+          : '';
 
-      if (!text || text.trim().length === 0) {
+      if (!rawText || rawText.trim().length === 0) {
         throw new CustomHttpException(
           'Empty response from AI',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
 
-      return text.trim();
+      const parsedResponse = this.parseAIResponse(rawText as string);
+      return parsedResponse;
     } catch (error) {
       if (error instanceof CustomHttpException) {
         this.logger.error(
@@ -148,6 +182,52 @@ export class GeminiService {
     }
   }
 
+  /**
+   * Generates a streaming AI response based on the conversation history
+   * @param messages - Array of chat messages for context
+   * @param userMessage - The current user message
+   * @returns An async iterator that yields response chunks
+   */
+  async *generateResponseStream(
+    messages: ChatMessage[],
+    userMessage: string,
+  ): AsyncGenerator<string> {
+    if (!this.isAvailable()) {
+      throw new CustomHttpException(
+        'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    try {
+      const conversationHistory = messages.map((msg) => ({
+        role: msg.role === MessageRole.USER ? 'user' : 'model',
+        parts: [{ text: msg.content }],
+      }));
+
+      const systemInstruction = {
+        parts: [{ text: ISLAMIC_GUIDELINES }],
+      };
+
+      const chat = this.model.startChat({
+        history: conversationHistory,
+        systemInstruction: systemInstruction,
+      });
+
+      const prompt = this.buildStructuredPrompt(userMessage);
+      const result = await chat.sendMessageStream(prompt);
+
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        if (chunkText) {
+          yield chunkText;
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Gemini streaming error: ${error}`);
+      throw new CustomHttpException('AI service streaming error', 500);
+    }
+  }
   /**
    * Generates a title for a chat based on the first user message
    * @param userMessage - The first user message
@@ -200,5 +280,272 @@ Title:`;
         ? userMessage.substring(0, 47) + '...'
         : userMessage;
     }
+  }
+
+  /**
+   * Ensures the AI always receives the JSON instructions appended to the user prompt
+   */
+  private buildStructuredPrompt(userMessage: string): string {
+    return `${userMessage.trim()}
+
+${STRUCTURED_RESPONSE_INSTRUCTIONS.trim()}`;
+  }
+
+  /**
+   * Parses the raw Gemini response, extracting the JSON payload and validating the shape
+   */
+  public parseAIResponse(rawText: string): AIResponseType {
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new CustomHttpException(
+        'AI response was not in the expected JSON format',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    let parsed: Record<string, any>;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch (error) {
+      this.logger.error(
+        `Failed to parse AI response JSON: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw new CustomHttpException(
+        'Unable to parse AI response',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const content = (parsed.content ?? '').toString().trim();
+
+    if (!content) {
+      throw new CustomHttpException(
+        'AI response did not include content',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    // Parse references array - REQUIRED: at least one reference must be present
+    const references: AIReference[] = [];
+    if (Array.isArray(parsed.references)) {
+      for (const ref of parsed.references) {
+        if (!ref || typeof ref !== 'object') {
+          continue;
+        }
+
+        if (ref.type === 'quran') {
+          const surah = parseInt(ref.surah as string);
+          const startAyah = parseInt(ref.startAyah as string);
+          const endAyah = parseInt(ref.endAyah as string);
+
+          if (
+            !isNaN(surah) &&
+            !isNaN(startAyah) &&
+            !isNaN(endAyah) &&
+            surah >= 1 &&
+            surah <= 114 &&
+            startAyah >= 1 &&
+            endAyah >= startAyah
+          ) {
+            references.push({
+              type: 'quran',
+              surah,
+              startAyah,
+              endAyah,
+            });
+          } else {
+            this.logger.warn(`Invalid Quran reference: ${JSON.stringify(ref)}`);
+          }
+        } else if (ref.type === 'hadith') {
+          const collection = ref.collection?.toString().trim();
+          const hadithNumber = ref.hadithNumber;
+
+          if (collection && hadithNumber !== undefined) {
+            const hadithRef: AIReference = {
+              type: 'hadith',
+              collection,
+              hadithNumber:
+                typeof hadithNumber === 'number'
+                  ? hadithNumber
+                  : hadithNumber.toString(),
+            };
+
+            if (ref.bookNumber !== undefined) {
+              const bookNumber = parseInt(ref.bookNumber as string);
+              if (!isNaN(bookNumber)) {
+                hadithRef.bookNumber = bookNumber;
+              }
+            }
+
+            if (ref.chapterNumber !== undefined) {
+              const chapterNumber = parseInt(ref.chapterNumber as string);
+              if (!isNaN(chapterNumber)) {
+                hadithRef.chapterNumber = chapterNumber;
+              }
+            }
+
+            references.push(hadithRef);
+          } else {
+            this.logger.warn(
+              `Invalid Hadith reference: ${JSON.stringify(ref)}`,
+            );
+          }
+        }
+      }
+    }
+
+    // Validate that at least one reference is present (mandatory requirement)
+    if (references.length === 0) {
+      throw new CustomHttpException(
+        'AI response must include at least one Quran verse or Hadith reference',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      content,
+      references,
+    };
+  }
+
+  /**
+   * Creates a lightweight parser that extracts readable text from the streamed
+   * JSON payload so clients receive human-friendly chunks instead of partial
+   * JSON blobs.
+   */
+  createContentStreamParser(): {
+    consume: (chunk: string) => string;
+  } {
+    const keyPattern = '"content"';
+    let keyIndex = 0;
+    let awaitingColon = false;
+    let awaitingOpeningQuote = false;
+    let inContent = false;
+    let escapeNext = false;
+    let unicodePending = 0;
+    let unicodeBuffer = '';
+
+    const reset = () => {
+      keyIndex = 0;
+      awaitingColon = false;
+      awaitingOpeningQuote = false;
+    };
+
+    return {
+      consume: (chunk: string): string => {
+        let emitted = '';
+
+        for (const char of chunk) {
+          if (unicodePending > 0) {
+            unicodeBuffer += char;
+            unicodePending--;
+
+            if (unicodePending === 0) {
+              emitted += this.decodeUnicodeEscape(unicodeBuffer);
+              unicodeBuffer = '';
+              escapeNext = false;
+            }
+            continue;
+          }
+
+          if (!inContent) {
+            if (awaitingOpeningQuote) {
+              if (this.isWhitespace(char)) {
+                continue;
+              }
+              if (char === '"') {
+                inContent = true;
+                escapeNext = false;
+                continue;
+              }
+              reset();
+            }
+
+            if (awaitingColon) {
+              if (this.isWhitespace(char)) {
+                continue;
+              }
+              if (char === ':') {
+                awaitingColon = false;
+                awaitingOpeningQuote = true;
+                continue;
+              }
+              reset();
+            }
+
+            if (char === keyPattern[keyIndex]) {
+              keyIndex++;
+              if (keyIndex === keyPattern.length) {
+                awaitingColon = true;
+              }
+            } else {
+              keyIndex = char === keyPattern[0] ? 1 : 0;
+            }
+            continue;
+          }
+
+          if (escapeNext) {
+            if (char === 'u') {
+              unicodePending = 4;
+              unicodeBuffer = '';
+              continue;
+            }
+
+            emitted += this.resolveSimpleEscape(char);
+            escapeNext = false;
+            continue;
+          }
+
+          if (char === '\\') {
+            escapeNext = true;
+            continue;
+          }
+
+          if (char === '"') {
+            inContent = false;
+            reset();
+            continue;
+          }
+
+          emitted += char;
+        }
+
+        return emitted;
+      },
+    };
+  }
+
+  private isWhitespace(char: string): boolean {
+    return char === ' ' || char === '\n' || char === '\r' || char === '\t';
+  }
+
+  private resolveSimpleEscape(char: string): string {
+    switch (char) {
+      case 'n':
+        return '\n';
+      case 't':
+        return '\t';
+      case 'r':
+        return '\r';
+      case '"':
+        return '"';
+      case '\\':
+        return '\\';
+      case '/':
+        return '/';
+      default:
+        return char;
+    }
+  }
+
+  private decodeUnicodeEscape(buffer: string): string {
+    const codePoint = parseInt(buffer, 16);
+
+    if (Number.isNaN(codePoint)) {
+      this.logger.warn(`Invalid unicode escape sequence: \\u${buffer}`);
+      return '';
+    }
+
+    return String.fromCharCode(codePoint);
   }
 }

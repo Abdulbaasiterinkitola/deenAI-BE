@@ -7,14 +7,37 @@ export class Reflection extends AbstractBaseEntity {
   @Column({ type: 'text', nullable: false })
   content: string;
 
-  @Column({ name: 'surah', type: 'int', nullable: false })
-  surah: number;
+  @Column({
+    name: 'type',
+    type: 'varchar',
+    length: 20,
+    nullable: false,
+    default: 'quran',
+  })
+  type: 'quran' | 'hadith';
 
-  @Column({ name: 'start_ayah', type: 'int', nullable: false })
-  startAyah: number;
+  @Column({ name: 'surah', type: 'int', nullable: true })
+  surah: number | null;
 
-  @Column({ name: 'end_ayah', type: 'int', nullable: false })
-  endAyah: number;
+  @Column({ name: 'start_ayah', type: 'int', nullable: true })
+  startAyah: number | null;
+
+  @Column({ name: 'end_ayah', type: 'int', nullable: true })
+  endAyah: number | null;
+
+  @Column({
+    name: 'collection_id',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  collectionId: string | null;
+
+  @Column({ name: 'hadith_number', type: 'int', nullable: true })
+  hadithNumber: number | null;
+
+  @Column({ name: 'book_number', type: 'int', nullable: true })
+  bookNumber: number | null;
 
   @Column({ name: 'user_id', type: 'uuid', nullable: false })
   userId: string;

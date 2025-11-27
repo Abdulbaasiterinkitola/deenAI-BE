@@ -8,6 +8,7 @@ import { Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationExceptionFilter } from '@shared/validation-exception.filter';
 import { seedPlans } from '@database/seeds/seed-plans';
+import { join } from 'path';
 
 async function bootstrap() {
   // Handle uncaught Redis connection errors gracefully (only log, no crash)
@@ -62,6 +63,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new ValidationExceptionFilter());
+
+  // Serve uploads folder statically
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Swagger documentation
   const config = new DocumentBuilder()

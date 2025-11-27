@@ -1,29 +1,21 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Logger,
-  Post,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Logger, Post, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RegisterBodyValidator } from './validators/register.validator';
 import { LoginBodyValidator } from './validators/login.validator';
 import { GoogleAuthValidator } from './validators/google-auth.validator';
+import { AppleAuthValidator } from './validators/apple-auth.validator';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { ResetPasswordService } from './services/reset-password.service';
-import { AuthGuard } from '@guards/auth.guard';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { Public } from '@guards/public.decorator';
 import {
   RegisterDocs,
-  VerifyEmailDocs,
-  ResendVerificationDocs,
   LoginDocs,
   GoogleAuthDocs,
+  AppleAuthDocs,
   ForgotPasswordDocs,
   VerifyOtpDocs,
   ResetPasswordDocs,
@@ -41,27 +33,15 @@ export class AuthController {
 
   @HttpCode(201)
   @Post('/register')
+  @Public()
   @RegisterDocs.register()
   async createNewUser(@Body() user: RegisterBodyValidator) {
     return await this.authService.registerWithEmailAndPassword(user);
   }
 
   @HttpCode(200)
-  @Post('verify-email')
-  @VerifyEmailDocs.verifyEmail()
-  async verifyEmail(@Body() dto: VerifyOtpDto) {
-    return this.authService.verifyEmail(dto);
-  }
-
-  @HttpCode(200)
-  @Post('resend-verification')
-  @ResendVerificationDocs.resendVerification()
-  async resendVerificationOtp(@Body() dto: RequestOtpDto) {
-    return this.authService.resendVerificationOtp(dto.email);
-  }
-
-  @HttpCode(200)
   @Post('/login')
+  @Public()
   @LoginDocs.login()
   async login(@Body() user: LoginBodyValidator) {
     return await this.authService.login(user);
@@ -69,12 +49,24 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('/google')
+  @Public()
   @GoogleAuthDocs.googleAuth()
   async googleLogin(@Body() googleAuthDto: GoogleAuthValidator) {
-    return await this.authService.googleLogin(googleAuthDto.idToken);
+    return await this.authService.googleLogin(
+      googleAuthDto.idToken,
+      googleAuthDto.platform,
+    );
+  }
+
+  @HttpCode(200)
+  @Post('/apple')
+  @AppleAuthDocs.appleAuth()
+  async appleLogin(@Body() appleAuthDto: AppleAuthValidator) {
+    return await this.authService.appleLogin(appleAuthDto.idToken);
   }
   @HttpCode(200)
   @Post('forgot-password')
+  @Public()
   @ForgotPasswordDocs.forgotPassword()
   async requestOtp(@Body() dto: RequestOtpDto) {
     return this.resetPasswordService.requestOtp(dto.email);
@@ -82,6 +74,7 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('verify-otp')
+  @Public()
   @VerifyOtpDocs.verifyOtp()
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.resetPasswordService.verifyOtp(dto.email, dto.otp);
@@ -89,6 +82,7 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('reset-password')
+  @Public()
   @ResetPasswordDocs.resetPassword()
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.resetPasswordService.resetPassword(
@@ -100,6 +94,7 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('refresh')
+  @Public()
   @RefreshDocs.refresh()
   async refreshTokens(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshTokens(dto.refreshToken);
@@ -107,7 +102,6 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('logout')
-  @UseGuards(AuthGuard)
   @LogoutDocs.logout()
   async logout(@Req() req: any) {
     const user = req.user;

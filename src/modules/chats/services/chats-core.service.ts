@@ -1,10 +1,12 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Observable, from, mergeMap } from 'rxjs';
 import { ChatActionModel } from '../action-models/chat.action-model';
 import { ChatMessageActionModel } from '../action-models/chat-message.action-model';
 import { ChatsValidationService } from './chats-validation.service';
 import { GeminiService } from './gemini.service';
 import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
+import { SseMessage } from '../types';
 import { CustomHttpException } from '@shared/custom.exception';
 
 /**
@@ -58,19 +60,13 @@ export class ChatsCoreService {
     chatId: string,
     userId: string,
     messageContent: string,
-  ): Promise<{
-    userMessage: ChatMessage;
-    aiMessage: ChatMessage;
-  }> {
+  ): Promise<{ userMessage: ChatMessage }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
     this.chatsValidationService.validateMessageContent(messageContent);
 
     const chat = await this.chatActionModel.get({ id: chatId, userId });
     this.chatsValidationService.validateChatOwnership(chat, userId);
-
-    // Get last 4 messages for context
-    const recentMessages = await this.getLastMessages(chatId, 4);
 
     // Save user message
     const userMessage = await this.chatMessageActionModel.create({
@@ -84,28 +80,6 @@ export class ChatsCoreService {
     if (!userMessage) {
       throw new CustomHttpException(
         'Failed to save user message',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    // Generate AI response
-    const aiResponseContent = await this.geminiService.generateResponse(
-      recentMessages,
-      messageContent,
-    );
-
-    // Save AI message
-    const aiMessage = await this.chatMessageActionModel.create({
-      createPayload: {
-        chatId,
-        role: MessageRole.ASSISTANT,
-        content: aiResponseContent,
-      },
-    });
-
-    if (!aiMessage) {
-      throw new CustomHttpException(
-        'Failed to save AI message',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -133,10 +107,83 @@ export class ChatsCoreService {
       }
     }
 
-    return {
-      userMessage,
-      aiMessage,
-    };
+    return { userMessage };
+  }
+
+  /**
+   * Streams the AI response for a chat.
+   * @param chatId - The ID of the chat.
+   * @param userId - The ID of the user.
+   * @returns An observable for Server-Sent Events.
+   */
+  streamResponse(chatId: string, userId: string): Observable<SseMessage> {
+    // Validate ownership
+    const chatPromise = this.chatActionModel
+      .get({ id: chatId, userId })
+      .then((chat) => {
+        this.chatsValidationService.validateChatOwnership(chat, userId);
+        return chat;
+      });
+
+    return from(chatPromise).pipe(
+      mergeMap(async () => {
+        const recentMessages = await this.getLastMessages(chatId, 6);
+        const latestMessage =
+          recentMessages[recentMessages.length - 1] ?? undefined;
+
+        if (!latestMessage || latestMessage.role !== MessageRole.USER) {
+          throw new CustomHttpException(
+            'No pending user message to respond to',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        const contextMessages = recentMessages.slice(0, -1);
+        const limitedContext = contextMessages.slice(-4);
+        const stream = this.geminiService.generateResponseStream(
+          limitedContext,
+          latestMessage.content,
+        );
+        const parser = this.geminiService.createContentStreamParser();
+
+        return new Observable<SseMessage>((subscriber) => {
+          (async () => {
+            let fullResponse = '';
+
+            for await (const chunk of stream) {
+              fullResponse += chunk;
+              const readableChunk = parser.consume(chunk);
+
+              if (readableChunk) {
+                subscriber.next({ data: readableChunk });
+              }
+            }
+            // After streaming, save the full message
+            await this.saveAiMessage(chatId, fullResponse);
+            subscriber.complete();
+          })().catch((err) => subscriber.error(err));
+        });
+      }),
+      mergeMap((obs) => obs), // Flatten the inner observable
+    );
+  }
+
+  /**
+   * Parses and saves the final AI message after streaming is complete.
+   * @param chatId - The ID of the chat.
+   * @param fullResponse - The complete AI response content.
+   */
+  async saveAiMessage(chatId: string, fullResponse: string): Promise<void> {
+    const parsedResponse = this.geminiService.parseAIResponse(fullResponse);
+
+    await this.chatMessageActionModel.create({
+      createPayload: {
+        chatId,
+        role: MessageRole.ASSISTANT,
+        content: parsedResponse.content,
+        aiReferences: parsedResponse.references ?? null,
+      },
+    });
   }
 
   /**
@@ -183,4 +230,42 @@ export class ChatsCoreService {
 
     return result.payload;
   }
-}
+  async getChatMessages(
+    chatId: string,
+    userId: string,
+    page: number = 1,
+    limit: number = 50,
+  ): Promise<ChatMessage[]> {
+    // Validate ownership first
+    const chat = await this.chatActionModel.get({ id: chatId, userId });
+    this.chatsValidationService.validateChatOwnership(chat, userId);
+    const result = await this.chatMessageActionModel.list({
+      filterRecordOptions: { chatId },
+      paginationPayload: {
+        page,
+        limit,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return result.payload;
+  }
+
+ /**
+   * Deletes a chat and its messages
+   * @param chatId - The ID of the chat
+   * @param userId - The ID of the user
+   */
+ async deleteChat(chatId: string, userId: string): Promise<void> {
+  const chat = await this.chatActionModel.get({ id: chatId, userId });
+  this.chatsValidationService.validateChatOwnership(chat, userId);
+
+   await this.chatActionModel.delete({ 
+    identifierOptions: { 
+      id: chatId, 
+      userId 
+    } 
+  })
+}}

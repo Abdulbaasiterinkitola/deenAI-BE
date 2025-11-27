@@ -7,12 +7,13 @@ import { render } from '@react-email/render';
 import React from 'react';
 import WaitlistEmail from './templates/waitlist-email';
 import WelcomeEmail from './templates/welcome-email';
-import { Job } from 'bull';
 import OtpEmail from './templates/otp-email';
 import PasswordResetSuccessEmail from './templates/password-reset-success';
 import VerificationCodeEmail from './templates/verification-code';
 import AccountDeletionCompleteEmail from './templates/account-deletion-complete';
 import AccountDeletionRequestEmail from './templates/deletion-otp';
+import FeedbackEmail from './templates/feedback-email';
+import { Job } from 'bull';
 
 type MailTransporter = {
   sendMail(
@@ -37,6 +38,7 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   'email-verification': VerificationCodeEmail,
   'account-deletion': AccountDeletionRequestEmail,
   'account-deletion-complete': AccountDeletionCompleteEmail,
+  feedback: FeedbackEmail,
 };
 
 @Processor('email')

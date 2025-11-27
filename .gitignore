@@ -78,3 +78,8 @@ PORT*
 
 # DOCKER
 compose.yml
+
+
+# Uploads and user-generated content
+uploads/
+!uploads/.gitkeep

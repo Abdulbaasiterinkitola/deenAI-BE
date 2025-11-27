@@ -1,6 +1,7 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
+import { AppleAuthService } from './services/apple.service';
 import { TokenService } from './services/token.service';
 import RegisterDto from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private readonly localAuthService: LocalAuthService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly appleAuthService: AppleAuthService,
     private readonly tokenService: TokenService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -39,14 +41,6 @@ export class AuthService {
     return await this.localAuthService.resetPasswordWithOtp(dto);
   }
 
-  async verifyEmail(dto: { email: string; otp: string }) {
-    return await this.localAuthService.verifyEmail(dto);
-  }
-
-  async resendVerificationOtp(email: string) {
-    return await this.localAuthService.resendVerificationOtp(email);
-  }
-
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
     const user = result.user;
@@ -55,8 +49,15 @@ export class AuthService {
     return { tokens, user };
   }
 
-  async googleLogin(idToken: string) {
-    const user = await this.googleAuthService.authenticate(idToken);
+  async googleLogin(idToken: string, platform?: string) {
+    const user = await this.googleAuthService.authenticate(idToken, platform);
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+
+    return { tokens, user };
+  }
+
+  async appleLogin(idToken: string) {
+    const user = await this.appleAuthService.authenticate(idToken);
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
 
     return { tokens, user };

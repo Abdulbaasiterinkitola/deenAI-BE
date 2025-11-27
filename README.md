@@ -54,6 +54,20 @@ DeenAI is a warm, intelligent, and faith-centered digital companion designed to 
    # Edit .env with your configuration
    ```
 
+   **Generate a secure JWT secret:**
+   ```bash
+   # Method 1: Quick generation
+   node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+   
+   # Method 2: Using the generator script
+   node generate-jwt.js secret
+   ```
+   
+   Add the generated secret to your `.env` file:
+   ```bash
+   JWT_SECRET=your_generated_secret_here
+   ```
+
 4. **Run Migrations**
    ```bash
    npm run build
@@ -111,8 +125,9 @@ DB_MIGRATIONS=dist/database/migrations/*{.ts,.js}
 DB_SSL=false
 
 # JWT Authentication
+# Generate secure secret: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 JWT_SECRET=your_jwt_secret_key_here
-JWT_TIMEFRAME=3d
+JWT_TIMEFRAME=6M
 
 # Email Configuration (SMTP) - Optional
 SMTP_HOST=your_smtp_host
@@ -121,14 +136,48 @@ SMTP_USER=your_smtp_username
 SMTP_PASS=your_smtp_password
 SMTP_FROM=noreply@yourdomain.com
 
-# OAuth (Optional)
-# GOOGLE_CLIENT_ID=your_google_client_id
-# APPLE_CLIENT_ID=your_apple_client_id
+# OAuth Multi-Platform Configuration
+# Google OAuth Client IDs for different platforms
+GOOGLE_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+ANDRIOD_CLIENT_ID=your-android-client-id.apps.googleusercontent.com
+APPLE_CLIENT_ID=your-apple-service-id
 ```
+
+## 🔐 JWT Token Generation
+
+For development and testing, you can generate JWT tokens:
+
+### Generate JWT Secret
+```bash
+# Quick method
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Using generator script
+node generate-jwt.js secret
+```
+
+### Generate Test JWT Tokens
+```bash
+# Basic token
+node generate-jwt.js token
+
+# Custom token
+node generate-jwt.js token --userId=user123 --email=test@deenai.com --expiresIn=7d
+```
+
+### Using Generated Tokens
+```bash
+# In API requests
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:6001/api/protected-endpoint
+```
+
+For more details, see [JWT_GENERATOR.md](./JWT_GENERATOR.md)
 
 ## 📚 Documentation
 
 - [API Documentation](http://localhost:PORT/api/docs) - Swagger API documentation (when server is running)
+- [Multi-Platform OAuth](./src/modules/auth/MULTI_PLATFORM_AUTH.md) - OAuth authentication guide
+- [JWT Generator](./JWT_GENERATOR.md) - JWT token generation guide
 
 ## 🧪 Testing
 

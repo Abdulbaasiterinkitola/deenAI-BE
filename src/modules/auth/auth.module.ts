@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '@modules/users/users.module';
 import { LocalAuthService } from './services/local.service';
 import { GoogleAuthService } from './services/google.service';
+import { AppleAuthService } from './services/apple.service';
 import { AuthValidationService } from './services/auth-validation.service';
 import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -15,6 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResetPasswordService } from './services/reset-password.service';
 import { PasswordResetOtp } from './models/otp.model';
 import { OtpActionModel } from './action-models/otp.action-model';
+import { ProfileModule } from '@modules/profile/profile.module';
 
 @Module({
   controllers: [AuthController],
@@ -22,6 +24,7 @@ import { OtpActionModel } from './action-models/otp.action-model';
     AuthService,
     LocalAuthService,
     GoogleAuthService,
+    AppleAuthService,
     TokenService,
     AuthGuard,
     OtpService,
@@ -32,6 +35,7 @@ import { OtpActionModel } from './action-models/otp.action-model';
   imports: [
     EmailServiceModule,
     UsersModule,
+    ProfileModule,
     TypeOrmModule.forFeature([PasswordResetOtp]),
     forwardRef(() => UsersModule),
     JwtModule.registerAsync({

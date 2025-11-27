@@ -12,4 +12,7 @@ export class ChatMessageActionModel extends AbstractModelAction<ChatMessage> {
   ) {
     super(repository, ChatMessage);
   }
+  async customQuery(query: string, parameters?: any[]): Promise<any> {
+    return this.repository.query(query, parameters);
+  }
 }

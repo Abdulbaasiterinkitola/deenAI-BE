@@ -1,4 +1,5 @@
 import { AuthProvider } from '../enums';
+import { UserStatus } from '../enums/user-status.enum';
 
 export type UserType = {
   name: string;
@@ -6,6 +7,7 @@ export type UserType = {
   password: string;
   authProvider: AuthProvider;
   isEmailVerified: boolean;
+  status: UserStatus;
 };
 
 export type ResetPasswordEmailOptions = {

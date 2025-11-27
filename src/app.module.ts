@@ -18,6 +18,8 @@ import { ContactModule } from '@modules/contact/contact.module';
 import { ChatsModule } from '@modules/chats/chats.module';
 import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
 import { PlansModule } from '@modules/plans/plans.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { PlansModule } from '@modules/plans/plans.module';
       validate: validateEnv,
       load: [authConfig],
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         ...dataSource.options,
@@ -49,6 +52,7 @@ import { PlansModule } from '@modules/plans/plans.module';
     ChatsModule,
     BookmarksModule,
     PlansModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],

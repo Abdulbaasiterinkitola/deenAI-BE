@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { ChatsCoreService } from './services/chats-core.service';
 import { Chat } from './models/chat.model';
 import { ChatMessage } from './models/chat-message.model';
+import { SseMessage } from './types';
 
 /**
+ *
  * Service for handling chat operations
  * Acts as a facade for the core service and handles business logic
  */
@@ -47,12 +50,9 @@ export class ChatsService {
   ): Promise<{
     success: boolean;
     message: string;
-    data: {
-      userMessage: ChatMessage;
-      aiMessage: ChatMessage;
-    };
+    data: { userMessage: ChatMessage };
   }> {
-    const result = await this.chatsCoreService.sendMessage(
+    const data = await this.chatsCoreService.sendMessage(
       chatId,
       userId,
       messageContent,
@@ -60,10 +60,28 @@ export class ChatsService {
     return {
       success: true,
       message: 'Message sent successfully',
-      data: result,
+      data,
     };
   }
 
+  /**
+   * Streams the AI response for a chat.
+   * @param chatId - The ID of the chat.
+   * @param userId - The ID of the user.
+   * @returns An observable for Server-Sent Events.
+   */
+  streamResponse(chatId: string, userId: string): Observable<SseMessage> {
+    return this.chatsCoreService.streamResponse(chatId, userId);
+  }
+
+  /**
+   * Saves the final AI message after streaming is complete.
+   * @param chatId - The ID of the chat.
+   * @param fullResponse - The complete AI response content.
+   */
+  async saveAiMessage(chatId: string, fullResponse: string): Promise<void> {
+    await this.chatsCoreService.saveAiMessage(chatId, fullResponse);
+  }
   /**
    * Gets all chats for a user
    * @param userId - The ID of the user
@@ -79,6 +97,51 @@ export class ChatsService {
       success: true,
       message: 'Chats retrieved successfully',
       data: chats,
+    };
+  }
+  async getChatMessages(
+    chatId: string,
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: ChatMessage[];
+  }> {
+    const messages = await this.chatsCoreService.getChatMessages(
+      chatId,
+      userId,
+      page,
+      limit,
+    );
+
+    return {
+      success: true,
+      message: 'Messages retrieved successfully',
+      data: messages,
+    };
+  }
+
+  /**
+   * Deletes a specific chat
+   * @param chatId - The ID of the chat
+   * @param userId - The ID of the user
+   */
+  async deleteChat(
+    chatId: string,
+    userId: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: null;
+  }> {
+    await this.chatsCoreService.deleteChat(chatId, userId);
+
+    return {
+      success: true,
+      message: 'Chat deleted successfully',
+      data: null,
     };
   }
 }

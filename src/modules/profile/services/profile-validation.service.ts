@@ -1,6 +1,7 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { ProfileModelAction } from '../profile.model-action';
 import { CustomHttpException } from '@shared/custom.exception';
+import sharp from 'sharp';
 
 @Injectable()
 export class ProfileValidationService {
@@ -44,6 +45,37 @@ export class ProfileValidationService {
     if (existingProfile && existingProfile.userId !== currentUserId) {
       throw new CustomHttpException(
         { message: 'Username already exists' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  allowedMime = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+  validateMime(mime: string) {
+    if (!this.allowedMime.includes(mime)) {
+      throw new CustomHttpException(
+        { message: 'Invalid file type' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async validateDimensions(
+    buffer: Buffer,
+    maxWidth: number,
+    maxHeight: number,
+  ) {
+    const metadata = await sharp(buffer).metadata();
+    if (!metadata.width || !metadata.height)
+      throw new CustomHttpException(
+        { message: 'Invalid image' },
+        HttpStatus.BAD_REQUEST,
+      );
+
+    if (metadata.width > maxWidth || metadata.height > maxHeight) {
+      throw new CustomHttpException(
+        { message: `Image dimensions exceed ${maxWidth}x${maxHeight}` },
         HttpStatus.BAD_REQUEST,
       );
     }
