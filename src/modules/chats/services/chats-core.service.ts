@@ -158,9 +158,6 @@ export class ChatsCoreService {
     // Initialize final usage with chat usage
     const finalUsage = { ...usage };
 
-    // Initialize final usage with chat usage
-    const finalUsage = { ...chatUsage };
-
     // Save AI message
     const aiMessage = await this.chatMessageActionModel.create({
       createPayload: {
