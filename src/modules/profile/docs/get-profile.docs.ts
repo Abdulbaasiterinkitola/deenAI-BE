@@ -6,24 +6,54 @@ export class GetProfileDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Get user profile',
-        description: "Fetch the authenticated user's profile.",
+        description:
+          "Fetch the authenticated user's profile including user information.",
       }),
       ApiBearerAuth(),
       ApiResponse({
         status: 200,
         description: 'Profile retrieved successfully',
         schema: {
-          example: {
-            success: true,
-            message: 'Profile retrieved successfully',
-            data: {
-              id: '123e4567-e89b-12d3-a456-426614174000',
-              userId: '123e4567-e89b-12d3-a456-426614174001',
-              avatar: 'https://example.com/avatar.jpg',
-              language: 'en',
-              username: 'john_doe',
-              createdAt: '2025-01-15T10:00:00.000Z',
-              updatedAt: '2025-01-15T10:00:00.000Z',
+          examples: {
+            completeProfile: {
+              summary: 'Profile with all fields',
+              value: {
+                success: true,
+                message: 'Profile retrieved successfully',
+                data: {
+                  id: '123e4567-e89b-12d3-a456-426614174000',
+                  userId: '123e4567-e89b-12d3-a456-426614174001',
+                  avatar: 'https://example.com/avatar.jpg',
+                  language: 'en',
+                  username: 'john_doe',
+                  user: {
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                  },
+                  createdAt: '2025-01-15T10:00:00.000Z',
+                  updatedAt: '2025-01-15T10:00:00.000Z',
+                },
+              },
+            },
+            minimalProfile: {
+              summary: 'Profile with minimal data',
+              value: {
+                success: true,
+                message: 'Profile retrieved successfully',
+                data: {
+                  id: '123e4567-e89b-12d3-a456-426614174000',
+                  userId: '123e4567-e89b-12d3-a456-426614174001',
+                  avatar: null,
+                  language: null,
+                  username: null,
+                  user: {
+                    name: 'Jane Smith',
+                    email: 'jane@example.com',
+                  },
+                  createdAt: '2025-01-15T10:00:00.000Z',
+                  updatedAt: '2025-01-15T10:00:00.000Z',
+                },
+              },
             },
           },
         },

@@ -378,4 +378,23 @@ export class ChatsCoreService {
       },
     });
   }
+  async renameChat(
+    chatId: string,
+    userId: string,
+    newTitle: string,
+  ): Promise<Chat> {
+    const updatedChat = await this.chatActionModel.update({
+      updatePayload: {
+        title: newTitle,
+        hasTitle: !!newTitle,
+      },
+      identifierOptions: { id: chatId, userId },
+    });
+
+    if (!updatedChat) {
+      throw new CustomHttpException('Chat not found', HttpStatus.NOT_FOUND);
+    }
+
+    return updatedChat;
+  }
 }
