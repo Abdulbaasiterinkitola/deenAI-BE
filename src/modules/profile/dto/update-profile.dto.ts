@@ -63,10 +63,16 @@ export class UpdateProfileDto {
   name?: string | null;
 
   @IsOptional()
+  @ApiProperty({
+    required: false,
+    description:
+      'IANA timezone identifier (e.g., America/New_York, Europe/London, UTC). Used to localize streak calculations.',
+    example: 'America/New_York',
+  })
   @IsString({ message: 'Timezone must be a string' })
-  @Matches(/^([A-Z][a-z]+\/[A-Z][a-z_]+(?:\/[A-Z][a-z_]+)?|UTC)$/, {
+  @Matches(/^([A-Za-z]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?|UTC)$/, {
     message:
-      'Invalid timezone format. Use IANA timezone format (e.g., America/New_York, Europe/London, Asia/Dubai)',
+      'Invalid timezone format. Use IANA timezone format (e.g., America/New_York, Europe/London, Asia/Dubai, UTC)',
   })
   timezone?: string | null;
 }

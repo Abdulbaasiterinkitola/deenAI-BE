@@ -24,6 +24,12 @@ export class UpdateProfileDocs {
             username: { type: 'string', description: 'New username' },
             language: { type: 'string', description: 'Language preference' },
             name: { type: 'string', description: 'New Name' },
+            timezone: {
+              type: 'string',
+              description:
+                'IANA timezone identifier (e.g., America/New_York, Europe/London, UTC)',
+              example: 'America/New_York',
+            },
             avatar: {
               type: 'string',
               format: 'binary',

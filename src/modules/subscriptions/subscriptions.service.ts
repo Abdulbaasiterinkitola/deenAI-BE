@@ -26,7 +26,7 @@ export class SubscriptionsService {
   async getActiveSubscriptionForUser(
     userId: string,
   ): Promise<SubscriptionSnapshot | null> {
-    const user = await this.userModelAction.getWithPlanById(userId);
+    const user = await this.userModelAction.get({ id: userId }, {}, ['plan']);
 
     if (!user || !user.plan) {
       return null;

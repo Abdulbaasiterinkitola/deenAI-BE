@@ -1,5 +1,5 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { ProfileModelAction } from '../profile.model-action';
 import { SaveProfileDto } from '../dto/save-profile.dto';
 import { CreateProfileDto } from '../dto/create-profile.dto';
@@ -18,6 +18,7 @@ export class ProfileCoreService {
   async createProfile(
     userId: string,
     createData: CreateProfileDto,
+    transaction?: EntityManager,
   ): Promise<Profile> {
     const createPayload: Partial<Profile> = {
       userId,
@@ -28,7 +29,14 @@ export class ProfileCoreService {
 
     const createdProfile = await this.profileModelAction.create({
       createPayload,
-      transactionOptions: { useTransaction: false },
+      ...(transaction
+        ? {
+            transactionOptions: {
+              useTransaction: true,
+              transaction,
+            },
+          }
+        : {}),
     });
 
     if (!createdProfile) {
@@ -54,6 +62,7 @@ export class ProfileCoreService {
           user: {
             name: true,
             email: true,
+            timezone: true,
           },
         },
       },

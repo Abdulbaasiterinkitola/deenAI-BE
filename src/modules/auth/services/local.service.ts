@@ -70,19 +70,6 @@ export class LocalAuthService {
       );
     }
 
-    // Auto-generate a username helper
-    const generateUsername = (name: string, id: string) => {
-      const base = name?.replace(/\s+/g, '').toLowerCase() || 'user';
-      const suffix = id.slice(-6);
-      return `${base}_${suffix}`;
-    };
-
-    const autoUsername = generateUsername(createdUser.name, createdUser.id);
-
-    await this.profileService.createProfile(createdUser.id, {
-      username: autoUsername,
-    });
-
     // Send welcome email for new users
     await this.sendWelcomeEmail(createdUser);
 
