@@ -32,42 +32,46 @@ export class ProfileService {
     return this.profileCoreService.createProfile(userId, createData);
   }
 
-async updateProfile(
-  userId: string,
-  updateData: UpdateProfileDto,
-): Promise<Profile> {
-  await this.profileValidationService.validateProfileExists(userId);
+  async updateProfile(
+    userId: string,
+    updateData: UpdateProfileDto,
+  ): Promise<Profile> {
+    await this.profileValidationService.validateProfileExists(userId);
 
-  if (updateData.username !== undefined && updateData.username !== null) {
-    await this.profileValidationService.validateUsernameUnique(
-      updateData.username,
+    if (updateData.username !== undefined && updateData.username !== null) {
+      await this.profileValidationService.validateUsernameUnique(
+        updateData.username,
+        userId,
+      );
+    }
+
+    let avatarUrl: string | undefined;
+
+    if (
+      updateData.avatar &&
+      updateData.avatar.buffer &&
+      updateData.avatar.buffer.length > 0
+    ) {
+      avatarUrl = await this.profileAvatarService.updateAvatar(
+        userId,
+        updateData.avatar,
+      );
+    }
+
+    const saveData: SaveProfileDto = {
+      language: updateData.language,
+      username: updateData.username,
+      name: updateData.name,
+      avatar: avatarUrl,
+    };
+
+    const updatedProfile = await this.profileCoreService.updateProfile(
       userId,
+      saveData,
     );
+
+    return updatedProfile;
   }
-
-  let avatarUrl: string | undefined;
-
-  if (updateData.avatar && updateData.avatar.buffer && updateData.avatar.buffer.length > 0) {
-    avatarUrl = await this.profileAvatarService.updateAvatar(
-      userId,
-      updateData.avatar,
-    );
-  }
-
-  const saveData: SaveProfileDto = {
-    language: updateData.language,
-    username: updateData.username,
-    name: updateData.name,
-    avatar: avatarUrl,
-  };
-
-  const updatedProfile = await this.profileCoreService.updateProfile(
-    userId,
-    saveData,
-  );
-
-  return updatedProfile;
-}
 
   async getProfile(userId: string) {
     return this.profileCoreService.getProfile(userId);

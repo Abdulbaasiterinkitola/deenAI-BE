@@ -61,4 +61,12 @@ export class UpdateProfileDto {
     message: 'Name can only contain letters and spaces',
   })
   name?: string | null;
+
+  @IsOptional()
+  @IsString({ message: 'Timezone must be a string' })
+  @Matches(/^([A-Z][a-z]+\/[A-Z][a-z_]+(?:\/[A-Z][a-z_]+)?|UTC)$/, {
+    message:
+      'Invalid timezone format. Use IANA timezone format (e.g., America/New_York, Europe/London, Asia/Dubai)',
+  })
+  timezone?: string | null;
 }

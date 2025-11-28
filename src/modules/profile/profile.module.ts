@@ -6,11 +6,11 @@ import { ProfileModelAction } from './profile.model-action';
 import { ProfileValidationService } from './services/profile-validation.service';
 import { ProfileCoreService } from './services/profile-core.service';
 import { Profile } from './models/profile.model';
+import { User } from '@modules/users/models/user.model';
 import { UsersModule } from '@modules/users/users.module';
 import { ProfileAvatarService } from './services/profile-avatar.service';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UserModelAction } from '@modules/users/action-models/user.action-model';
-import { User } from '@modules/users/models/user.model';
 
 @Module({
   imports: [
@@ -27,6 +27,6 @@ import { User } from '@modules/users/models/user.model';
     ProfileCoreService,
     ProfileAvatarService,
   ],
-  exports: [ProfileService, ProfileModelAction], // Export if other modules need to use it
+  exports: [ProfileService, ProfileModelAction],
 })
 export class ProfileModule {}

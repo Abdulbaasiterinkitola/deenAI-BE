@@ -66,7 +66,7 @@ export class ProfileCoreService {
     updateData: SaveProfileDto,
   ): Promise<Profile> {
     const profileUpdatePayload: Partial<Profile> = {};
- 
+
     if (updateData.avatar !== undefined && updateData.avatar !== null) {
       profileUpdatePayload.avatar = updateData.avatar;
     }
@@ -79,9 +79,12 @@ export class ProfileCoreService {
       profileUpdatePayload.username = updateData.username.toLowerCase();
     }
 
-    const userUpdatePayload: { name?: string } = {};
+    const userUpdatePayload: { name?: string; timezone?: string | null } = {};
     if (updateData.name !== undefined && updateData.name !== null) {
       userUpdatePayload.name = updateData.name;
+    }
+    if (updateData.timezone !== undefined) {
+      userUpdatePayload.timezone = updateData.timezone;
     }
 
     const hasProfileUpdates = Object.keys(profileUpdatePayload).length > 0;
@@ -129,7 +132,7 @@ export class ProfileCoreService {
 
         if (!updatedUser) {
           throw new CustomHttpException(
-            'Failed to update user name',
+            'Failed to update user',
             HttpStatus.INTERNAL_SERVER_ERROR,
           );
         }
