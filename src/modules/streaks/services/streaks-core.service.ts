@@ -129,6 +129,64 @@ export class StreaksCoreService {
   }
 
   /**
+   * Gets the current streak state for a user
+   * @param userId - The user ID to get streak state for
+   * @param timezone - The user's timezone
+   * @returns The streak state including whether it can be updated today
+   */
+  async getStreakState(userId: string, timezone: string) {
+    const streak = await this.streakActionModel.get({ userId });
+
+    if (!streak) {
+      throw new CustomHttpException(
+        'Streak record not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const now = DateTime.now().setZone(timezone);
+    let canUpdateToday = true;
+    let nextUpdateAvailableAt: string | null = null;
+    let lastCompletedAtWithTimeZone: string | null = null;
+
+    if (streak.lastCompletedAt) {
+      const lastCompletion = DateTime.fromJSDate(streak.lastCompletedAt).setZone(
+        timezone,
+      );
+
+      lastCompletedAtWithTimeZone = lastCompletion.toISO();
+
+      const dayDiff = Math.floor(
+        now.startOf('day').diff(lastCompletion.startOf('day'), 'days').days,
+      );
+
+      // If last completion was today, can't update again
+      if (dayDiff === 0) {
+        canUpdateToday = false;
+        const nextDayStart = lastCompletion.plus({ days: 1 }).startOf('day');
+        nextUpdateAvailableAt = nextDayStart.toUTC().toISO();
+      }
+    }
+
+    return {
+      id: streak.id,
+      userId: streak.userId,
+      type: streak.type,
+      currentStreak: streak.currentStreak,
+      highestStreak: streak.highestStreak,
+      lastCompletedAt: streak.lastCompletedAt
+        ? streak.lastCompletedAt.toISOString()
+        : null,
+      lastCompletedAtWithTimeZone,
+      canUpdateToday,
+      nextUpdateAvailableAt,
+      timezone,
+      createdAt: streak.createdAt,
+      updatedAt: streak.updatedAt,
+    };
+  }
+
+  /**
    * Validates if a streak can be updated for a user
    * @param userId - The user ID to check streak for
    * @throws {CustomHttpException} When streak cannot be updated

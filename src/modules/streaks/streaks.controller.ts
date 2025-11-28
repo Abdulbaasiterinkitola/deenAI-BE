@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Patch,
@@ -16,6 +17,15 @@ import { StreaksDocs } from './docs/streaks.doc';
 @Controller('streaks')
 export class StreaksController {
   constructor(private readonly streaksService: StreaksService) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @StreaksDocs.getStreakState()
+  async getStreakState(@Request() req: any) {
+    const userId = req.user?.id as string;
+    return await this.streaksService.getStreakState(userId);
+  }
 
   @Patch()
   @HttpCode(HttpStatus.OK)
