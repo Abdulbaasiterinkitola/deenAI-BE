@@ -13,6 +13,13 @@ export class NotificationSettings extends AbstractBaseEntity {
   @Column({ name: 'ai_alerts', nullable: false, default: true })
   aiAlerts: boolean;
 
+  @Column({
+    name: 'athkar_notifications_enabled',
+    nullable: false,
+    default: true,
+  })
+  athkarNotificationsEnabled: boolean;
+
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 

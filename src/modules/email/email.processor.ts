@@ -62,14 +62,20 @@ export class ProcessMail {
       587;
     const user =
       this.configService.get<string>('SMTP_USER') ||
-      this.configService.get<string>('MAIL_USER');
+      this.configService.get<string>('MAIL_USER') ||
+      this.configService.get<string>('MAIL_USERNAME');
     const pass =
       this.configService.get<string>('SMTP_PASS') ||
-      this.configService.get<string>('MAIL_PASS');
+      this.configService.get<string>('MAIL_PASS') ||
+      this.configService.get<string>('MAIL_PASSWORD');
     const mailFromName =
-      this.configService.get<string>('MAIL_NAME') || 'DeenAI';
+      this.configService.get<string>('MAIL_NAME') ||
+      this.configService.get<string>('MAIL_FROM_NAME') ||
+      'DeenAI';
     const mailFromAddress =
-      this.configService.get<string>('MAIL_FROM') || 'no-reply@deenai.com';
+      this.configService.get<string>('MAIL_FROM') ||
+      this.configService.get<string>('MAIL_FROM_ADDRESS') ||
+      'no-reply@deenai.com';
 
     this.defaultFrom = `${mailFromName} <${mailFromAddress}>`;
 
@@ -79,10 +85,37 @@ export class ProcessMail {
       );
     }
 
+    const parseBool = (value?: string | boolean | number) => {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'number') return value === 1;
+      if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        return ['true', '1', 'yes', 'y', 'ssl'].includes(normalized);
+      }
+      return undefined;
+    };
+
+    const secureEnv =
+      this.configService.get<string>('SMTP_SECURE') ||
+      this.configService.get<string>('MAIL_SECURE');
+    const requireTlsEnv =
+      this.configService.get<string>('SMTP_REQUIRE_TLS') ||
+      this.configService.get<string>('MAIL_REQUIRE_TLS') ||
+      this.configService.get<string>('MAIL_ENCRYPTION');
+
+    const secure =
+      parseBool(secureEnv) ?? (typeof port === 'number' && port === 465);
+
+    const requireTLS =
+      parseBool(requireTlsEnv) ||
+      (typeof requireTlsEnv === 'string' &&
+        requireTlsEnv.trim().toLowerCase() === 'tls');
+
     const transportOptions: SMTPTransport.Options = {
       host,
       port,
-      secure: false, // True for 465, false for other ports
+      secure,
+      requireTLS: !secure && !!requireTLS,
       auth: { user, pass },
     };
 

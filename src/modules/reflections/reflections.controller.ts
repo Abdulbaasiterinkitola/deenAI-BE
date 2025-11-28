@@ -9,7 +9,6 @@ import {
   Query,
   Request,
   Type,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -27,13 +26,11 @@ import {
   PaginatedReflectionsResponseDto,
 } from './dtos/reflection.dto';
 import { CreateReflectionType } from './types/reflection';
-import { AuthGuard } from '@guards/auth.guard';
 import { DocsResponseDto } from '@shared/docs-response.dto';
 import { CreateReflectionDoc } from './docs/reflection.doc';
 
 @ApiTags('Reflections')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller('reflections')
 export class ReflectionsController {
   constructor(private readonly reflectionsService: ReflectionsService) {}

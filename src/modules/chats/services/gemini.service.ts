@@ -1,24 +1,49 @@
 import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CustomHttpException } from '@shared/custom.exception';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { AIResponseType, AIReference } from '../types';
+import { VertexAI } from '@google-cloud/vertexai';
 
 /**
  * Islamic guidelines for the AI assistant
  */
 const ISLAMIC_GUIDELINES = `
-You are an Islamic AI assistant. Please follow these guidelines strictly:
+You are a knowledgeable and empathetic Islamic AI assistant. Your goal is to connect users to the wisdom of the Quran and Sunnah.
 
-1. Always provide responses that are respectful, accurate, and aligned with Islamic teachings
-2. Never include any blasphemy, profanity, or inappropriate language
-3. If asked about sensitive topics, respond with wisdom and respect
-4. Base your answers on authentic Islamic sources when possible
-5. Be helpful, kind, and patient in your responses
-6. If you don't know something, admit it rather than guessing
-7. Always maintain a respectful tone when discussing religious matters
-8. REQUIRED: Every response MUST include at least one Quran verse or Hadith reference to support your answer. This is mandatory for all responses.
+DYNAMIC RESPONSE STRATEGY (STRICTLY FOLLOW THIS):
+
+**SCENARIO A: Emotional Support, Advice, or Spiritual Growth**
+(Use this when the user says "I'm anxious", "I feel lost", "How to repent", etc.)
+   - **Introduction**: Compassionate validation + 1 Quran Verse + 1 Hadith (with book number and hadith number).
+   - **### Prophetic Guidance**: Cite a relevant Hadith ( with book number and hadith number) and how the Prophet (SAW) applied it.
+   - **### Spiritual Steps**: List actionable spiritual remedies (Dhikr/Dua) with REFERENCES.
+       * **CRITICAL RULE:** Every single step MUST include a specific reference (e.g., "Recite Surah Al-Ikhlas (Quran 112:1-4)" or "Make Dua (Bukhari Book 80, Hadith 6369 )"). Do not provide a step without a Quran and hadith source.  
+      * ** For Hadith** STRICTLY FOLLOW this format: ( Hadith name, book number:hadith number.)
+   - *Constraint: Keep under 200 words.*
+
+**SCENARIO B: Factual, Historical, or Fiqh Questions**
+(Use this when the user asks "How many rakats in Fajr?", "Who is the last prophet?", etc.)
+   - Provide a direct, clear answer.
+   - Cite evidence (Quran/Hadith with book number and hadith number e.g. Surah Al-baqarah (Quran 2:153) al-Bukhari Book 80, Hadith 1469) to support the fact.
+   - If there are multiple valid opinions (Fiqh), briefly acknowledge the flexibility.
+   - * ** For Hadith** STRICTLY FOLLOW this format: ( Hadith name, book number:hadith number.)
+   - *Do NOT use the "Spiritual Steps" headers.*
+
+**SCENARIO C: General Conversation**
+   - Respond warmly with Islamic etiquette (e.g., "Wa alaikum assalam").
+
+
+CONTENT RULES:
+- Do not merge sections into one paragraph.
+- *Do not provide a step without a Quran and hadith source.* 
+- * ** All Hadith** MUST STRICTLY FOLLOW this format: ( Hadith name, book number:hadith number.)
+-  *DO NOT  PROVIDE HADTIH WITHOUT FOLLOWING THE STATED FORMAT*
+- Keep the total response concise (under 200 words).
+
+TONE:
+- Gentle, wise, and non-judgmental.
+- If a matter involves Fiqh (jurisprudence) with multiple valid opinions, acknowledge the flexibility in Islam.
 `;
 
 const STRUCTURED_RESPONSE_INSTRUCTIONS = `
@@ -37,7 +62,6 @@ Respond ONLY in valid JSON that matches the schema below (no backticks or prose)
       "collection": "Sahih Bukhari",
       "hadithNumber": 1,
       "bookNumber": 2,
-      "chapterNumber": 3
     }
   ]
 }
@@ -52,65 +76,72 @@ REQUIRED: The "references" array MUST contain at least one Quran verse or Hadith
 @Injectable()
 export class GeminiService {
   private readonly logger = new Logger(GeminiService.name);
-  private genAI: GoogleGenerativeAI | null = null;
-  private model: any = null;
-  private readonly apiKey: string | undefined;
+  private vertexAI: VertexAI;
+  private model: any;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('GEMINI_API_KEY');
-
-    if (!this.apiKey) {
-      this.logger.warn(
-        'GEMINI_API_KEY is not configured. AI chat features will be unavailable.',
-      );
-    } else {
-      this.initializeGemini();
-    }
+    this.initializeGemini();
   }
 
   /**
    * Initializes the Gemini AI client
-   * @throws {CustomHttpException} If API key is not configured
    */
   private initializeGemini(): void {
-    if (!this.apiKey) {
-      throw new CustomHttpException(
-        'Gemini API key is not configured',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+    try {
+      const projectId = this.configService.get<string>('GOOGLE_PROJECT_ID');
+      const location =
+        this.configService.get<string>('GOOGLE_LOCATION') || 'us-central1';
+      const endpointId = this.configService.get<string>(
+        'GOOGLE_MODEL_ENDPOINT_ID',
       );
-    }
 
-    this.genAI = new GoogleGenerativeAI(this.apiKey);
-    this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-001',
-    });
+      if (!projectId || !endpointId) {
+        this.logger.warn(
+          'Google Cloud Project ID or Endpoint ID is not configured. AI chat features will be unavailable.',
+        );
+        return;
+      }
+
+      this.vertexAI = new VertexAI({
+        project: projectId,
+        location: location,
+      });
+
+      this.model = this.vertexAI.preview.getGenerativeModel({
+        model: `projects/${projectId}/locations/${location}/endpoints/${endpointId}`,
+      });
+    } catch (error) {
+      this.logger.error('Failed to initialize Vertex AI', error);
+    }
   }
 
   /**
    * Checks if Gemini API is available
-   * @returns true if API key is configured, false otherwise
+   * @returns true if model is initialized, false otherwise
    */
   private isAvailable(): boolean {
-    if (!this.apiKey || !this.genAI || !this.model) {
-      return false;
-    }
-    return true;
+    return !!this.model;
   }
 
   /**
    * Generates an AI response based on the conversation history
    * @param messages - Array of chat messages (last 4 messages for context)
    * @param userMessage - The current user message
-   * @returns The AI-generated response
+   * @returns The AI-generated response and token usage
    * @throws {CustomHttpException} If API key is not configured
    */
   async generateResponse(
     messages: ChatMessage[],
     userMessage: string,
-  ): Promise<AIResponseType> {
+  ): Promise<{
+    content: string;
+    references: AIReference[];
+    text: string;
+    usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  }> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
-        'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
+        'AI service is not available. Please check server configuration.',
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
@@ -124,6 +155,7 @@ export class GeminiService {
 
       // Format system instruction correctly (must be an object with parts array)
       const systemInstruction = {
+        role: 'system',
         parts: [{ text: ISLAMIC_GUIDELINES }],
       };
 
@@ -136,10 +168,20 @@ export class GeminiService {
       // Send the current user message with structured response instructions
       const prompt = this.buildStructuredPrompt(userMessage);
       const result = await chat.sendMessage(prompt);
-      const rawText =
-        typeof result.response?.text === 'function'
-          ? result.response.text()
-          : '';
+      const response = await result.response;
+      let rawText = '';
+      if (
+        response.candidates &&
+        response.candidates.length > 0 &&
+        response.candidates[0].content &&
+        response.candidates[0].content.parts &&
+        response.candidates[0].content.parts.length > 0
+      ) {
+        rawText = response.candidates[0].content.parts[0].text || '';
+      }
+
+      // Extract usage metadata from the response This includes promptTokenCount (input), candidatesTokenCount (output), and totalTokenCount
+      const usageMetadata = response.usageMetadata;
 
       if (!rawText || rawText.trim().length === 0) {
         throw new CustomHttpException(
@@ -148,8 +190,18 @@ export class GeminiService {
         );
       }
 
-      const parsedResponse = this.parseAIResponse(rawText as string);
-      return parsedResponse;
+      const parsedResponse = this.parseAIResponse(rawText);
+
+      // Return both the generated text and the token usage statistics
+      return {
+        ...parsedResponse,
+        text: rawText.trim(),
+        usage: {
+          inputTokens: usageMetadata?.promptTokenCount || 0,
+          outputTokens: usageMetadata?.candidatesTokenCount || 0,
+          totalTokens: usageMetadata?.totalTokenCount || 0,
+        },
+      };
     } catch (error) {
       if (error instanceof CustomHttpException) {
         this.logger.error(
@@ -194,7 +246,7 @@ export class GeminiService {
   ): AsyncGenerator<string> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
-        'Gemini API key is not configured. Please configure GEMINI_API_KEY in your environment variables.',
+        'AI service is not available. Please check server configuration.',
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
@@ -206,6 +258,7 @@ export class GeminiService {
       }));
 
       const systemInstruction = {
+        role: 'system',
         parts: [{ text: ISLAMIC_GUIDELINES }],
       };
 
@@ -218,7 +271,8 @@ export class GeminiService {
       const result = await chat.sendMessageStream(prompt);
 
       for await (const chunk of result.stream) {
-        const chunkText = chunk.text();
+        const chunkText =
+          chunk.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (chunkText) {
           yield chunkText;
         }
@@ -231,17 +285,25 @@ export class GeminiService {
   /**
    * Generates a title for a chat based on the first user message
    * @param userMessage - The first user message
-   * @returns A short, descriptive title (max 50 characters)
+   * @returns A short, descriptive title (max 50 characters) and token usage
    */
-  async generateTitle(userMessage: string): Promise<string> {
+  async generateTitle(userMessage: string): Promise<{
+    title: string;
+    usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  }> {
     if (!this.isAvailable()) {
       // Fallback to a truncated version of the message if API is not available
       this.logger.warn(
         'Gemini API not available, using fallback title generation',
       );
-      return userMessage.length > 50
-        ? userMessage.substring(0, 47) + '...'
-        : userMessage;
+      const title =
+        userMessage.length > 50
+          ? userMessage.substring(0, 47) + '...'
+          : userMessage;
+      return {
+        title,
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      };
     }
 
     try {
@@ -253,13 +315,31 @@ Title:`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
-      const text = response.text() as string;
+
+      let text = '';
+      if (
+        response.candidates &&
+        response.candidates.length > 0 &&
+        response.candidates[0].content &&
+        response.candidates[0].content.parts &&
+        response.candidates[0].content.parts.length > 0
+      ) {
+        text = response.candidates[0].content.parts[0].text || '';
+      }
+
+      // Extract usage metadata from the response
+      const usageMetadata = response.usageMetadata;
 
       if (!text || text.trim().length === 0) {
         // Fallback to a truncated version of the message
-        return userMessage.length > 50
-          ? userMessage.substring(0, 47) + '...'
-          : userMessage;
+        const title =
+          userMessage.length > 50
+            ? userMessage.substring(0, 47) + '...'
+            : userMessage;
+        return {
+          title,
+          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        };
       }
 
       let title = text.trim();
@@ -270,15 +350,28 @@ Title:`;
         title = title.substring(0, 47) + '...';
       }
 
-      return title;
+      // Return the generated title and token usage
+      return {
+        title,
+        usage: {
+          inputTokens: usageMetadata?.promptTokenCount || 0,
+          outputTokens: usageMetadata?.candidatesTokenCount || 0,
+          totalTokens: usageMetadata?.totalTokenCount || 0,
+        },
+      };
     } catch (error) {
       this.logger.error(
         `Failed to generate title: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       // Fallback to a truncated version of the message
-      return userMessage.length > 50
-        ? userMessage.substring(0, 47) + '...'
-        : userMessage;
+      const title =
+        userMessage.length > 50
+          ? userMessage.substring(0, 47) + '...'
+          : userMessage;
+      return {
+        title,
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      };
     }
   }
 

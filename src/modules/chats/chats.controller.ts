@@ -5,25 +5,26 @@ import {
   Delete,
   Body,
   Param,
-  UseGuards,
   Sse,
   Request,
   Query,
+  Patch,
+  Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ChatsService } from './chats.service';
 import { SendMessageDto, ChatIdDto } from './dtos/chat.dto';
-import { AuthGuard } from '@guards/auth.guard';
 import { SseMessage } from './types';
 import { ChatsDocs } from './docs/chats.doc';
 import { GetMessagesQueryDto } from './dtos/get-message.dto';
+import { RenameChatDto } from './dtos/rename-chat.dto';
 
 @ApiTags('Chats')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller('chats')
 export class ChatsController {
+  private readonly logger = new Logger(ChatsController.name);
   constructor(private readonly chatsService: ChatsService) {}
 
   /**
@@ -108,5 +109,22 @@ export class ChatsController {
   async deleteChat(@Param() params: ChatIdDto, @Request() req: any) {
     const userId = req.user?.id as string;
     return await this.chatsService.deleteChat(params.id, userId);
+  }
+
+  /**
+   * Renames a specific chat
+   * Requires authentication and chat ownership
+   * @param params - ChatIdDto containing the ID of the chat
+   * @param renameChatDto - DTO containing the new title
+   */
+  @Patch(':id/rename')
+  @ChatsDocs.renameChat()
+  async renameChat(
+    @Param() params: ChatIdDto,
+    @Body() renameChatDto: RenameChatDto,
+    @Request() req: any,
+  ) {
+    const userId = req.user?.id as string;
+    return await this.chatsService.renameChat(params.id, userId, renameChatDto);
   }
 }

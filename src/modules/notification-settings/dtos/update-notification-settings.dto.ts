@@ -16,4 +16,9 @@ export class UpdateNotificationSettingsDto {
   @IsOptional()
   @IsBoolean()
   aiAlerts?: boolean;
+
+  @ApiPropertyOptional({ description: 'Athkar notifications toggle' })
+  @IsOptional()
+  @IsBoolean()
+  athkarNotificationsEnabled?: boolean;
 }

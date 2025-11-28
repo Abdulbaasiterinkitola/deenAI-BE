@@ -11,6 +11,7 @@ export const defaultPlans = [
     isPopular: false,
     isCustom: false,
     displayOrder: 1,
+    tokenLimit: 5000,
     features: [
       'Quran Access',
       'Essential Daily Tools',
@@ -28,6 +29,7 @@ export const defaultPlans = [
     isPopular: false,
     isCustom: false,
     displayOrder: 2,
+    tokenLimit: 1000000,
     features: [
       'Unlimited AI Chat',
       'Full Reflection Suite (Unlimited Access)',
@@ -45,6 +47,7 @@ export const defaultPlans = [
     isPopular: true,
     isCustom: false,
     displayOrder: 3,
+    tokenLimit: 1200000,
     features: [
       'Unlimited AI Chat',
       'Full Reflection Suite (Unlimited Access)',
@@ -62,6 +65,7 @@ export const defaultPlans = [
     isPopular: false,
     isCustom: true,
     displayOrder: 4,
+    tokenLimit: 0,
     features: [
       'Target Audience',
       'Content Distribution',

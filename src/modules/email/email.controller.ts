@@ -1,11 +1,14 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { EmailDto } from './dtos/email.dto';
+import { Public } from '../../guards/public.decorator';
+
 @Controller()
 export class EmailServiceController {
   constructor(private readonly emailServiceService: EmailService) {}
 
   @Post('email')
+  @Public()
   async sendEmail(@Body() dto: EmailDto) {
     await this.emailServiceService.sendEmail(
       dto.email,

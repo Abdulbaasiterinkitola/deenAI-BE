@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserModelAction } from '../action-models/user.action-model';
 import { UserType } from '../types/user';
 import { CustomHttpException } from '@shared/custom.exception';
@@ -13,6 +13,19 @@ import { UserStatus } from '../enums/user-status.enum';
 export default class UserValidationService {
   constructor(private userModelAction: UserModelAction) {}
 
+  normalizeAndValidateEmail(email: string): string {
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail) {
+      throw new CustomHttpException(
+        'Email is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return normalizedEmail;
+  }
+
   async createUserValidation(createPayload: UserType) {
     const userExists = await this.userModelAction.get({
       email: createPayload.email,
@@ -24,6 +37,29 @@ export default class UserValidationService {
         HttpStatus.CONFLICT,
       );
     }
+  }
+
+  async validateRefreshTokenMatch(
+    refreshToken: string,
+    user: Pick<User, 'id' | 'email' | 'currentRefreshToken'> | null,
+  ): Promise<Pick<User, 'id' | 'email'>> {
+    if (!user || !user.currentRefreshToken) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.currentRefreshToken,
+    );
+
+    if (!isRefreshTokenMatching) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+    };
   }
 
   async validateUserForLogin(

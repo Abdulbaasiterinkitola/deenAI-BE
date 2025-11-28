@@ -13,7 +13,7 @@ export class UpdateProfileDocs {
       ApiOperation({
         summary: 'Update user profile',
         description:
-          'Allows authenticated users to update their profile information including avatar, language, and username. All fields are optional (partial update).',
+          'Allows authenticated users to update their profile information including avatar, language, username, and timezone. All fields are optional (partial update).',
       }),
       ApiBearerAuth(),
       ApiConsumes('multipart/form-data'),
@@ -23,6 +23,13 @@ export class UpdateProfileDocs {
           properties: {
             username: { type: 'string', description: 'New username' },
             language: { type: 'string', description: 'Language preference' },
+            name: { type: 'string', description: 'New Name' },
+            timezone: {
+              type: 'string',
+              description:
+                'IANA timezone identifier (e.g., America/New_York, Europe/London, UTC)',
+              example: 'America/New_York',
+            },
             avatar: {
               type: 'string',
               format: 'binary',
@@ -37,6 +44,7 @@ export class UpdateProfileDocs {
             value: {
               username: 'john_doe',
               language: 'en',
+              name: 'john',
               avatar: '(binary file)',
             },
           },
@@ -47,6 +55,18 @@ export class UpdateProfileDocs {
           updateLanguage: {
             summary: 'Update only language',
             value: { language: 'ar' },
+          },
+          updateTimezone: {
+            summary: 'Update timezone',
+            description:
+              'Set user timezone for accurate prayer times and streaks',
+            value: {
+              timezone: 'America/New_York',
+            },
+          },
+          updateName: {
+            summary: 'Update only Name',
+            value: { name: 'John' },
           },
           clearAvatar: {
             summary: 'Remove avatar',
