@@ -15,7 +15,7 @@ import { UserModelAction } from '@modules/users/action-models/user.action-model'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Profile, User]),
-    UsersModule,
+    forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
   ],
   controllers: [ProfileController],

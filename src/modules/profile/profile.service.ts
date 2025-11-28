@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
 import { ProfileValidationService } from './services/profile-validation.service';
 import { ProfileCoreService } from './services/profile-core.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -6,6 +7,7 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './models/profile.model';
 import { ProfileAvatarService } from './services/profile-avatar.service';
 import { SaveProfileDto } from './dto/save-profile.dto';
+import { CustomHttpException } from '@shared/custom.exception';
 
 @Injectable()
 export class ProfileService {
@@ -19,6 +21,7 @@ export class ProfileService {
   async createProfile(
     userId: string,
     createData: CreateProfileDto,
+    transaction?: EntityManager,
   ): Promise<Profile> {
     await this.profileValidationService.validateProfileDoesNotExist(userId);
 
@@ -29,13 +32,14 @@ export class ProfileService {
       );
     }
 
-    return this.profileCoreService.createProfile(userId, createData);
+    return this.profileCoreService.createProfile(
+      userId,
+      createData,
+      transaction,
+    );
   }
 
-  async updateProfile(
-    userId: string,
-    updateData: UpdateProfileDto,
-  ): Promise<Profile> {
+  async updateProfile(userId: string, updateData: UpdateProfileDto) {
     await this.profileValidationService.validateProfileExists(userId);
 
     if (updateData.username !== undefined && updateData.username !== null) {
@@ -63,6 +67,7 @@ export class ProfileService {
       username: updateData.username,
       name: updateData.name,
       avatar: avatarUrl,
+      timezone: updateData.timezone,
     };
 
     const updatedProfile = await this.profileCoreService.updateProfile(
@@ -70,10 +75,43 @@ export class ProfileService {
       saveData,
     );
 
-    return updatedProfile;
+    if (!updatedProfile) {
+      throw new CustomHttpException(
+        'Failed to update profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return this.buildProfileResponse(updatedProfile);
   }
 
   async getProfile(userId: string) {
-    return this.profileCoreService.getProfile(userId);
+    const profile = await this.profileCoreService.getProfile(userId);
+
+    if (!profile) {
+      throw new CustomHttpException(
+        'Profile not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.buildProfileResponse(profile);
+  }
+
+  private buildProfileResponse(profile: Profile) {
+    const timezone = profile?.user?.timezone || 'UTC';
+
+    return {
+      id: profile.id,
+      userId: profile.userId,
+      name: profile.user?.name ?? null,
+      email: profile.user?.email ?? null,
+      username: profile.username,
+      language: profile.language,
+      avatar: profile.avatar,
+      timezone,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    };
   }
 }
