@@ -1,6 +1,7 @@
 import { Controller, Get, HttpException } from '@nestjs/common';
 import { HealthService } from './health.service';
 import { HealthDocs } from './docs/health.docs';
+import { Public } from '../../guards/public.decorator';
 
 @Controller('health')
 @HealthDocs.tags()
@@ -8,6 +9,7 @@ export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
   @Get()
+  @Public()
   @HealthDocs.check()
   async check() {
     const result = await this.healthService.checkHealth();

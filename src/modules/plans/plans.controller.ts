@@ -9,9 +9,11 @@ import {
 import { PlansService } from './plans.service';
 import { PlansDocs } from './docs/plans.doc';
 import { PlanQueryDto } from './dto/plan-query.dto';
+import { Public } from '@guards/public.decorator';
 
 @PlansDocs.tag()
 @Controller('plans')
+@Public()
 export class PlansController {
   constructor(private readonly plansService: PlansService) {}
 

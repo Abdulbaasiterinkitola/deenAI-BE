@@ -5,7 +5,6 @@ import {
   Delete,
   Body,
   Param,
-  UseGuards,
   Sse,
   Request,
   Query,
@@ -16,7 +15,6 @@ import { Observable } from 'rxjs';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ChatsService } from './chats.service';
 import { SendMessageDto, ChatIdDto } from './dtos/chat.dto';
-import { AuthGuard } from '@guards/auth.guard';
 import { SseMessage } from './types';
 import { ChatsDocs } from './docs/chats.doc';
 import { GetMessagesQueryDto } from './dtos/get-message.dto';
@@ -24,7 +22,6 @@ import { RenameChatDto } from './dtos/rename-chat.dto';
 
 @ApiTags('Chats')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller('chats')
 export class ChatsController {
   private readonly logger = new Logger(ChatsController.name);

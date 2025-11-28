@@ -2,7 +2,6 @@ import {
   Controller,
   Patch,
   Body,
-  UseGuards,
   Req,
   HttpCode,
   UseInterceptors,
@@ -12,7 +11,6 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { AuthGuard } from '@guards/auth.guard';
 import { UpdateProfileDocs } from './docs/update-profile.docs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
@@ -25,7 +23,6 @@ export class ProfileController {
 
   @Get()
   @HttpCode(200)
-  @UseGuards(AuthGuard)
   @GetProfileDocs.getProfile()
   async getProfile(@Req() request: any) {
     const user = request.user;
@@ -35,7 +32,6 @@ export class ProfileController {
 
   @Patch()
   @HttpCode(200)
-  @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: multer.memoryStorage(),
