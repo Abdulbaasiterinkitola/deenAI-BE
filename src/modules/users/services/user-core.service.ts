@@ -4,6 +4,7 @@ import { UserType } from '../types/user';
 import UserValidationService from './user-validation.service';
 import { AuthProvider } from '../enums';
 import { EntityManager } from 'typeorm';
+import { Plan } from '@modules/plans/models/plan.model';
 
 @Injectable()
 export default class UserCoreService {
@@ -42,6 +43,15 @@ export default class UserCoreService {
     return await this.userModelAction.get({ id });
   }
 
+  async getUserWithRefreshToken(id: string) {
+    return await this.userModelAction.get(
+      { id },
+      {
+        select: ['id', 'email', 'currentRefreshToken'],
+      },
+    );
+  }
+
   async updateUserPassword(id: string, hashedPassword: string) {
     return await this.userModelAction.update({
       updatePayload: { password: hashedPassword },
@@ -74,6 +84,46 @@ export default class UserCoreService {
     return await this.userModelAction.update({
       updatePayload: { name },
       identifierOptions: { email },
+    });
+  }
+
+  async updateUserPlan(
+    userId: string,
+    planId: Plan['id'],
+    transaction?: EntityManager,
+  ) {
+    return await this.userModelAction.update({
+      updatePayload: { planId },
+      identifierOptions: { id: userId },
+      ...(transaction
+        ? {
+            transactionOptions: {
+              useTransaction: true,
+              transaction,
+            },
+          }
+        : {}),
+    });
+  }
+
+  async updateCurrentRefreshToken(userId: string, refreshToken: string | null) {
+    return await this.userModelAction.update({
+      updatePayload: { currentRefreshToken: refreshToken },
+      identifierOptions: { id: userId },
+    });
+  }
+
+  async deleteUser(userId: string, transaction?: EntityManager) {
+    await this.userModelAction.delete({
+      identifierOptions: { id: userId },
+      ...(transaction
+        ? {
+            transactionOptions: {
+              useTransaction: true,
+              transaction,
+            },
+          }
+        : {}),
     });
   }
 }
