@@ -55,15 +55,20 @@ export class ProfileAvatarService {
     userId: string,
     file: Express.Multer.File,
   ): Promise<string> {
-    if (!file) {
-      throw new CustomHttpException('No file uploaded', 400);
+    if (!file || !file.buffer || file.buffer.length === 0) {
+      throw new CustomHttpException(
+        'No file uploaded or file is empty',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Validate file size
     if (file.size > this.maxSize) {
-      throw new CustomHttpException('Image exceeds max allowed size', 400);
+      throw new CustomHttpException(
+        'Image exceeds max allowed size',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-
     // Validate MIME type
     this.profileValidationService.validateMime(file.mimetype);
 

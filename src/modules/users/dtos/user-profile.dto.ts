@@ -14,6 +14,9 @@ export class UserProfileDto {
   @Expose()
   email: string;
 
+  @Expose()
+  timezone: string | null;
+
   @Expose({ name: 'created_at' })
   createdAt: Date = new Date();
 

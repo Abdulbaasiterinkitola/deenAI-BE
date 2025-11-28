@@ -36,7 +36,7 @@ export class FeedbackCoreService {
 
       return feedback;
     } catch (error) {
-      this.logger.error('Error creating feedback', error as any);
+      this.logger.error('Error creating feedback', error);
 
       if (error instanceof CustomHttpException) {
         throw error;

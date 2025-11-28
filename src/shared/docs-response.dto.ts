@@ -67,6 +67,15 @@ export class NotFoundResponseDto {
   @ApiProperty({ example: 'Resource Not found' })
   message: string;
 }
+
+export class PaymentRequiredResponseDto {
+  @ApiProperty({ example: false })
+  success: boolean;
+
+  @ApiProperty({ example: 'Payment required' })
+  message: string;
+}
+
 export class InternalServerErrorDto {
   @ApiProperty({ example: false })
   success: boolean;
