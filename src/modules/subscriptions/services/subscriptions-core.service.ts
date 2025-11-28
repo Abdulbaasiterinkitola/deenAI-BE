@@ -24,8 +24,12 @@ export class SubscriptionsCoreService {
     } as Plan;
 
     // Update user's planId using model action
+    // Also update the billingStart to the current date to start the new billing cycle when a user upgrades
     const updateResult = await this.userModelAction.update({
-      updatePayload: { planId },
+      updatePayload: {
+        planId,
+        billingStart: new Date(),
+      },
       identifierOptions: { id: userId },
     });
 
@@ -40,5 +44,27 @@ export class SubscriptionsCoreService {
     }
 
     return plan;
+  }
+
+  // Premium user subscription renewal
+  async renewSubscription(userId: string): Promise<void> {
+    const user = await this.userModelAction.get({ id: userId }, ['plan']);
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (user.plan?.slug === 'free') {
+      throw new CustomHttpException(
+        'Cannot renew a free subscription',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.userModelAction.update({
+      updatePayload: {
+        billingStart: new Date(),
+      },
+      identifierOptions: { id: userId },
+    });
   }
 }

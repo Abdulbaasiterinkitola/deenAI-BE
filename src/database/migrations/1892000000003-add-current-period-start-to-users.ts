@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddCurrentPeriodStartToUsers1892000000003 implements MigrationInterface {
+export class AddCurrentPeriodStartToUsers1892000000003
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Add billing_start column to users table
     // This tracks when the user's current billing cycle began

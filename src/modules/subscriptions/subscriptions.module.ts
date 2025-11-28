@@ -6,9 +6,11 @@ import { SubscriptionsCoreService } from './services/subscriptions-core.service'
 import { SubscriptionsValidationService } from './services/subscriptions-validation.service';
 import { UserModelAction } from '@modules/users/action-models/user.action-model';
 import { PlansModule } from '@modules/plans/plans.module';
+import { SubscriptionsController } from './subscriptions.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), PlansModule],
+  controllers: [SubscriptionsController],
   providers: [
     SubscriptionsService,
     SubscriptionsCoreService,
