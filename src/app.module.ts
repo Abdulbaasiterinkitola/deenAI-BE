@@ -21,6 +21,8 @@ import { PlansModule } from '@modules/plans/plans.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Module({
   imports: [
@@ -57,6 +59,6 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
     FeedbackModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

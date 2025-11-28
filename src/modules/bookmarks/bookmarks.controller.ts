@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   Request,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { BookmarksService } from './bookmarks.service';
@@ -17,12 +16,10 @@ import {
   BookmarkIdParamDto,
   BookmarkQueryDto,
 } from './dtos/bookmark.dto';
-import { AuthGuard } from '@guards/auth.guard';
 import { BookmarksDocs } from './docs/bookmarks.doc';
 
 @ApiTags('Bookmarks')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller('bookmarks')
 export class BookmarksController {
   constructor(private readonly bookmarksService: BookmarksService) {}

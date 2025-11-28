@@ -4,14 +4,12 @@ import {
   Patch,
   Put,
   Req,
-  UseGuards,
   Body,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '../../guards/auth.guard';
 import { UpdateNotificationSettingsDto } from './dtos/update-notification-settings.dto';
 import { NotificationSettingsCoreService } from './services/notification-settings-core.service';
 import { User } from '../users/models/user.model';
@@ -27,7 +25,6 @@ interface AuthenticatedRequest extends Request {
 
 @ApiTags('Notification Settings')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller('notification-settings')
 export class NotificationSettingsController {
   constructor(

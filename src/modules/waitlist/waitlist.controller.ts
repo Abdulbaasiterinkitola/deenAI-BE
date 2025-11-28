@@ -2,8 +2,10 @@ import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { WaitlistService } from './waitlist.service';
 import { WaitlistDto } from './dtos/waitlist.dto';
 import { ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Public } from '@guards/public.decorator';
 
 @Controller('waitlist')
+@Public()
 export class WaitlistController {
   private readonly logger = new Logger(WaitlistController.name);
 
