@@ -197,4 +197,38 @@ export class ChatsDocs {
       }),
     );
   }
+
+  static deleteChat() {
+    return applyDecorators(
+      ApiOperation({
+        summary: 'Delete a chat',
+        description:
+          'Permanently deletes a chat and all associated messages. This action cannot be undone.',
+      }),
+      ApiParam({
+        name: 'id',
+        description: 'The unique identifier of the chat',
+        example: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Chat deleted successfully',
+        schema: {
+          example: {
+            success: true,
+            message: 'Chat deleted successfully',
+            data: null,
+          },
+        },
+      }),
+      ApiResponse({
+        status: 403,
+        description: 'Access denied - You do not own this chat',
+      }),
+      ApiResponse({
+        status: 404,
+        description: 'Chat not found',
+      }),
+    );
+  }
 }

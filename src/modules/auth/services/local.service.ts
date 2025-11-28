@@ -3,6 +3,7 @@ import { UsersService } from '@modules/users/users.service';
 import { EmailService } from '@modules/email/email.service';
 import { AuthProvider } from '@modules/users/enums';
 import * as bcrypt from 'bcrypt';
+import { UserStatus } from '@modules/users/enums/user-status.enum';
 import { LoginDto } from '../dtos/login.dto';
 import RegisterDto from '../dtos/register.dto';
 import { OtpService } from './otp.service';
@@ -53,7 +54,8 @@ export class LocalAuthService {
       email,
       password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
-      isEmailVerified: true,
+      isEmailVerified: false,
+      status: UserStatus.ACTIVE,
     };
 
     // Create user

@@ -19,6 +19,7 @@ import { ChatsModule } from '@modules/chats/chats.module';
 import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
 import { PlansModule } from '@modules/plans/plans.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ChatsModule,
     BookmarksModule,
     PlansModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],

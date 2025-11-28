@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Body,
   Param,
   UseGuards,
@@ -96,5 +97,16 @@ export class ChatsController {
       page,
       limit,
     );
+  }
+
+  /**
+   * DELETE endpoint to remove a chat
+   * Requires authentication and chat ownership
+   */
+  @Delete(':id')
+  @ChatsDocs.deleteChat()
+  async deleteChat(@Param() params: ChatIdDto, @Request() req: any) {
+    const userId = req.user?.id as string;
+    return await this.chatsService.deleteChat(params.id, userId);
   }
 }
