@@ -29,4 +29,4 @@ import { UserModelAction } from '@modules/users/action-models/user.action-model'
   ],
   exports: [ProfileService, ProfileModelAction],
 })
-export class ProfileModule { }
+export class ProfileModule {}

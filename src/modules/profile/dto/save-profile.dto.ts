@@ -1,5 +1,3 @@
-
-
 export class SaveProfileDto {
   avatar?: string | null;
   language?: string | null;

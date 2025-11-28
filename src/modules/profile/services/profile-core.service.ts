@@ -4,7 +4,6 @@ import { ProfileModelAction } from '../profile.model-action';
 import { SaveProfileDto } from '../dto/save-profile.dto';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { Profile } from '../models/profile.model';
-import { User } from '@modules/users/models/user.model';
 import { CustomHttpException } from '@shared/custom.exception';
 import { UserModelAction } from '@modules/users/action-models/user.action-model';
 
@@ -14,7 +13,7 @@ export class ProfileCoreService {
     private readonly profileModelAction: ProfileModelAction,
     private readonly userModelAction: UserModelAction,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async createProfile(
     userId: string,
@@ -79,7 +78,6 @@ export class ProfileCoreService {
     if (updateData.username !== undefined && updateData.username !== null) {
       profileUpdatePayload.username = updateData.username.toLowerCase();
     }
-
 
     const userUpdatePayload: { name?: string; timezone?: string | null } = {};
     if (updateData.name !== undefined && updateData.name !== null) {
