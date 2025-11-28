@@ -253,41 +253,42 @@ export class ChatsCoreService {
     return result.payload;
   }
 
- /**
+  /**
    * Deletes a chat and its messages
    * @param chatId - The ID of the chat
    * @param userId - The ID of the user
    */
- async deleteChat(chatId: string, userId: string): Promise<void> {
-  const chat = await this.chatActionModel.get({ id: chatId, userId });
-  this.chatsValidationService.validateChatOwnership(chat, userId);
+  async deleteChat(chatId: string, userId: string): Promise<void> {
+    const chat = await this.chatActionModel.get({ id: chatId, userId });
+    this.chatsValidationService.validateChatOwnership(chat, userId);
 
-   await this.chatActionModel.delete({ 
-    identifierOptions: { 
-      id: chatId, 
-      userId 
-    } 
-  })
-
-}
-async renameChat(chatId: string, userId: string, newTitle: string): Promise<Chat> {
-  const chat = await this.chatActionModel.get({ id: chatId, userId });
-  this.chatsValidationService.validateChatOwnership(chat, userId);
-
-  const updatedChat = await this.chatActionModel.update({
-    updatePayload: {
-      title: newTitle,
-      hasTitle: !!newTitle,
-    },
-    identifierOptions: { id: chatId, userId },
-  });
-
-  if (!updatedChat) {
-    throw new CustomHttpException(
-      'Failed to rename chat',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    await this.chatActionModel.delete({
+      identifierOptions: {
+        id: chatId,
+        userId,
+      },
+    });
   }
+  async renameChat(
+    chatId: string,
+    userId: string,
+    newTitle: string,
+  ): Promise<Chat> {
+    const updatedChat = await this.chatActionModel.update({
+      updatePayload: {
+        title: newTitle,
+        hasTitle: !!newTitle,
+      },
+      identifierOptions: { id: chatId, userId },
+    });
 
-  return updatedChat;
-}}
+    if (!updatedChat) {
+      throw new CustomHttpException(
+        'Chat not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return updatedChat;
+  }
+}
