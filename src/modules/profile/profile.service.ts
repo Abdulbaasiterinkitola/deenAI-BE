@@ -5,6 +5,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { Profile } from './models/profile.model';
 import { ProfileAvatarService } from './services/profile-avatar.service';
+import { SaveProfileDto } from './dto/save-profile.dto';
 
 @Injectable()
 export class ProfileService {
@@ -31,41 +32,44 @@ export class ProfileService {
     return this.profileCoreService.createProfile(userId, createData);
   }
 
-  // Main method to update a user's profile
-  async updateProfile(
-    userId: string,
-    updateData: UpdateProfileDto,
-  ): Promise<Profile> {
-    // Step 1: Check if profile exists
-    await this.profileValidationService.validateProfileExists(userId);
+async updateProfile(
+  userId: string,
+  updateData: UpdateProfileDto,
+): Promise<Profile> {
+  await this.profileValidationService.validateProfileExists(userId);
 
-    // Step 2: If username is being updated, check if it's unique
-    if (updateData.username !== undefined && updateData.username !== null) {
-      await this.profileValidationService.validateUsernameUnique(
-        updateData.username,
-        userId,
-      );
-    }
-
-    let avatarUrl: string | undefined;
-
-    if (updateData.avatar instanceof Object) {
-      avatarUrl = await this.profileAvatarService.updateAvatar(
-        userId,
-        updateData.avatar,
-      );
-    }
-
-    // Step 3: Update the profile
-    const updatedProfile = await this.profileCoreService.updateProfile(userId, {
-      ...updateData,
-      avatar: avatarUrl,
-    });
-
-    return updatedProfile;
+  if (updateData.username !== undefined && updateData.username !== null) {
+    await this.profileValidationService.validateUsernameUnique(
+      updateData.username,
+      userId,
+    );
   }
 
+  let avatarUrl: string | undefined;
+
+  if (updateData.avatar && updateData.avatar.buffer && updateData.avatar.buffer.length > 0) {
+    avatarUrl = await this.profileAvatarService.updateAvatar(
+      userId,
+      updateData.avatar,
+    );
+  }
+
+  const saveData: SaveProfileDto = {
+    language: updateData.language,
+    username: updateData.username,
+    name: updateData.name,
+    avatar: avatarUrl,
+  };
+
+  const updatedProfile = await this.profileCoreService.updateProfile(
+    userId,
+    saveData,
+  );
+
+  return updatedProfile;
+}
+
   async getProfile(userId: string) {
-    await this.profileCoreService.getProfile(userId);
+    return this.profileCoreService.getProfile(userId);
   }
 }

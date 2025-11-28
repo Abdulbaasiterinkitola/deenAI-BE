@@ -4,6 +4,7 @@ import { ChatsCoreService } from './services/chats-core.service';
 import { Chat } from './models/chat.model';
 import { ChatMessage } from './models/chat-message.model';
 import { SseMessage } from './types';
+import { RenameChatDto } from './dtos/rename-chat.dto';
 
 /**
  *
@@ -50,7 +51,11 @@ export class ChatsService {
   ): Promise<{
     success: boolean;
     message: string;
-    data: { userMessage: ChatMessage };
+    data: {
+      userMessage: ChatMessage;
+      aiMessage: ChatMessage;
+      usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+    };
   }> {
     const data = await this.chatsCoreService.sendMessage(
       chatId,
@@ -142,6 +147,28 @@ export class ChatsService {
       success: true,
       message: 'Chat deleted successfully',
       data: null,
+    };
+  }
+
+  /**
+   * Renames a specific chat
+   * @param chatId - The ID of the chat
+   * @param userId - The ID of the user
+   * @param renameChatDto - DTO containing the new title
+   */
+  async renameChat(
+    chatId: string,
+    userId: string,
+    renameChatDto: RenameChatDto,
+  ): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    await this.chatsCoreService.renameChat(chatId, userId, renameChatDto.title);
+
+    return {
+      success: true,
+      message: 'Chat renamed successfully',
     };
   }
 }

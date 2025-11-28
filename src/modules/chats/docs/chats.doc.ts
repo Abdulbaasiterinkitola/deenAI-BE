@@ -112,6 +112,11 @@ export class ChatsDocs {
                 createdAt: '2025-01-01T12:00:05.000Z',
                 updatedAt: '2025-01-01T12:00:05.000Z',
               },
+              usage: {
+                inputTokens: 50,
+                outputTokens: 100,
+                totalTokens: 150,
+              },
             },
           },
         },
@@ -131,6 +136,10 @@ export class ChatsDocs {
       ApiResponse({
         status: 404,
         description: 'Chat not found',
+      }),
+      ApiResponse({
+        status: 402,
+        description: 'Payment required - Token limit reached',
       }),
     );
   }
@@ -218,6 +227,37 @@ export class ChatsDocs {
             success: true,
             message: 'Chat deleted successfully',
             data: null,
+          },
+        },
+      }),
+      ApiResponse({
+        status: 403,
+        description: 'Access denied - You do not own this chat',
+      }),
+      ApiResponse({
+        status: 404,
+        description: 'Chat not found',
+      }),
+    );
+  }
+  static renameChat() {
+    return applyDecorators(
+      ApiParam({
+        name: 'id',
+        description: 'The unique identifier of the chat',
+        example: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7',
+      }),
+      ApiOperation({
+        summary: 'Rename a chat',
+        description: 'Renames a specific chat owned by the authenticated user.',
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Chat renamed successfully',
+        schema: {
+          example: {
+            success: true,
+            message: 'Chat renamed successfully',
           },
         },
       }),
