@@ -283,10 +283,7 @@ export class ChatsCoreService {
     });
 
     if (!updatedChat) {
-      throw new CustomHttpException(
-        'Chat not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new CustomHttpException('Chat not found', HttpStatus.NOT_FOUND);
     }
 
     return updatedChat;
