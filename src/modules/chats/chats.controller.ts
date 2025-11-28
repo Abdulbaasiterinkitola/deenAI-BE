@@ -116,18 +116,18 @@ export class ChatsController {
 
   /**
    * Renames a specific chat
+   * Requires authentication and chat ownership
    * @param params - ChatIdDto containing the ID of the chat
-   * @param body - Object containing the new title
+   * @param renameChatDto - DTO containing the new title
    */
   @Patch(':id/rename')
   @ChatsDocs.renameChat()
   async renameChat(
     @Param() params: ChatIdDto,
-    @Body() body: RenameChatDto,
+    @Body() renameChatDto: RenameChatDto,
     @Request() req: any,
   ) {
     const userId = req.user?.id as string;
-    const newTitle = body?.title;
-    return await this.chatsService.renameChat(params.id, userId, newTitle);
+    return await this.chatsService.renameChat(params.id, userId, renameChatDto);
   }
 }
