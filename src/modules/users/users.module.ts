@@ -14,6 +14,11 @@ import { AccountDeletionCode } from './models/account-deletion.model';
 import { EmailServiceModule } from '@modules/email/email.module';
 import { PlansModule } from '@modules/plans/plans.module';
 import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
+import { UserSessionService } from './services/user-session.service';
+import { UserAccountDeletionService } from './services/user-account-deletion.service';
+import { StreaksModule } from '@modules/streaks/streaks.module';
+import { ProfileModule } from '@modules/profile/profile.module';
+import { UserRegistrationService } from './services/user-registration.service';
 
 @Module({
   imports: [
@@ -23,6 +28,8 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
     EmailServiceModule,
     PlansModule,
     SubscriptionsModule,
+    forwardRef(() => StreaksModule),
+    forwardRef(() => ProfileModule),
   ],
   controllers: [UsersController],
   providers: [
@@ -31,6 +38,9 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
     UserValidationService,
     UserModelAction,
     DeletionCodeService,
+    UserRegistrationService,
+    UserSessionService,
+    UserAccountDeletionService,
   ],
   exports: [UsersService, UserValidationService],
 })
