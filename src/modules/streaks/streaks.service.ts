@@ -19,6 +19,16 @@ export class StreaksService {
     await this.streaksCoreService.createStreak(userId, transaction);
   }
 
+  async getStreakState(userId: string) {
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const timezone = this.timezoneService.getEffectiveTimezone(user);
+    return await this.streaksCoreService.getStreakState(userId, timezone);
+  }
+
   async updateStreak(userId: string) {
     const user = await this.usersService.getUserById(userId);
     if (!user) {
