@@ -1,21 +1,18 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { SubscriptionsCoreService } from './services/subscriptions-core.service';
 import { SubscriptionsValidationService } from './services/subscriptions-validation.service';
 import { PlanChangeResponseDto } from '@modules/users/dtos/plan-change-response.dto';
+import { UserModelAction } from '@modules/users/action-models/user.action-model';
+import { UserStatus } from '@modules/users/enums/user-status.enum';
 
-export type SubscriptionType = {
-  plan?: {
-    plan_key: string;
+export type SubscriptionSnapshot = {
+  plan: {
+    id: string;
+    name: string;
+    slug: string;
     features: string[];
-    limits: Record<string, any>;
   };
-  status: string;
+  userStatus: UserStatus;
 };
 
 @Injectable()
@@ -23,18 +20,26 @@ export class SubscriptionsService {
   constructor(
     private readonly subscriptionsCoreService: SubscriptionsCoreService,
     private readonly subscriptionsValidationService: SubscriptionsValidationService,
+    private readonly userModelAction: UserModelAction,
   ) {}
 
-  // ✅ now correctly typed
-  async getActiveSubscriptionForUser(userId: string): Promise<SubscriptionType | null> {
-    // Mock implementation; replace with actual DB lookup
+  async getActiveSubscriptionForUser(
+    userId: string,
+  ): Promise<SubscriptionSnapshot | null> {
+    const user = await this.userModelAction.getWithPlanById(userId);
+
+    if (!user || !user.plan) {
+      return null;
+    }
+
     return {
       plan: {
-        plan_key: 'basic',
-        features: ['analytics', 'reports'],
-        limits: {},
+        id: user.plan.id,
+        name: user.plan.name,
+        slug: user.plan.slug,
+        features: user.plan.features ?? [],
       },
-      status: 'active',
+      userStatus: user.status,
     };
   }
 

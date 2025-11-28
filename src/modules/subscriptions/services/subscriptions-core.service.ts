@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { UserModelAction } from '@modules/users/action-models/user.action-model';
 import { PlansService } from '@modules/plans/plans.service';

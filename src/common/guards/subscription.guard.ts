@@ -1,7 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable prettier/prettier */
 import {
   CanActivate,
   ExecutionContext,
@@ -12,60 +8,50 @@ import { Reflector } from '@nestjs/core';
 import { FEATURE_KEY } from '../decorators/feature.decorator';
 import { SubscriptionsService } from '@modules/subscriptions/subscriptions.service';
 
-export type SubscriptionType = {
-  plan: {
-    plan_key: string;
-    features: string[];
-    limits: Record<string, any>;
+type RequestUser = {
+  id: string;
+  plan?: {
+    features?: unknown;
   };
-  status: string;
 };
 
 @Injectable()
 export class SubscriptionGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
-    private subscriptionService: SubscriptionsService,
+    private readonly reflector: Reflector,
+    private readonly subscriptionService: SubscriptionsService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredFeature = this.reflector.get<string>(
+    const requiredFeature = this.reflector.getAllAndOverride<string>(
       FEATURE_KEY,
-      context.getHandler(),
+      [context.getHandler(), context.getClass()],
     );
 
     if (!requiredFeature) return true;
 
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest<{ user?: RequestUser }>();
     const user = req.user;
 
-    if (!user) throw new ForbiddenException('User not authenticated');
-
-    // Narrow subscription type
-    let subscription: SubscriptionType | null = null;
-
-    if (user.subscription && user.subscription.plan) {
-      subscription = user.subscription as SubscriptionType;
-    } else {
-      const sub = await this.subscriptionService.getActiveSubscriptionForUser(
-        user.id,
-      );
-
-      if (!sub || !sub.plan) {
-        throw new ForbiddenException('No active subscription');
-      }
-
-      subscription = {
-        plan: {
-          plan_key: sub.plan.plan_key,
-          features: sub.plan.features,
-          limits: sub.plan.limits,
-        },
-        status: sub.status,
-      };
+    if (!user?.id) {
+      throw new ForbiddenException('User not authenticated');
     }
 
-    // ✅ subscription is now fully defined
+    const requestFeatures = Array.isArray(user.plan?.features)
+      ? (user.plan.features as string[])
+      : undefined;
+
+    if (requestFeatures?.includes(requiredFeature)) {
+      return true;
+    }
+
+    const subscription =
+      await this.subscriptionService.getActiveSubscriptionForUser(user.id);
+
+    if (!subscription?.plan) {
+      throw new ForbiddenException('No active subscription');
+    }
+
     if (!subscription.plan.features.includes(requiredFeature)) {
       throw new ForbiddenException(
         `Your plan does not allow access to this feature: ${requiredFeature}`,
