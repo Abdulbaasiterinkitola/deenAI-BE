@@ -29,9 +29,8 @@ export class SubscriptionsCoreService {
       identifierOptions: { id: userId },
     });
 
-    if (!updateResult || typeof updateResult === 'object') {
-      // Verify update was successful by checking if user exists
-      const user = await this.userModelAction.getById(userId);
+    if (!updateResult) {
+      const user = await this.userModelAction.get({ id: userId });
       if (!user) {
         throw new CustomHttpException(
           'User not found, plan not updated',
