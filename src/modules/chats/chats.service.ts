@@ -51,7 +51,11 @@ export class ChatsService {
   ): Promise<{
     success: boolean;
     message: string;
-    data: { userMessage: ChatMessage };
+    data: {
+      userMessage: ChatMessage;
+      aiMessage: ChatMessage;
+      usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+    };
   }> {
     const data = await this.chatsCoreService.sendMessage(
       chatId,

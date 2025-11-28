@@ -21,7 +21,6 @@ import { PlansService } from '@modules/plans/plans.service';
 import { Plan } from '@modules/plans/models/plan.model';
 import UserValidationService from './services/user-validation.service';
 import { UserModelAction } from './action-models/user.action-model';
-import { UserStatus } from './enums/user-status.enum';
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
@@ -258,45 +257,11 @@ export class UsersService {
     };
   }
 
-  async pauseAccount(userId: string): Promise<User> {
-    // 1. Validate the action using the validation service
-    await this.userValidationService.validateUserCanBePaused(userId);
-
-    // 2. Perform the update using the model action
-    const updatedUser = await this.userModelAction.update({
-      identifierOptions: { id: userId },
-      updatePayload: {
-        status: UserStatus.PAUSED,
-        currentRefreshToken: null, // This invalidates all active sessions
-      },
-    });
-
-    if (!updatedUser) {
-      // This case should rarely be hit if validation passes, but it's good practice
-      throw new CustomHttpException(
-        'Failed to update and retrieve user after pausing account.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+  async getUserPlan(userId: string): Promise<Plan | null> {
+    const user = await this.userCoreService.getUserById(userId);
+    if (!user || !user.planId) {
+      return null;
     }
-    return updatedUser;
-  }
-
-  async reactivateAccount(userId: string): Promise<User> {
-    // 1. Validate the action
-    await this.userValidationService.validateUserCanBeReactivated(userId);
-
-    // 2. Perform the update
-    const updatedUser = await this.userModelAction.update({
-      identifierOptions: { id: userId },
-      updatePayload: { status: UserStatus.ACTIVE },
-    });
-
-    if (!updatedUser) {
-      throw new CustomHttpException(
-        'Failed to update and retrieve user after reactivating account.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-    return updatedUser;
+    return (await this.plansService.getPlanById(user.planId)) as Plan;
   }
 }

@@ -112,6 +112,11 @@ export class ChatsDocs {
                 createdAt: '2025-01-01T12:00:05.000Z',
                 updatedAt: '2025-01-01T12:00:05.000Z',
               },
+              usage: {
+                inputTokens: 50,
+                outputTokens: 100,
+                totalTokens: 150,
+              },
             },
           },
         },
@@ -131,6 +136,10 @@ export class ChatsDocs {
       ApiResponse({
         status: 404,
         description: 'Chat not found',
+      }),
+      ApiResponse({
+        status: 402,
+        description: 'Payment required - Token limit reached',
       }),
     );
   }

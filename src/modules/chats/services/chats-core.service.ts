@@ -8,6 +8,9 @@ import { Chat } from '../models/chat.model';
 import { ChatMessage, MessageRole } from '../models/chat-message.model';
 import { SseMessage } from '../types';
 import { CustomHttpException } from '@shared/custom.exception';
+import { TokenUsageService } from '@modules/token-usage/token-usage.service';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from '@modules/users/users.service';
 
 /**
  * Core service for chat business logic
@@ -22,6 +25,9 @@ export class ChatsCoreService {
     private readonly chatMessageActionModel: ChatMessageActionModel,
     private readonly chatsValidationService: ChatsValidationService,
     private readonly geminiService: GeminiService,
+    private readonly tokenUsageService: TokenUsageService,
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -60,10 +66,65 @@ export class ChatsCoreService {
     chatId: string,
     userId: string,
     messageContent: string,
-  ): Promise<{ userMessage: ChatMessage }> {
+  ): Promise<{
+    userMessage: ChatMessage;
+    aiMessage: ChatMessage;
+    usage: {
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+    };
+  }> {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
     this.chatsValidationService.validateMessageContent(messageContent);
+
+    // Get user to check billing cycle and plan
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const userPlan = await this.usersService.getUserPlan(userId);
+
+    // Calculate usage for the current billing period
+    let billingStart = user.billingStart;
+
+    if (!billingStart) {
+      // If billingStart is missing:
+      if (userPlan && userPlan.slug !== 'free') {
+        // For Premium users
+        throw new CustomHttpException(
+          'Billing cycle start date is missing for premium user.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      // For Free users: Default to account creation
+      billingStart = user.createdAt;
+    }
+
+    const monthlyUsage = await this.tokenUsageService.calculateMonthlyUsage(
+      userId,
+      billingStart,
+    );
+
+    if (userPlan) {
+      const tokenLimit = userPlan.tokenLimit;
+
+      // Check if token limit is reached
+      if (typeof tokenLimit === 'number' && monthlyUsage >= tokenLimit) {
+        if (userPlan.slug === 'free') {
+          throw new CustomHttpException(
+            'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
+            HttpStatus.PAYMENT_REQUIRED,
+          );
+        } else {
+          throw new CustomHttpException(
+            'Plan token limit reached. Renew your token quota to continue using AI chat features.',
+            HttpStatus.PAYMENT_REQUIRED,
+          );
+        }
+      }
+    }
 
     const chat = await this.chatActionModel.get({ id: chatId, userId });
     this.chatsValidationService.validateChatOwnership(chat, userId);
@@ -84,11 +145,55 @@ export class ChatsCoreService {
       );
     }
 
+    // Get recent messages for context
+    const recentMessages = await this.getLastMessages(chatId, 6);
+
+    // Generate AI response
+    const { content, references, usage } =
+      await this.geminiService.generateResponse(recentMessages, messageContent);
+
+    // Track token usage
+    await this.tokenUsageService.trackUsage(userId, usage);
+
+    // Initialize final usage with chat usage
+    const finalUsage = { ...usage };
+
+    // Save AI message
+    const aiMessage = await this.chatMessageActionModel.create({
+      createPayload: {
+        chatId,
+        role: MessageRole.ASSISTANT,
+        content: content,
+        aiReferences: references ?? null,
+      },
+    });
+
+    if (!aiMessage) {
+      throw new CustomHttpException(
+        'Failed to save AI message',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     // Generate and update title if this is the first message (hasTitle is false)
     if (!chat.hasTitle) {
       try {
-        const generatedTitle =
+        // Generate title and get usage stats
+        const { title: generatedTitle, usage: titleUsage } =
           await this.geminiService.generateTitle(messageContent);
+
+        // Track token usage for the title generation
+        await this.tokenUsageService.trackUsage(userId, titleUsage);
+        // Add title usage to final usage stats
+        finalUsage.inputTokens += titleUsage.inputTokens;
+        finalUsage.outputTokens += titleUsage.outputTokens;
+        finalUsage.totalTokens += titleUsage.totalTokens;
+
+        // Add title usage to final usage stats
+        finalUsage.inputTokens += titleUsage.inputTokens;
+        finalUsage.outputTokens += titleUsage.outputTokens;
+        finalUsage.totalTokens += titleUsage.totalTokens;
+
         await this.chatActionModel.update({
           updatePayload: {
             title: generatedTitle,
@@ -107,7 +212,11 @@ export class ChatsCoreService {
       }
     }
 
-    return { userMessage };
+    return {
+      userMessage,
+      aiMessage,
+      usage: finalUsage,
+    };
   }
 
   /**
