@@ -1,4 +1,9 @@
-import { ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiBody,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { applyDecorators } from '@nestjs/common';
 import { ChangePlanDto } from '../dtos/change-plan.dto';
 import { PlanChangeResponseDto } from '../dtos/plan-change-response.dto';
@@ -6,6 +11,7 @@ import { PlanChangeResponseDto } from '../dtos/plan-change-response.dto';
 export class ChangePlanDocs {
   static changePlan() {
     return applyDecorators(
+      ApiBearerAuth(),
       ApiOperation({
         summary: 'Change user subscription plan',
         description:
