@@ -23,6 +23,7 @@ export class UpdateProfileDocs {
           properties: {
             username: { type: 'string', description: 'New username' },
             language: { type: 'string', description: 'Language preference' },
+            name: { type: 'string', description: 'New Name' },
             avatar: {
               type: 'string',
               format: 'binary',
@@ -37,6 +38,7 @@ export class UpdateProfileDocs {
             value: {
               username: 'john_doe',
               language: 'en',
+              name: 'john',
               avatar: '(binary file)',
             },
           },
@@ -55,6 +57,10 @@ export class UpdateProfileDocs {
             value: {
               timezone: 'America/New_York',
             },
+          },
+          updateName: {
+            summary: 'Update only Name',
+            value: { name: 'John' },
           },
           clearAvatar: {
             summary: 'Remove avatar',

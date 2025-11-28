@@ -36,6 +36,9 @@ export class Plan extends AbstractBaseEntity {
   @Column({ name: 'display_order', type: 'int', default: 0 })
   displayOrder: number;
 
+  @Column({ name: 'token_limit', type: 'int', nullable: false })
+  tokenLimit: number;
+
   @Column({ type: 'text', array: true, default: '{}' })
   features: string[];
 }

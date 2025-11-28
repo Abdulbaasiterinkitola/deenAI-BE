@@ -24,6 +24,8 @@ export class UserModelAction extends AbstractModelAction<User> {
       'password',
       'authProvider',
       'isEmailVerified',
+      'planId',
+      'billingStart',
     ];
 
     return await this.repository.findOne({
@@ -34,6 +36,13 @@ export class UserModelAction extends AbstractModelAction<User> {
 
   async getById(id: string) {
     return await this.get({ id });
+  }
+
+  async getWithPlanById(id: string): Promise<User | null> {
+    return await this.repository.findOne({
+      where: { id },
+      relations: ['plan'],
+    } as FindOneOptions<User>);
   }
 
   async updatePassword(id: string, password: string) {

@@ -39,6 +39,14 @@ export class User extends AbstractBaseEntity {
   @Column({ type: 'varchar', length: 50, nullable: true })
   timezone: string | null;
 
+  @Column({
+    name: 'billing_start',
+    type: 'timestamp with time zone',
+    default: () => 'NOW()',
+    nullable: true,
+  })
+  billingStart: Date | null;
+
   @ManyToOne(() => Plan, { nullable: true })
   @JoinColumn({ name: 'plan_id' })
   plan: Plan | null;
