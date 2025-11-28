@@ -20,6 +20,7 @@ import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
 import { PlansModule } from '@modules/plans/plans.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FeedbackModule } from './modules/feedback/feedback.module';
+import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
     ChatsModule,
     BookmarksModule,
     PlansModule,
+    SubscriptionsModule,
     FeedbackModule,
   ],
   controllers: [AppController],

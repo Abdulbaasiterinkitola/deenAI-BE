@@ -38,6 +38,13 @@ export class UserModelAction extends AbstractModelAction<User> {
     return await this.get({ id });
   }
 
+  async getWithPlanById(id: string): Promise<User | null> {
+    return await this.repository.findOne({
+      where: { id },
+      relations: ['plan'],
+    } as FindOneOptions<User>);
+  }
+
   async updatePassword(id: string, password: string) {
     return await this.update({
       updatePayload: { password },
