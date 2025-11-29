@@ -243,7 +243,10 @@ export class GeminiService {
   async *generateResponseStream(
     messages: ChatMessage[],
     userMessage: string,
-  ): AsyncGenerator<string> {
+  ): AsyncGenerator<{
+    text: string;
+    usage?: { inputTokens: number; outputTokens: number; totalTokens: number };
+  }> {
     if (!this.isAvailable()) {
       throw new CustomHttpException(
         'AI service is not available. Please check server configuration.',
@@ -273,9 +276,16 @@ export class GeminiService {
       for await (const chunk of result.stream) {
         const chunkText =
           chunk.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        if (chunkText) {
-          yield chunkText;
-        }
+
+        const usage = chunk.usageMetadata
+          ? {
+              inputTokens: chunk.usageMetadata.promptTokenCount ?? 0,
+              outputTokens: chunk.usageMetadata.candidatesTokenCount ?? 0,
+              totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
+            }
+          : undefined;
+
+        yield { text: chunkText, usage };
       }
     } catch (error) {
       this.logger.error(`Gemini streaming error: ${error}`);

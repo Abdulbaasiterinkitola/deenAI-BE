@@ -48,12 +48,13 @@ export class ChatsService {
     chatId: string,
     userId: string,
     messageContent: string,
+    stream: boolean = false,
   ): Promise<{
     success: boolean;
     message: string;
     data: {
       userMessage: ChatMessage;
-      aiMessage: ChatMessage;
+      aiMessage: ChatMessage | null;
       usage: { inputTokens: number; outputTokens: number; totalTokens: number };
     };
   }> {
@@ -61,6 +62,7 @@ export class ChatsService {
       chatId,
       userId,
       messageContent,
+      stream,
     );
     return {
       success: true,

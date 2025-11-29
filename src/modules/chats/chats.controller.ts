@@ -65,6 +65,7 @@ export class ChatsController {
       params.id,
       userId,
       sendMessageDto.message,
+      sendMessageDto.stream, // set to true if one want to use stream
     );
   }
 

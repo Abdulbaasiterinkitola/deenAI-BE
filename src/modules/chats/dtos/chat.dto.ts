@@ -5,6 +5,8 @@ import {
   IsUUID,
   MinLength,
   MaxLength,
+  IsOptional,
+  IsBoolean,
 } from 'class-validator';
 
 /**
@@ -22,6 +24,15 @@ export class SendMessageDto {
     message: 'Message content cannot exceed 5000 characters',
   })
   message: string;
+
+  @ApiProperty({
+    description: 'Whether to stream the response via SSE',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  stream?: boolean;
 }
 
 /**

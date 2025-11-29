@@ -11,10 +11,10 @@ import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]), 
-    PlansModule, 
-    forwardRef(() => UsersModule), 
-    forwardRef(() => AuthModule)
+    TypeOrmModule.forFeature([User]),
+    PlansModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => AuthModule),
   ],
   controllers: [SubscriptionsController],
   providers: [

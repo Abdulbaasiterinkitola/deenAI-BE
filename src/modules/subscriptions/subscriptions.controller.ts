@@ -1,12 +1,18 @@
-import { AuthUser } from "@guards/auth-user.decorator";
-import { AuthGuard } from "@guards/auth.guard";
-import { Controller, Post, HttpCode, HttpStatus, Get, UseGuards } from '@nestjs/common';
-import { SubscriptionsService } from "./subscriptions.service";
+import { AuthUser } from '@guards/auth-user.decorator';
+import { AuthGuard } from '@guards/auth.guard';
+import {
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
+import { SubscriptionsService } from './subscriptions.service';
 import { User } from '@modules/users/models/user.model';
 import { ApiTags } from '@nestjs/swagger';
 import { RenewSubscriptionDocs } from './docs/renew-subscription.docs';
-import { SubscriptionsCoreService } from "./services/subscriptions-core.service";
-
+import { SubscriptionsCoreService } from './services/subscriptions-core.service';
 
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
@@ -14,7 +20,7 @@ import { SubscriptionsCoreService } from "./services/subscriptions-core.service"
 export class SubscriptionsController {
   constructor(
     private readonly subscriptionsCoreService: SubscriptionsCoreService,
-    private readonly subscriptionsService: SubscriptionsService
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   @Post('renew-subscription/:userId')
@@ -29,14 +35,14 @@ export class SubscriptionsController {
   }
 
   @Get('current-plan')
-    async getCurrentPlan(@AuthUser() user: User) {
-        const plan = await this.subscriptionsService.getCurrentPlan(user.id);
+  async getCurrentPlan(@AuthUser() user: User) {
+    const plan = await this.subscriptionsService.getCurrentPlan(user.id);
 
-        return {
-            success: true,
-            data: plan,
-            message: "Current plan retrieved successfully",
-            meta: null,
-        }
-    }
+    return {
+      success: true,
+      data: plan,
+      message: 'Current plan retrieved successfully',
+      meta: null,
+    };
+  }
 }

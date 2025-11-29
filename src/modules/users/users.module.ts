@@ -30,7 +30,7 @@ import { UserRegistrationService } from './services/user-registration.service';
     SubscriptionsModule,
     forwardRef(() => StreaksModule),
     forwardRef(() => ProfileModule),
-    forwardRef(() => SubscriptionsModule)
+    forwardRef(() => SubscriptionsModule),
   ],
   controllers: [UsersController],
   providers: [

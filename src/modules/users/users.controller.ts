@@ -27,7 +27,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly subscriptionsService: SubscriptionsService,
-  ) {} 
+  ) {}
 
   @Patch('plan')
   @HttpCode(HttpStatus.OK)

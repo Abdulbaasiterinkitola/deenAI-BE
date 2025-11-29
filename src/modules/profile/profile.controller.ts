@@ -27,12 +27,12 @@ export class ProfileController {
   async getProfile(@Req() request: any) {
     const user = request.user;
     const userId = user.id as string;
-    
+
     // Get request host for URL construction
     const protocol = request.protocol || 'http';
     const host = request.get('host');
     const requestHost = `${protocol}://${host}`;
-    
+
     return this.profileService.getProfile(userId, requestHost);
   }
 
@@ -61,10 +61,10 @@ export class ProfileController {
     const host = request.get('host');
     const requestHost = `${protocol}://${host}`;
 
-    const payload = { 
-      ...updateProfileDto, 
+    const payload = {
+      ...updateProfileDto,
       avatar,
-      requestHost 
+      requestHost,
     };
 
     // Update the profile

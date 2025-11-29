@@ -23,6 +23,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
 import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { SqueezeModule } from '@modules/squeeze/squeeze.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
     PlansModule,
     SubscriptionsModule,
     FeedbackModule,
+    SqueezeModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AuthGuard }],
