@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SqueezeCoreService } from './services/squeeze-core.service';
 import { SqueezeValidationService } from './services/squeeze-validation.service';
 import { Squeeze } from './models/squeeze.model';
+import { SqueezeDto } from './dtos/squeeze.dto';
 
 @Injectable()
 export class SqueezeService {
@@ -12,8 +13,8 @@ export class SqueezeService {
     private readonly validation: SqueezeValidationService,
   ) {}
 
-  async register(payload): Promise<Squeeze> {
-    const existing = await this.core.findByEmail(payload.email as string);
+  async register(payload: SqueezeDto): Promise<Squeeze> {
+    const existing = await this.core.findByEmail(payload.email);
     this.validation.validateDuplicate(existing);
     const entry = await this.core.create(payload);
 
