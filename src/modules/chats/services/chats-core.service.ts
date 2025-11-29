@@ -66,9 +66,10 @@ export class ChatsCoreService {
     chatId: string,
     userId: string,
     messageContent: string,
+    stream: boolean = false, // Stream functionality
   ): Promise<{
     userMessage: ChatMessage;
-    aiMessage: ChatMessage;
+    aiMessage: ChatMessage | null;
     usage: {
       inputTokens: number;
       outputTokens: number;
@@ -147,6 +148,16 @@ export class ChatsCoreService {
 
     // Get recent messages for context
     const recentMessages = await this.getLastMessages(chatId, 6);
+
+    // If streaming is requested, return early with just the user message
+    // The client will then connect to the SSE endpoint to get the AI response
+    if (stream) {
+      return {
+        userMessage,
+        aiMessage: null,
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      };
+    }
 
     // Generate AI response
     const { content, references, usage } =
@@ -258,17 +269,42 @@ export class ChatsCoreService {
         return new Observable<SseMessage>((subscriber) => {
           (async () => {
             let fullResponse = '';
+            // Include token usage to the stream response
+            let finalUsage = {
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0,
+            };
 
             for await (const chunk of stream) {
-              fullResponse += chunk;
-              const readableChunk = parser.consume(chunk);
+              fullResponse += chunk.text;
+              if (chunk.usage) {
+                finalUsage = chunk.usage;
+              }
+              const readableChunk = parser.consume(chunk.text);
 
               if (readableChunk) {
                 subscriber.next({ data: readableChunk });
               }
             }
             // After streaming, save the full message
-            await this.saveAiMessage(chatId, fullResponse);
+            const aiMessage = await this.saveAiMessage(chatId, fullResponse);
+
+            if (aiMessage) {
+              // Track usage
+              await this.tokenUsageService.trackUsage(userId, finalUsage);
+
+              const finalResponse = {
+                success: true,
+                message: 'Message sent successfully',
+                data: {
+                  userMessage: latestMessage,
+                  aiMessage: aiMessage,
+                  usage: finalUsage,
+                },
+              };
+              subscriber.next({ data: JSON.stringify(finalResponse) });
+            }
             subscriber.complete();
           })().catch((err) => subscriber.error(err));
         });
@@ -282,10 +318,13 @@ export class ChatsCoreService {
    * @param chatId - The ID of the chat.
    * @param fullResponse - The complete AI response content.
    */
-  async saveAiMessage(chatId: string, fullResponse: string): Promise<void> {
+  async saveAiMessage(
+    chatId: string,
+    fullResponse: string,
+  ): Promise<ChatMessage | null> {
     const parsedResponse = this.geminiService.parseAIResponse(fullResponse);
 
-    await this.chatMessageActionModel.create({
+    return await this.chatMessageActionModel.create({
       createPayload: {
         chatId,
         role: MessageRole.ASSISTANT,
