@@ -31,7 +31,8 @@
     "test:e2e:all": "node test/run-all-tests.js",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
-    "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js"
+    "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js",
+    "seed:plans": "ts-node -r tsconfig-paths/register src/database/seeds/seed-plans.ts" 
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
