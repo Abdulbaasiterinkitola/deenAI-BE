@@ -62,19 +62,71 @@ export class ProfileAvatarService {
       );
     }
 
+    return this.processAndSaveImage(
+      userId,
+      file.buffer,
+      file.originalname,
+      file.mimetype,
+    );
+  }
+
+  async updateAvatarFromBase64(
+    userId: string,
+    base64Data: string,
+    filename: string,
+  ): Promise<string> {
+    // Remove data URL prefix if present (data:image/jpeg;base64,)
+    const base64String = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
+
+    let buffer: Buffer;
+    try {
+      buffer = Buffer.from(base64String, 'base64');
+    } catch {
+      throw new CustomHttpException(
+        'Invalid base64 data',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (buffer.length === 0) {
+      throw new CustomHttpException(
+        'Empty base64 data',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Detect MIME type from base64 data or use default
+    const mimeType = this.detectMimeType(base64Data) || 'image/jpeg';
+
+    return this.processAndSaveImage(userId, buffer, filename, mimeType);
+  }
+
+  private detectMimeType(base64Data: string): string | null {
+    const mimeMatch = base64Data.match(
+      /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/,
+    );
+    return mimeMatch ? mimeMatch[1] : null;
+  }
+
+  private async processAndSaveImage(
+    userId: string,
+    buffer: Buffer,
+    originalName: string,
+    mimeType: string,
+  ): Promise<string> {
     // Validate file size
-    if (file.size > this.maxSize) {
+    if (buffer.length > this.maxSize) {
       throw new CustomHttpException(
         'Image exceeds max allowed size',
         HttpStatus.BAD_REQUEST,
       );
     }
     // Validate MIME type
-    this.profileValidationService.validateMime(file.mimetype);
+    this.profileValidationService.validateMime(mimeType);
 
     // Validate image dimensions
     await this.profileValidationService.validateDimensions(
-      file.buffer,
+      buffer,
       this.maxWidth,
       this.maxHeight,
     );
@@ -86,12 +138,12 @@ export class ProfileAvatarService {
     await this.ensureDirExists(this.baseStorage);
 
     // Generate unique filename
-    const filename = this.generateFilename(file.originalname);
+    const filename = this.generateFilename(originalName);
     const filePath = path.join(this.baseStorage, filename);
 
     // Save file to disk
     try {
-      await fs.writeFile(filePath, file.buffer);
+      await fs.writeFile(filePath, buffer);
     } catch (err) {
       throw new CustomHttpException(
         `Failed to save uploaded file: ${err.message}`,
@@ -108,9 +160,8 @@ export class ProfileAvatarService {
 
     const oldAvatarUrl = profile.avatar || null;
 
-    // Construct full URL for database
-    const serverUrl = this.configService.get<string>('SERVER_URL') || '';
-    const avatarUrl = `${serverUrl}/uploads/profiles/${filename}`;
+    // Save only relative path for local uploads
+    const avatarUrl = `/uploads/profiles/${filename}`;
 
     // Update profile in DB
     const updatedProfile = await this.profileModelAction.update({
@@ -133,6 +184,6 @@ export class ProfileAvatarService {
       await this.deleteFile(oldFilePath);
     }
 
-    return avatarUrl; // return full URL
+    return avatarUrl; // return relative path
   }
 }
