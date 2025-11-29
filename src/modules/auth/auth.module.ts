@@ -17,6 +17,7 @@ import { ResetPasswordService } from './services/reset-password.service';
 import { PasswordResetOtp } from './models/otp.model';
 import { OtpActionModel } from './action-models/otp.action-model';
 import { ProfileModule } from '@modules/profile/profile.module';
+import { AccountLockingService } from './services/account-locking.service';
 
 @Module({
   controllers: [AuthController],
@@ -31,6 +32,7 @@ import { ProfileModule } from '@modules/profile/profile.module';
     ResetPasswordService,
     AuthValidationService,
     OtpActionModel,
+    AccountLockingService
   ],
   imports: [
     EmailServiceModule,
@@ -49,6 +51,6 @@ import { ProfileModule } from '@modules/profile/profile.module';
       inject: [ConfigService],
     }),
   ],
-  exports: [AuthGuard, JwtModule],
+  exports: [AuthGuard, JwtModule, AccountLockingService],
 })
 export class AuthModule {}

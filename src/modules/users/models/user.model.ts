@@ -58,4 +58,13 @@ export class User extends AbstractBaseEntity {
     default: UserStatus.ACTIVE,
   })
   status: UserStatus;
+
+  @Column({ name: 'failed_login_attempts', type: 'int', default: 0 })
+  failedLoginAttempts: number;
+
+  @Column({ name: 'account_locked_until', type: 'timestamp', nullable: true })
+  accountLockedUntil: Date | null;
+
+  @Column({ name: 'last_failed_login', type: 'timestamp', nullable: true })
+  lastFailedLogin: Date | null;
 }

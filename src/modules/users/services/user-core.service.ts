@@ -5,6 +5,7 @@ import UserValidationService from './user-validation.service';
 import { AuthProvider } from '../enums';
 import { EntityManager } from 'typeorm';
 import { Plan } from '@modules/plans/models/plan.model';
+import { User } from '../models/user.model';
 
 @Injectable()
 export default class UserCoreService {
@@ -124,6 +125,14 @@ export default class UserCoreService {
             },
           }
         : {}),
+    });
+  }
+
+  async updateUserFields(userId: string, fields: Partial<User>) {
+    return await this.userModelAction.update({
+      updatePayload: fields,
+      identifierOptions: { id: userId },
+      transactionOptions: { useTransaction: false },
     });
   }
 }

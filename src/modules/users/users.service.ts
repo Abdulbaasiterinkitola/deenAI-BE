@@ -127,4 +127,11 @@ export class UsersService {
     }
     return (await this.plansService.getPlanById(user.planId)) as Plan;
   }
+
+  /**
+   * Update specific user fields
+   */
+  async updateUserFields(userId: string, fields: Partial<User>) {
+    return await this.userCoreService.updateUserFields(userId, fields);
+  }
 }

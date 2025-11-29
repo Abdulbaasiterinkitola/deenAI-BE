@@ -43,7 +43,7 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const result = await this.localAuthService.login(dto);
-    const user = result.user;
+    const user = result.data.user;
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
     await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
     return { tokens, user };
