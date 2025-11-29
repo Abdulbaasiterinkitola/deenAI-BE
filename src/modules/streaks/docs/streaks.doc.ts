@@ -7,7 +7,7 @@ export class StreaksDocs {
       ApiOperation({
         summary: 'Get user streak state',
         description:
-          'Retrieves the current streak state for the authenticated user, including whether the streak can be updated today based on the user\'s timezone. Returns streak information, update eligibility, and next available update time if already updated today.',
+          "Retrieves the current streak state for the authenticated user, including whether the streak can be updated today based on the user's timezone. Returns streak information, update eligibility, and next available update time if already updated today.",
       }),
       ApiBearerAuth(),
       ApiResponse({
@@ -116,7 +116,7 @@ export class StreaksDocs {
       ApiResponse({
         status: 429,
         description:
-          'Too many requests - Streak can only be updated once per day in the user\'s timezone',
+          "Too many requests - Streak can only be updated once per day in the user's timezone",
         schema: {
           example: {
             success: false,

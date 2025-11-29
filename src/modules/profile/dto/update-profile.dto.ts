@@ -24,6 +24,15 @@ export class UpdateProfileDto {
   avatar?: Express.Multer.File | null;
 
   @IsOptional()
+  @ApiProperty({
+    type: 'string',
+    description: 'Base64 encoded image data (alternative to file upload)',
+    example: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...',
+  })
+  @IsString({ message: 'Avatar base64 must be a string' })
+  avatarBase64?: string;
+
+  @IsOptional()
   @IsString({ message: 'Language must be a string' })
   @MinLength(2, { message: 'Language code must be at least 2 characters' })
   @MaxLength(10, { message: 'Language code must not exceed 10 characters' })
@@ -75,4 +84,7 @@ export class UpdateProfileDto {
       'Invalid timezone format. Use IANA timezone format (e.g., America/New_York, Europe/London, Asia/Dubai, UTC)',
   })
   timezone?: string | null;
+
+  // Internal field for request host (not from user input)
+  requestHost?: string;
 }
