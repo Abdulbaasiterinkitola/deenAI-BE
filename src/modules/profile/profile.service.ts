@@ -51,6 +51,7 @@ export class ProfileService {
 
     let avatarUrl: string | undefined;
 
+    // Handle file upload
     if (
       updateData.avatar &&
       updateData.avatar.buffer &&
@@ -59,6 +60,14 @@ export class ProfileService {
       avatarUrl = await this.profileAvatarService.updateAvatar(
         userId,
         updateData.avatar,
+      );
+    }
+    // Handle base64 upload
+    else if (updateData.avatarBase64) {
+      avatarUrl = await this.profileAvatarService.updateAvatarFromBase64(
+        userId,
+        updateData.avatarBase64,
+        'avatar.jpg', // default filename for base64
       );
     }
 
@@ -82,10 +91,10 @@ export class ProfileService {
       );
     }
 
-    return this.buildProfileResponse(updatedProfile);
+    return this.buildProfileResponse(updatedProfile, updateData.requestHost);
   }
 
-  async getProfile(userId: string) {
+  async getProfile(userId: string, requestHost?: string) {
     const profile = await this.profileCoreService.getProfile(userId);
 
     if (!profile) {
@@ -95,11 +104,21 @@ export class ProfileService {
       );
     }
 
-    return this.buildProfileResponse(profile);
+    return this.buildProfileResponse(profile, requestHost);
   }
 
-  private buildProfileResponse(profile: Profile) {
+  private buildProfileResponse(profile: Profile, requestHost?: string) {
     const timezone = profile?.user?.timezone || 'UTC';
+    
+    // Construct full avatar URL
+    let avatarUrl = profile.avatar;
+    if (avatarUrl) {
+      // If it's a relative path (local upload), add the host
+      if (avatarUrl.startsWith('/uploads/')) {
+        avatarUrl = requestHost ? `${requestHost}${avatarUrl}` : avatarUrl;
+      }
+      // If it's already a full URL (Google avatar, etc.), keep as is
+    }
 
     return {
       id: profile.id,
@@ -108,7 +127,7 @@ export class ProfileService {
       email: profile.user?.email ?? null,
       username: profile.username,
       language: profile.language,
-      avatar: profile.avatar,
+      avatar: avatarUrl,
       timezone,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,

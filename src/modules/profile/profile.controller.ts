@@ -27,7 +27,13 @@ export class ProfileController {
   async getProfile(@Req() request: any) {
     const user = request.user;
     const userId = user.id as string;
-    return this.profileService.getProfile(userId);
+    
+    // Get request host for URL construction
+    const protocol = request.protocol || 'http';
+    const host = request.get('host');
+    const requestHost = `${protocol}://${host}`;
+    
+    return this.profileService.getProfile(userId, requestHost);
   }
 
   @Patch()
@@ -50,7 +56,16 @@ export class ProfileController {
     const user = request.user;
     const userId = user.id as string;
 
-    const payload = { ...updateProfileDto, avatar };
+    // Get request host for URL construction
+    const protocol = request.protocol || 'http';
+    const host = request.get('host');
+    const requestHost = `${protocol}://${host}`;
+
+    const payload = { 
+      ...updateProfileDto, 
+      avatar,
+      requestHost 
+    };
 
     // Update the profile
     const updatedProfile = await this.profileService.updateProfile(
