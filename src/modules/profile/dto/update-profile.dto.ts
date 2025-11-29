@@ -72,12 +72,7 @@ export class UpdateProfileDto {
   name?: string | null;
 
   @IsOptional()
-  @ApiProperty({
-    required: false,
-    description:
-      'IANA timezone identifier (e.g., America/New_York, Europe/London, UTC). Used to localize streak calculations.',
-    example: 'America/New_York',
-  })
+  @ValidateIf((_, value) => value !== null && value !== '')
   @IsString({ message: 'Timezone must be a string' })
   @Matches(/^([A-Za-z]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?|UTC)$/, {
     message:
