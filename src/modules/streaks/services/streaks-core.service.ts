@@ -36,11 +36,7 @@ export class StreaksCoreService {
    * @param userId - The user ID to update streak for
    * @returns The updated streak record
    */
-  async updateStreak(
-    userId: string,
-    completedAtUtc: Date,
-    timezone: string,
-  ) {
+  async updateStreak(userId: string, completedAtUtc: Date, timezone: string) {
     const streak = await this.streakActionModel.get({ userId });
 
     if (!streak) {
@@ -57,9 +53,12 @@ export class StreaksCoreService {
       );
     }
 
-    const completionDate = DateTime.fromJSDate(completedAtUtc).setZone(timezone);
+    const completionDate =
+      DateTime.fromJSDate(completedAtUtc).setZone(timezone);
 
-    if (completionDate > DateTime.now().setZone(timezone).plus({ minutes: 5 })) {
+    if (
+      completionDate > DateTime.now().setZone(timezone).plus({ minutes: 5 })
+    ) {
       throw new CustomHttpException(
         'completedAt cannot be in the future.',
         HttpStatus.BAD_REQUEST,
@@ -69,13 +68,14 @@ export class StreaksCoreService {
     let newCurrentStreak = 1;
 
     if (streak.lastCompletedAt) {
-      const lastCompletion = DateTime.fromJSDate(streak.lastCompletedAt).setZone(
-        timezone,
-      );
+      const lastCompletion = DateTime.fromJSDate(
+        streak.lastCompletedAt,
+      ).setZone(timezone);
 
       const dayDiff = Math.floor(
-        completionDate.startOf('day').diff(lastCompletion.startOf('day'), 'days')
-          .days,
+        completionDate
+          .startOf('day')
+          .diff(lastCompletion.startOf('day'), 'days').days,
       );
 
       if (dayDiff < 0) {
@@ -98,8 +98,7 @@ export class StreaksCoreService {
         );
       }
 
-      newCurrentStreak =
-        dayDiff === 1 ? streak.currentStreak + 1 : 1;
+      newCurrentStreak = dayDiff === 1 ? streak.currentStreak + 1 : 1;
     }
 
     const newHighestStreak = Math.max(streak.highestStreak, newCurrentStreak);
@@ -150,9 +149,9 @@ export class StreaksCoreService {
     let lastCompletedAtWithTimeZone: string | null = null;
 
     if (streak.lastCompletedAt) {
-      const lastCompletion = DateTime.fromJSDate(streak.lastCompletedAt).setZone(
-        timezone,
-      );
+      const lastCompletion = DateTime.fromJSDate(
+        streak.lastCompletedAt,
+      ).setZone(timezone);
 
       lastCompletedAtWithTimeZone = lastCompletion.toISO();
 

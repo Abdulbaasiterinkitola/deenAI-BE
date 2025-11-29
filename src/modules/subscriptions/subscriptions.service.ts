@@ -14,7 +14,7 @@ export type SubscriptionSnapshot = {
   };
   userStatus: UserStatus;
 };
-import { PlanResponseDto } from '@modules/plans/dto/plan-response.dto'
+import { PlanResponseDto } from '@modules/plans/dto/plan-response.dto';
 
 @Injectable()
 export class SubscriptionsService {
@@ -63,9 +63,7 @@ export class SubscriptionsService {
     };
   }
 
-
   async getCurrentPlan(userId: string): Promise<PlanResponseDto> {
-
     return await this.subscriptionsCoreService.getCurrentPlan(userId);
   }
 }

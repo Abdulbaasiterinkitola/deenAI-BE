@@ -98,10 +98,7 @@ export class ProfileService {
     const profile = await this.profileCoreService.getProfile(userId);
 
     if (!profile) {
-      throw new CustomHttpException(
-        'Profile not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new CustomHttpException('Profile not found', HttpStatus.NOT_FOUND);
     }
 
     return this.buildProfileResponse(profile, requestHost);
@@ -109,7 +106,7 @@ export class ProfileService {
 
   private buildProfileResponse(profile: Profile, requestHost?: string) {
     const timezone = profile?.user?.timezone || 'UTC';
-    
+
     // Construct full avatar URL
     let avatarUrl = profile.avatar;
     if (avatarUrl) {

@@ -7,7 +7,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SqueezeBodyValidator } from '../validators/squeeze.validator';
-import { ValidationResponseDto, BadResponseDto } from '@shared/docs-response.dto';
+import {
+  ValidationResponseDto,
+  BadResponseDto,
+} from '@shared/docs-response.dto';
 
 class SqueezeRegistrationDoc {
   @ApiProperty({ example: 'a7e92c4e-3f21-4a5d-a8ae-57b923f1eac7' })

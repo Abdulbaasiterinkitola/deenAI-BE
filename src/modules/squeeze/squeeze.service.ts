@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SqueezeCoreService } from './services/squeeze-core.service';
-import { Squeeze } from './models/squeeze.model';
 import { SqueezeDto } from './dtos/squeeze.dto';
 
 @Injectable()

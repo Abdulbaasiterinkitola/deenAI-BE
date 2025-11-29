@@ -47,9 +47,7 @@ export class SubscriptionsCoreService {
     return plan;
   }
 
-
   async getCurrentPlan(userId: string): Promise<PlanResponseDto> {
-
     const user = await this.userModelAction.get({ id: userId });
 
     if (!user) {
@@ -59,19 +57,17 @@ export class SubscriptionsCoreService {
     const planId = user.planId;
 
     if (!planId) {
-      throw new CustomHttpException('User does not have an active plan.', HttpStatus.NOT_FOUND);
+      throw new CustomHttpException(
+        'User does not have an active plan.',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const PlanResponseDto = await this.plansService.getById(planId);
 
     return PlanResponseDto;
-
   }
 
-
-
-
-  
   // Premium user subscription renewal
   async renewSubscription(userId: string): Promise<void> {
     const user = await this.userModelAction.get({ id: userId }, ['plan']);

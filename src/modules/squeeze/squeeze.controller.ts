@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { SqueezeService } from './squeeze.service';
 import { SqueezeDto } from './dtos/squeeze.dto';
 import { Public } from '@guards/public.decorator';
@@ -13,6 +13,6 @@ export class SqueezeController {
   @Public()
   @SqueezeDocs.register()
   async register(@Body() body: SqueezeDto) {
-      return await this.service.register(body);
-}
+    return await this.service.register(body);
+  }
 }
