@@ -10,4 +10,3 @@ export class UpdateStreakDto {
   @IsISO8601({ strict: true })
   completedAt: string;
 }
-
