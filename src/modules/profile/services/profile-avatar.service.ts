@@ -62,7 +62,12 @@ export class ProfileAvatarService {
       );
     }
 
-    return this.processAndSaveImage(userId, file.buffer, file.originalname, file.mimetype);
+    return this.processAndSaveImage(
+      userId,
+      file.buffer,
+      file.originalname,
+      file.mimetype,
+    );
   }
 
   async updateAvatarFromBase64(
@@ -72,11 +77,11 @@ export class ProfileAvatarService {
   ): Promise<string> {
     // Remove data URL prefix if present (data:image/jpeg;base64,)
     const base64String = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
-    
+
     let buffer: Buffer;
     try {
       buffer = Buffer.from(base64String, 'base64');
-    } catch (error) {
+    } catch {
       throw new CustomHttpException(
         'Invalid base64 data',
         HttpStatus.BAD_REQUEST,
@@ -92,12 +97,14 @@ export class ProfileAvatarService {
 
     // Detect MIME type from base64 data or use default
     const mimeType = this.detectMimeType(base64Data) || 'image/jpeg';
-    
+
     return this.processAndSaveImage(userId, buffer, filename, mimeType);
   }
 
   private detectMimeType(base64Data: string): string | null {
-    const mimeMatch = base64Data.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
+    const mimeMatch = base64Data.match(
+      /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/,
+    );
     return mimeMatch ? mimeMatch[1] : null;
   }
 
@@ -107,7 +114,6 @@ export class ProfileAvatarService {
     originalName: string,
     mimeType: string,
   ): Promise<string> {
-
     // Validate file size
     if (buffer.length > this.maxSize) {
       throw new CustomHttpException(
