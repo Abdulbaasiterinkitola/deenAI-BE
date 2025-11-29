@@ -1,21 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { AbstractModelAction } from '@shared/abstract-model-action';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Squeeze } from '../models/squeeze.model';
 
 @Injectable()
-export class SqueezeActionModel {
+export class SqueezeActionModel extends AbstractModelAction<Squeeze> {
   constructor(
     @InjectRepository(Squeeze)
-    private readonly repo: Repository<Squeeze>,
-  ) {}
-
-  async findByEmail(email: string) {
-    return this.repo.findOne({ where: { email } });
-  }
-
-  async createEntry(payload: Partial<Squeeze>) {
-    const entry = this.repo.create(payload);
-    return this.repo.save(entry);
+    repository: Repository<Squeeze>,
+  ) {
+    super(repository, Squeeze);
   }
 }

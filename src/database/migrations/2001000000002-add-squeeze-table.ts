@@ -1,10 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Waitlist2001000000002 implements MigrationInterface {
-  name = 'Waitlist2001000000002';
+export class Squeeze2001000000002 implements MigrationInterface {
+  name = 'Squeeze2001000000002';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Enable UUID extension
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
 
     await queryRunner.query(`
