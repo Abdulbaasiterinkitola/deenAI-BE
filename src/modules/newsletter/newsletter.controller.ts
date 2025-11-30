@@ -15,13 +15,13 @@ import { UnsubscribeDto } from './dto/unsubscribe.dto';
 
 import { CustomHttpException } from '@shared/custom.exception';
 import { HttpStatus } from '@nestjs/common';
+import { Public } from '@guards/public.decorator';
 
 // Swagger docs decorators
 import {
   SubscribeDocs,
   UnsubscribeDocs,
   CheckStatusDocs,
-  StatsDocs,
 } from './docs/newsletter.docs';
 
 import { AuthGuard } from '@guards/auth.guard';
@@ -37,6 +37,7 @@ interface AuthRequest extends Request {
 export class NewsletterController {
   constructor(private readonly newsletterService: NewsletterService) {}
 
+  @Public()
   @Post('subscribe')
   @HttpCode(200)
   @SubscribeDocs()
@@ -56,6 +57,7 @@ export class NewsletterController {
     return await this.newsletterService.subscribeUser(email);
   }
 
+  @Public()
   @Post('unsubscribe')
   @HttpCode(200)
   @UnsubscribeDocs()
@@ -91,14 +93,5 @@ export class NewsletterController {
     const isSubscribed = await this.newsletterService.isSubscribed(email);
 
     return { success: true, isSubscribed };
-  }
-
-  @Get('stats')
-  @UseGuards(AuthGuard)
-  @StatsDocs()
-  async getStats() {
-    const stats = await this.newsletterService.getSubscriptionStats();
-
-    return { success: true, data: stats };
   }
 }

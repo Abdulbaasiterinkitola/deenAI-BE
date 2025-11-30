@@ -82,30 +82,3 @@ export function CheckStatusDocs() {
     }),
   );
 }
-
-/**
- * DOC: Get Stats endpoint (Admin)
- */
-export function StatsDocs() {
-  return applyDecorators(
-    ApiBearerAuth(),
-    ApiOperation({
-      summary: 'Get subscription statistics (Admin)',
-      description: 'Get newsletter subscription statistics',
-    }),
-    ApiResponse({
-      status: 200,
-      description: 'Statistics retrieved',
-      schema: {
-        example: {
-          success: true,
-          data: {
-            total: 1000,
-            subscribed: 850,
-            unsubscribed: 150,
-          },
-        },
-      },
-    }),
-  );
-}

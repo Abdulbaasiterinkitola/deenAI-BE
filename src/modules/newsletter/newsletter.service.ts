@@ -56,7 +56,7 @@ export class NewsletterService {
       // New subscription
       await this.newsletterModelAction.create({
         createPayload: {
-          userId: user.id,
+          userId: user.id || null,
           email,
           isSubscribed: true,
         },

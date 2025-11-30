@@ -4,8 +4,8 @@ import { User } from '@modules/users/models/user.model';
 
 @Entity('newsletter_subscriptions')
 export class NewsletterSubscription extends AbstractBaseEntity {
-  @Column({ name: 'user_id', type: 'uuid' })
-  userId: string;
+  @Column({ name: 'user_id', type: 'uuid', nullable: true })
+  userId: string | null;
 
   @Index('idx_newsletter_email', { unique: true })
   @Column({ type: 'varchar', length: 255 })
@@ -15,7 +15,7 @@ export class NewsletterSubscription extends AbstractBaseEntity {
   @Column({ name: 'is_subscribed', type: 'boolean', default: true })
   isSubscribed: boolean;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: User | null;
 }

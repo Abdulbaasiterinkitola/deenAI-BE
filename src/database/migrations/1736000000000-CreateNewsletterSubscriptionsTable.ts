@@ -5,7 +5,7 @@ export class CreateNewsletterSubscriptionsTable1736000000000 implements Migratio
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        user_id UUID NOT NULL,
+        user_id UUID NULL,
         email VARCHAR(255) NOT NULL,
         is_subscribed BOOLEAN NOT NULL DEFAULT true,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -13,7 +13,7 @@ export class CreateNewsletterSubscriptionsTable1736000000000 implements Migratio
         CONSTRAINT fk_newsletter_user
           FOREIGN KEY (user_id)
           REFERENCES users(id)
-          ON DELETE CASCADE
+          ON DELETE SET NULL
       );
     `);
 
