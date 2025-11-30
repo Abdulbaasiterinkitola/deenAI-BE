@@ -26,7 +26,7 @@ import {
 @Controller('auth')
 @ApiTags('Authentication')
 @Throttle({
-  default: { limit: 15, ttl: 60 * 1000 }, // 150 requests per minute
+  default: { limit: 15, ttl: 60 * 1000 }, // 15 requests per minute
 })
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
