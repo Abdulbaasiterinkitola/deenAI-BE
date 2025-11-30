@@ -40,7 +40,7 @@ describe('ReflectionsController', () => {
   // CREATE
   // ---------------------------------------------------------
   describe('createReflection', () => {
-    it('should call reflectionsService.createReflection with correct payload', async () => {
+    it('should call reflectionsService.createReflection with correct payload for quran type', async () => {
       const dto: CreateReflectionDto = {
         type: 'quran',
         content: 'My reflection',
@@ -61,6 +61,33 @@ describe('ReflectionsController', () => {
           surah: 1,
           startAyah: 1,
           endAyah: 5,
+        },
+        'user123',
+      );
+      expect(result).toEqual(expected);
+    });
+
+    it('should call reflectionsService.createReflection with correct payload for hadith type', async () => {
+      const dto: CreateReflectionDto = {
+        type: 'hadith',
+        content: 'My hadith reflection',
+        collectionId: 'bukhari',
+        bookNumber: 1,
+        hadithNumber: 1,
+      };
+
+      const expected = { id: 'ref2', content: 'My hadith reflection' };
+      mockReflectionsService.createReflection.mockResolvedValue(expected);
+
+      const result = await controller.createReflection(dto, mockReq);
+
+      expect(service.createReflection).toHaveBeenCalledWith(
+        {
+          type: 'hadith',
+          content: 'My hadith reflection',
+          collectionId: 'bukhari',
+          bookNumber: 1,
+          hadithNumber: 1,
         },
         'user123',
       );
@@ -101,6 +128,15 @@ describe('ReflectionsController', () => {
 
       expect(service.getReflectionById).toHaveBeenCalledWith('ref1', 'user123');
       expect(result).toEqual(expected);
+    });
+
+    it('should propagate errors from the service', async () => {
+      const error = new Error('Test Error');
+      mockReflectionsService.getReflectionById.mockRejectedValue(error);
+
+      await expect(
+        controller.getReflectionById({ id: 'ref1' }, mockReq),
+      ).rejects.toThrow(error);
     });
   });
 

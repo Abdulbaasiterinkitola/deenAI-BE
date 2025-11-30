@@ -3,6 +3,11 @@ import { ReflectionsService } from './reflections.service';
 import { ReflectionsCoreService } from './services/reflections-core.service';
 import { Reflection } from '@modules/reflections/models/reflection.model';
 import { User } from '@modules/users/models/user.model';
+import {
+  CreateReflectionType,
+  ReflectionQueryType,
+  UpdateReflectionType,
+} from './types/reflection';
 
 describe('ReflectionsService', () => {
   let service: ReflectionsService;
@@ -32,16 +37,22 @@ describe('ReflectionsService', () => {
 
   // Create reflections
   it('should call coreService.createReflection when creating', async () => {
-    const dto = { type: 'quran', content: 'hello' };
+    const dto: CreateReflectionType = {
+      type: 'quran',
+      content: 'hello',
+      surah: 1,
+      startAyah: 1,
+      endAyah: 5,
+    };
     const userId = 'user123';
 
     const expected: Reflection = {
       id: 'uuid',
       content: 'hello',
       type: 'quran',
-      surah: null,
-      startAyah: null,
-      endAyah: null,
+      surah: 1,
+      startAyah: 1,
+      endAyah: 5,
       collectionId: null,
       hadithNumber: null,
       bookNumber: null,
@@ -60,7 +71,7 @@ describe('ReflectionsService', () => {
 
     coreService.createReflection.mockResolvedValue(expected);
 
-    const result = await service.createReflection(dto as any, userId);
+    const result = await service.createReflection(dto, userId);
 
     expect(coreService.createReflection).toHaveBeenCalledWith(dto, userId);
     expect(result).toEqual(expected);
@@ -71,8 +82,8 @@ describe('ReflectionsService', () => {
     const id = 'ref-1';
     const userId = 'user123';
 
-    const expected = { id, content: 'test' } as any;
-    coreService.getReflectionById.mockResolvedValue(expected);
+    const expected: Partial<Reflection> = { id, content: 'test' };
+    coreService.getReflectionById.mockResolvedValue(expected as Reflection);
 
     const result = await service.getReflectionById(id, userId);
 
@@ -84,12 +95,12 @@ describe('ReflectionsService', () => {
   it('should call coreService.updateReflection', async () => {
     const id = 'ref-1';
     const userId = 'user123';
-    const payload = { content: 'updated' };
+    const payload: UpdateReflectionType = { content: 'updated' };
 
-    const expected = { id, ...payload } as any;
-    coreService.updateReflection.mockResolvedValue(expected);
+    const expected: Partial<Reflection> = { id, ...payload };
+    coreService.updateReflection.mockResolvedValue(expected as Reflection);
 
-    const result = await service.updateReflection(id, payload as any, userId);
+    const result = await service.updateReflection(id, payload, userId);
 
     expect(coreService.updateReflection).toHaveBeenCalledWith(
       id,
@@ -114,7 +125,7 @@ describe('ReflectionsService', () => {
   // GET USER REFLECTIONS (pagination)
   it('should call coreService.getUserReflections', async () => {
     const userId = 'user123';
-    const query = { page: 1, limit: 10 } as any;
+    const query: ReflectionQueryType = { page: 1, limit: 10 };
 
     const expected = {
       payload: [],
