@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-store';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -26,6 +24,7 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
+import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -33,17 +32,6 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
       isGlobal: true,
       validate: validateEnv,
       load: [authConfig],
-    }),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        store: await redisStore({
-          url: configService.get<string>('REDIS_URL'),
-          ttl: 60 * 1000, // Default TTL of 1 minute
-        }),
-      }),
-      inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
@@ -72,6 +60,7 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
     SubscriptionsModule,
     FeedbackModule,
     SqueezeModule,
+    NewsletterModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AuthGuard }],
