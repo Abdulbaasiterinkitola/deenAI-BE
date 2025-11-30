@@ -5,6 +5,7 @@ import UserValidationService from './user-validation.service';
 import { AuthProvider } from '../enums';
 import { EntityManager } from 'typeorm';
 import { Plan } from '@modules/plans/models/plan.model';
+import { User } from '../models/user.model';
 
 @Injectable()
 export default class UserCoreService {
@@ -125,5 +126,30 @@ export default class UserCoreService {
           }
         : {}),
     });
+  }
+
+  async updateUserFields(userId: string, fields: Partial<User>) {
+    return await this.userModelAction.update({
+      updatePayload: fields,
+      identifierOptions: { id: userId },
+      transactionOptions: { useTransaction: false },
+    });
+  }
+
+  async incrementFailedAttempts(userId: string): Promise<User> {
+    await this.userModelAction.update({
+      updatePayload: {
+        failedLoginAttempts: () => 'failed_login_attempts + 1',
+        lastFailedLogin: new Date(),
+      },
+      identifierOptions: { id: userId },
+      transactionOptions: { useTransaction: false },
+    });
+
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new Error(`User with id ${userId} not found`);
+    }
+    return user;
   }
 }
