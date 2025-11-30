@@ -56,7 +56,7 @@ export class LocalAuthService {
       email,
       password: hashedPassword,
       authProvider: AuthProvider.LOCAL,
-      isEmailVerified: false,
+      isEmailVerified: true, // <--- CHANGED: Set to true by default
       status: UserStatus.ACTIVE,
     };
 
@@ -72,6 +72,9 @@ export class LocalAuthService {
       );
     }
 
+    // Fetch profile for the new user (required for auto-login response)
+    const profile = await this.profileService.getProfile(createdUser.id);
+
     // Send welcome email for new users
     await this.sendWelcomeEmail(createdUser);
 
@@ -80,6 +83,7 @@ export class LocalAuthService {
 
     return {
       user: userWithoutPassword,
+      profile, 
     };
   }
 
@@ -236,13 +240,15 @@ export class LocalAuthService {
 
     this.logger.log(`Successful login for user ${user.email}`);
 
-    // Check if user verified email
+    // REMOVED: Email verification check to allow immediate login
+    /*
     if (!user.isEmailVerified) {
       throw new CustomHttpException(
         { message: 'Please verify your email before logging in' },
         HttpStatus.FORBIDDEN
       );
     }
+    */
 
     // Get profile
     const profile = await this.profileService.getProfile(user.id);
@@ -278,5 +284,4 @@ export class LocalAuthService {
       // Don't throw error - user creation should not fail due to email issues
     }
   }
-
 }
