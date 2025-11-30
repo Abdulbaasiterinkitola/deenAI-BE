@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Squeeze2001000000002 implements MigrationInterface {
-  name = 'Squeeze2001000000002';
+export class AddSqueezeTable1764524360506 implements MigrationInterface {
+  name = 'AddSqueezeTable1764524360506';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
