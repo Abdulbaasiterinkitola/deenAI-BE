@@ -23,6 +23,9 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
 import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerConfigService } from './config/throttler.config';
+import { ThrottlerBehindProxyGuard } from './guards/throttler-behind-proxy.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
 
 @Module({
@@ -31,6 +34,10 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
       isGlobal: true,
       validate: validateEnv,
       load: [authConfig],
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: ThrottlerConfigService,
     }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
@@ -61,6 +68,13 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
     SqueezeModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: AuthGuard },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
+    },
+  ],
 })
 export class AppModule {}
