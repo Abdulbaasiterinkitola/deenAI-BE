@@ -24,17 +24,33 @@ export class RegisterDocs {
             success: true,
             status: 'success',
             message:
-              'User registered successfully. Please check your email for verification.',
+              'User registered successfully.',
             data: {
+              tokens: {
+                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+              },
               user: {
                 id: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
                 name: 'John Doe',
                 email: 'user@example.com',
                 authProvider: 'local',
-                isEmailVerified: false,
+                isEmailVerified: true,
                 createdAt: '2025-11-20T19:02:39.633Z',
                 updatedAt: '2025-11-20T19:02:39.633Z',
               },
+              profile: {
+                id: '123e4567-e89b-12d3-a456-426614174000',
+                userId: '7f44fb53-450c-4b7b-bcb7-7fe33c56ad68',
+                name: 'John Doe',
+                email: 'user@example.com',
+                username: 'john_doe',
+                language: 'en',
+                avatar: null,
+                timezone: 'UTC',
+                createdAt: '2025-11-20T19:02:39.633Z',
+                updatedAt: '2025-11-20T19:02:39.633Z',
+              }
             },
             status_code: 201,
           },
