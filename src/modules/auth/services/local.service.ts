@@ -29,7 +29,7 @@ export class LocalAuthService {
     private readonly jwtService: JwtService,
     private readonly profileService: ProfileService,
     private readonly configService: ConfigService,
-    private readonly accountLockingService: AccountLockingService
+    private readonly accountLockingService: AccountLockingService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -176,58 +176,65 @@ export class LocalAuthService {
     if (!user) {
       throw new CustomHttpException(
         { message: 'Invalid email or password' },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
     // Check if account is locked
     const isLocked = await this.accountLockingService.isAccountLocked(user.id);
-    
+
     if (isLocked) {
-      const remainingMinutes = await this.accountLockingService.getRemainingLockTime(user.id);
-      
+      const remainingMinutes =
+        await this.accountLockingService.getRemainingLockTime(user.id);
+
       throw new CustomHttpException(
         {
           message: `Account is locked due to too many failed login attempts. Please try again in ${remainingMinutes} minutes.`,
-          remainingMinutes
+          remainingMinutes,
         },
-        HttpStatus.FORBIDDEN
+        HttpStatus.FORBIDDEN,
       );
     }
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       // Record failed login attempt
       await this.accountLockingService.recordFailedLogin(user.id);
 
       // Get current status
-      const status = await this.accountLockingService.getAccountLockStatus(user.id);
+      const status = await this.accountLockingService.getAccountLockStatus(
+        user.id,
+      );
 
       // Check if account just got locked
       if (status.isLocked) {
         throw new CustomHttpException(
           {
             message: `Too many failed login attempts. Your account has been locked for ${status.remainingMinutes} minutes.`,
-            remainingMinutes: status.remainingMinutes
+            remainingMinutes: status.remainingMinutes,
           },
-          HttpStatus.FORBIDDEN
+          HttpStatus.FORBIDDEN,
         );
       }
 
       // Still have attempts remaining
       const attemptsRemaining = status.maxAttempts - status.failedAttempts;
-      
+
       throw new CustomHttpException(
         {
           message: 'Invalid email or password',
           attemptsRemaining,
-          warning: attemptsRemaining <= 2 
-            ? `Warning: ${attemptsRemaining} attempt(s) remaining before account lock` 
-            : null
+          warning:
+            attemptsRemaining <= 2
+              ? `Warning: ${attemptsRemaining} attempt(s) remaining before account lock`
+              : null,
         },
-        HttpStatus.UNAUTHORIZED
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -240,7 +247,7 @@ export class LocalAuthService {
     if (!user.isEmailVerified) {
       throw new CustomHttpException(
         { message: 'Please verify your email before logging in' },
-        HttpStatus.FORBIDDEN
+        HttpStatus.FORBIDDEN,
       );
     }
 
@@ -253,13 +260,13 @@ export class LocalAuthService {
     return {
       success: true,
       message: 'Login successful',
-      data: { 
+      data: {
         user: userWithoutPassword,
-        profile
-      }
+        profile,
+      },
     };
   }
-  
+
   private async sendWelcomeEmail(user: any): Promise<void> {
     try {
       await this.emailService.sendEmail(
@@ -278,5 +285,4 @@ export class LocalAuthService {
       // Don't throw error - user creation should not fail due to email issues
     }
   }
-
 }
