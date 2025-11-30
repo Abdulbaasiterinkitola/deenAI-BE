@@ -78,11 +78,13 @@ export class AccountLockingService {
     if (newAttempts >= this.MAX_FAILED_ATTEMPTS) {
       await this.lockAccount(userId);
     } else {
-      // Just increment the counter
+      /* Just increment the counter
       await this.usersService.updateUserFields(userId, {
         failedLoginAttempts: newAttempts,
         lastFailedLogin: new Date(),
       });
+      */
+      await this.usersService.incrementFailedAttempts(userId);
     }
   }
 

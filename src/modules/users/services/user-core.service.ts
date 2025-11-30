@@ -135,4 +135,21 @@ export default class UserCoreService {
       transactionOptions: { useTransaction: false },
     });
   }
+
+  async incrementFailedAttempts(userId: string): Promise<User> {
+    await this.userModelAction.update({
+      updatePayload: {
+        failedLoginAttempts: () => 'failed_login_attempts + 1',
+        lastFailedLogin: new Date(),
+      },
+      identifierOptions: { id: userId },
+      transactionOptions: { useTransaction: false },
+    });
+
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new Error(`User with id ${userId} not found`);
+    }
+    return user;
+  }
 }

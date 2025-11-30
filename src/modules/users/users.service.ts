@@ -134,4 +134,8 @@ export class UsersService {
   async updateUserFields(userId: string, fields: Partial<User>) {
     return await this.userCoreService.updateUserFields(userId, fields);
   }
+
+  async incrementFailedAttempts(userId: string) {
+    return await this.userCoreService.incrementFailedAttempts(userId);
+  }
 }
