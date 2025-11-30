@@ -18,6 +18,6 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
           req.headers['x-forwarded-for'] ||
           req.headers['x-real-ip'] ||
           req.socket?.remoteAddress;
-    return Promise.resolve(ip);
+    return Promise.resolve(ip || 'unknown-ip');
   }
 }
