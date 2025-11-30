@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationSettingsCoreService } from './services/notification-settings-core.service';
 import { EntityManager } from 'typeorm';
+import { UpdateNotificationSettingsDto } from './dtos/update-notification-settings.dto';
 
 @Injectable()
 export class NotificationSettingsService {
@@ -18,6 +19,16 @@ export class NotificationSettingsService {
       userId,
       transaction,
     );
+  }
+
+  /**
+   * Update settings for a user
+   */
+  async updateUserNotificationSettings(
+    userId: string,
+    dto: UpdateNotificationSettingsDto,
+  ) {
+    return this.notificationSettingsCoreService.updateSettings(userId, dto);
   }
 
   /**
