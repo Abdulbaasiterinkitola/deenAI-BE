@@ -27,8 +27,17 @@ export class UsersService {
     private readonly userAccountDeletionService: UserAccountDeletionService,
   ) {}
 
+  private readonly PROFILE_CACHE_TTL_MS = 30 * 60 * 1000;
+
+  private readonly PROFILE_CACHE_KEY_PREFIX = 'profile';
+
+  private async invalidateProfileCache(userId: string) {
+    const cacheKey = this.getProfileCacheKey(userId);
+    await this.cacheManager.del(cacheKey);
+  }
+
   private getProfileCacheKey(id: string): string {
-    return `profile:${id}`;
+    return this.PROFILE_CACHE_KEY_PREFIX + ':' + id;
   }
 
   async createUser(user: UserType) {
@@ -57,7 +66,7 @@ export class UsersService {
 
     if (user) {
       // Cache the profile for 30 minutes (1800000 ms)
-      await this.cacheManager.set(cacheKey, user, 30 * 60 * 1000);
+      await this.cacheManager.set(cacheKey, user, this.PROFILE_CACHE_TTL_MS);
     }
 
     return user;
@@ -69,7 +78,8 @@ export class UsersService {
       hashedPassword,
     );
     // Invalidate cache on update
-    await this.cacheManager.del(this.getProfileCacheKey(id));
+
+    await this.invalidateProfileCache(id);
     return updatedUser;
   }
 
@@ -168,7 +178,7 @@ export class UsersService {
       fields,
     );
     // Invalidate cache on update
-    await this.cacheManager.del(this.getProfileCacheKey(userId));
+    await this.invalidateProfileCache(userId);
     return updatedUser;
   }
 

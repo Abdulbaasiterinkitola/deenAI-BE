@@ -13,8 +13,11 @@ export class NotificationSettingsService {
     private readonly notificationSettingsCoreService: NotificationSettingsCoreService,
   ) {}
 
+  private readonly SETTINGS_CACHE_TTL_MS = 15 * 60 * 1000;
+  private readonly SETTINGS_CACHE_KEY_PREFIX = 'notification_settings';
+
   private getSettingsCacheKey(userId: string): string {
-    return `notification-settings:${userId}`;
+    return this.SETTINGS_CACHE_KEY_PREFIX + ':' + userId;
   }
 
   async getNotificationSettings(
@@ -37,7 +40,11 @@ export class NotificationSettingsService {
 
     if (settings) {
       // Cache the settings for 15 minutes
-      await this.cacheManager.set(cacheKey, settings, 15 * 60 * 1000);
+      await this.cacheManager.set(
+        cacheKey,
+        settings,
+        this.SETTINGS_CACHE_TTL_MS,
+      );
     }
 
     return settings;
