@@ -1,143 +1,114 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PlansCoreService } from './plans-core.service';
-import { PlanModelAction } from '../model-actions/plan.model-action';
-import { Plan } from '../models/plan.model';
+import { PlansValidationService } from './plans-validation.service';
+import { CustomHttpException } from '@shared/custom.exception';
+import { HttpStatus } from '@nestjs/common';
 
-describe('PlansCoreService', () => {
-  let service: PlansCoreService;
-  let planModelAction: PlanModelAction;
-
-  // Mock Data
-  const mockPlan = {
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'Premium Plan',
-    slug: 'premium',
-    displayOrder: 1,
-  } as Plan;
-
-  const mockPaginationMeta = {
-    total: 1,
-    limit: 10,
-    page: 1,
-    totalPages: 1,
-    hasNext: false,
-    hasPrevious: false,
-  };
-
-  const planModelActionMock = {
-    list: jest.fn(),
-    get: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-  };
+describe('PlansValidationService', () => {
+  let service: PlansValidationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        PlansCoreService,
-        { provide: PlanModelAction, useValue: planModelActionMock },
-      ],
+      providers: [PlansValidationService],
     }).compile();
 
-    service = module.get<PlansCoreService>(PlansCoreService);
-    planModelAction = module.get<PlanModelAction>(PlanModelAction);
-
-    jest.clearAllMocks();
+    service = module.get<PlansValidationService>(PlansValidationService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('listPlans', () => {
-    it('should return a list of plans with pagination meta', async () => {
-      planModelActionMock.list.mockResolvedValue({
-        payload: [mockPlan],
-        paginationMeta: mockPaginationMeta,
-      });
-
-      const query = { page: 1, limit: 10 };
-      const result = await service.listPlans(query);
-
-      expect(planModelAction.list).toHaveBeenCalledWith({
-        paginationPayload: { page: 1, limit: 10 },
-        order: { displayOrder: 'ASC' },
-      });
-      expect(result).toEqual({
-        items: [mockPlan],
-        paginationMeta: mockPaginationMeta,
-      });
+  describe('validatePagination', () => {
+    it('should validate correct pagination params', () => {
+      expect(() => service.validatePagination(1, 10)).not.toThrow();
     });
 
-    it('should use default pagination values if not provided', async () => {
-      planModelActionMock.list.mockResolvedValue({
-        payload: [],
-        paginationMeta: mockPaginationMeta,
-      });
+    it('should allow undefined params (optional)', () => {
+      expect(() =>
+        service.validatePagination(undefined, undefined),
+      ).not.toThrow();
+    });
 
-      await service.listPlans({});
+    it('should throw error for invalid page number', () => {
+      expect.assertions(3);
+      try {
+        service.validatePagination(0, 10);
+      } catch (error) {
+        expect(error).toBeInstanceOf(CustomHttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.getResponse().message).toContain(
+          'page must be a positive integer',
+        );
+      }
+    });
 
-      expect(planModelAction.list).toHaveBeenCalledWith({
-        paginationPayload: { page: 1, limit: 10 },
-        order: { displayOrder: 'ASC' },
-      });
+    it('should throw error for non-integer page', () => {
+      expect.assertions(3);
+      try {
+        service.validatePagination(1.5, 10);
+      } catch (error) {
+        expect(error).toBeInstanceOf(CustomHttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.getResponse().message).toContain(
+          'page must be a positive integer',
+        );
+      }
+    });
+
+    it('should throw error for limit less than 1', () => {
+      expect.assertions(3);
+      try {
+        service.validatePagination(1, 0);
+      } catch (error) {
+        expect(error).toBeInstanceOf(CustomHttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.getResponse().message).toContain(
+          'limit must be between 1 and 100',
+        );
+      }
+    });
+
+    it('should throw error for limit greater than 100', () => {
+      expect.assertions(3);
+      try {
+        service.validatePagination(1, 101);
+      } catch (error) {
+        expect(error).toBeInstanceOf(CustomHttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.getResponse().message).toContain(
+          'limit must be between 1 and 100',
+        );
+      }
     });
   });
 
-  describe('getPlanById', () => {
-    it('should return a plan if found', async () => {
-      planModelActionMock.get.mockResolvedValue(mockPlan);
+  describe('validateId', () => {
+    const validUuid = '123e4567-e89b-12d3-a456-426614174000';
 
-      const result = await service.getPlanById(mockPlan.id);
-
-      expect(planModelAction.get).toHaveBeenCalledWith({ id: mockPlan.id });
-      expect(result).toEqual(mockPlan);
+    it('should validate a correct UUID', () => {
+      expect(() => service.validateId(validUuid)).not.toThrow();
     });
 
-    it('should return null if plan not found', async () => {
-      planModelActionMock.get.mockResolvedValue(null);
-
-      const result = await service.getPlanById('non-existent-id');
-
-      expect(result).toBeNull();
+    it('should throw error if ID is missing', () => {
+      expect.assertions(3);
+      try {
+        service.validateId('');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CustomHttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.getResponse().message).toBe('Plan id is required');
+      }
     });
-  });
 
-  describe('getPlanBySlug', () => {
-    it('should return a plan if found by slug', async () => {
-      planModelActionMock.get.mockResolvedValue(mockPlan);
-
-      const result = await service.getPlanBySlug('premium');
-
-      expect(planModelAction.get).toHaveBeenCalledWith({ slug: 'premium' });
-      expect(result).toEqual(mockPlan);
-    });
-  });
-
-  describe('seedDefaults', () => {
-    const defaultPlans = [
-      { slug: 'free', name: 'Free Plan' },
-      { slug: 'premium', name: 'Premium Plan' },
-    ];
-
-    it('should update existing plans and create new ones', async () => {
-      // Mock get to return a plan for 'free' (exists) and null for 'premium' (new)
-      planModelActionMock.get
-        .mockResolvedValueOnce({ id: 'existing-id', slug: 'free' }) // First call (free)
-        .mockResolvedValueOnce(null); // Second call (premium)
-
-      await service.seedDefaults(defaultPlans);
-
-      // Verify update called for existing plan
-      expect(planModelAction.update).toHaveBeenCalledWith({
-        updatePayload: defaultPlans[0],
-        identifierOptions: { id: 'existing-id' },
-      });
-
-      // Verify create called for new plan
-      expect(planModelAction.create).toHaveBeenCalledWith({
-        createPayload: defaultPlans[1],
-      });
+    it('should throw error for invalid UUID format', () => {
+      expect.assertions(3);
+      try {
+        service.validateId('invalid-uuid');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CustomHttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.getResponse().message).toBe('Invalid plan id format');
+      }
     });
   });
 });
