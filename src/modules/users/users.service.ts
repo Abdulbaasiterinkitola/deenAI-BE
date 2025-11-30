@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import UserCoreService from './services/user-core.service';
 import { UserType } from './types/user';
 import { AuthProvider } from './enums';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { User } from './models/user.model';
 import { DeletionCodeService } from './services/deletion-code.service';
 import { EmailService } from '@modules/email/email.service';
@@ -15,6 +16,7 @@ import { UserAccountDeletionService } from './services/user-account-deletion.ser
 export class UsersService {
   logger = new Logger(UsersService.name);
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly userCoreService: UserCoreService,
     private readonly deletionCodeService: DeletionCodeService,
     private readonly emailService: EmailService,
@@ -25,6 +27,19 @@ export class UsersService {
     private readonly userAccountDeletionService: UserAccountDeletionService,
   ) {}
 
+  private readonly PROFILE_CACHE_TTL_MS = 30 * 60 * 1000;
+
+  private readonly PROFILE_CACHE_KEY_PREFIX = 'profile';
+
+  private async invalidateProfileCache(userId: string) {
+    const cacheKey = this.getProfileCacheKey(userId);
+    await this.cacheManager.del(cacheKey);
+  }
+
+  private getProfileCacheKey(id: string): string {
+    return this.PROFILE_CACHE_KEY_PREFIX + ':' + id;
+  }
+
   async createUser(user: UserType) {
     await this.userRegistrationService.createUser(user);
   }
@@ -34,12 +49,38 @@ export class UsersService {
       this.userValidationService.normalizeAndValidateEmail(email);
     return await this.userCoreService.getUserByEmail(normalizedEmail);
   }
+
   async getUserById(id: string) {
-    return await this.userCoreService.getUserById(id);
+    const cacheKey = this.getProfileCacheKey(id);
+    const cachedUser = await this.cacheManager.get<User>(cacheKey);
+
+    if (cachedUser) {
+      this.logger.log(`Cache hit for user ID: ${id}`);
+      // The cache stores plain objects, so we re-instantiate the class
+      // to ensure all class methods are available.
+      return Object.assign(new User(), cachedUser);
+    }
+
+    this.logger.log(`Cache miss for user ID: ${id}`);
+    const user = await this.userCoreService.getUserById(id);
+
+    if (user) {
+      // Cache the profile for 30 minutes (1800000 ms)
+      await this.cacheManager.set(cacheKey, user, this.PROFILE_CACHE_TTL_MS);
+    }
+
+    return user;
   }
 
   async updateUserPassword(id: string, hashedPassword: string) {
-    return await this.userCoreService.updateUserPassword(id, hashedPassword);
+    const updatedUser = await this.userCoreService.updateUserPassword(
+      id,
+      hashedPassword,
+    );
+    // Invalidate cache on update
+
+    await this.invalidateProfileCache(id);
+    return updatedUser;
   }
 
   async markEmailAsVerified(email: string) {
@@ -126,5 +167,22 @@ export class UsersService {
       return null;
     }
     return (await this.plansService.getPlanById(user.planId)) as Plan;
+  }
+
+  /**
+   * Update specific user fields
+   */
+  async updateUserFields(userId: string, fields: Partial<User>) {
+    const updatedUser = await this.userCoreService.updateUserFields(
+      userId,
+      fields,
+    );
+    // Invalidate cache on update
+    await this.invalidateProfileCache(userId);
+    return updatedUser;
+  }
+
+  async incrementFailedAttempts(userId: string) {
+    return await this.userCoreService.incrementFailedAttempts(userId);
   }
 }

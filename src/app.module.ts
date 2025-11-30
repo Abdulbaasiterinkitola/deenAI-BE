@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -31,6 +33,17 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
       isGlobal: true,
       validate: validateEnv,
       load: [authConfig],
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: await redisStore({
+          url: configService.get<string>('REDIS_URL'),
+          ttl: 60 * 1000, // Default TTL of 1 minute
+        }),
+      }),
+      inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({

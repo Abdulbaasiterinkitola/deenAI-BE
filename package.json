@@ -32,13 +32,14 @@
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
     "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js",
-    "seed:plans": "ts-node -r tsconfig-paths/register src/database/seeds/seed-plans.ts" 
+    "seed:plans": "ts-node -r tsconfig-paths/register src/database/seeds/seed-plans.ts"
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",
     "@hng-sdk/email": "^0.0.0",
     "@nestjs/bull": "^11.0.4",
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -54,6 +55,8 @@
     "@types/uuid": "^10.0.0",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
+    "cache-manager": "^7.2.5",
+    "cache-manager-redis-store": "^3.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.3",
@@ -75,7 +78,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
-    "@nestjs/cli": "^11.0.0",
+    "@nestjs/cli": "^11.0.14",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
     "@swc/cli": "^0.6.0",
