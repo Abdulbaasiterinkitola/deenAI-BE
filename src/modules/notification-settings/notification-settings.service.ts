@@ -79,6 +79,16 @@ export class NotificationSettingsService {
   }
 
   /**
+   * Update settings for a user
+   */
+  async updateUserNotificationSettings(
+    userId: string,
+    dto: UpdateNotificationSettingsDto,
+  ) {
+    return this.notificationSettingsCoreService.updateSettings(userId, dto);
+  }
+
+  /**
    * Delete settings within a transaction
    * (Called by UsersModule)
    */
