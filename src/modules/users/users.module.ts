@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import UserCoreService from './services/user-core.service';
@@ -23,6 +24,7 @@ import { UserRegistrationService } from './services/user-registration.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, PasswordResetOtp, AccountDeletionCode]),
+    CacheModule.register(),
     forwardRef(() => AuthModule),
     forwardRef(() => NotificationSettingsModule),
     EmailServiceModule,
