@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ChatsService } from './chats.service';
 import { SendMessageDto, ChatIdDto } from './dtos/chat.dto';
 import { SseMessage } from './types';
@@ -23,6 +24,10 @@ import { RenameChatDto } from './dtos/rename-chat.dto';
 @ApiTags('Chats')
 @ApiBearerAuth()
 @Controller('chats')
+// Authenticated endpoints: 100-200 requests per minute
+@Throttle({
+  default: { limit: 150, ttl: 60 * 1000 }, // 150 requests per minute
+})
 export class ChatsController {
   private readonly logger = new Logger(ChatsController.name);
   constructor(private readonly chatsService: ChatsService) {}
