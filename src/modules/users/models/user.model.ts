@@ -67,4 +67,12 @@ export class User extends AbstractBaseEntity {
 
   @Column({ name: 'last_failed_login', type: 'timestamp', nullable: true })
   lastFailedLogin: Date | null;
+
+  @Column({
+    name: 'billing_start',
+    type: 'timestamp with time zone',
+    default: () => 'NOW()',
+    nullable: true,
+  })
+  billingStart: Date | null;
 }
