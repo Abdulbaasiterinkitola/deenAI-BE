@@ -14,3 +14,5 @@ process.env.MAIL_FROM = 'test@example.com';
 process.env.REDIS_HOST = 'localhost';
 process.env.REDIS_PORT = '6379';
 process.env.GEMINI_API_KEY = 'test-key';
+
+export { };

@@ -39,6 +39,9 @@ export class Plan extends AbstractBaseEntity {
   @Column({ name: 'token_limit', type: 'int', nullable: false })
   tokenLimit: number;
 
+  @Column({ name: 'reflection_limit', type: 'int', default: 10 })
+  reflectionLimit: number;
+
   @Column({ type: 'text', array: true, default: '{}' })
   features: string[];
 }

@@ -8,9 +8,10 @@ import { ReflectionsValidationService } from './services/reflections-validation.
 import { ReflectionsActionModel } from './action-models/reflections.action-model';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { PlansModule } from '@modules/plans/plans.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reflection]), UsersModule, AuthModule],
+  imports: [TypeOrmModule.forFeature([Reflection]), UsersModule, AuthModule, PlansModule],
   controllers: [ReflectionsController],
   providers: [
     ReflectionsService,
@@ -20,4 +21,4 @@ import { AuthModule } from '@modules/auth/auth.module';
   ],
   exports: [ReflectionsService],
 })
-export class ReflectionsModule {}
+export class ReflectionsModule { }

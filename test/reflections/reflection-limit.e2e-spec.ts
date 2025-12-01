@@ -62,7 +62,7 @@ describe('Reflections Limit (e2e)', () => {
       .expect(403)
       .expect((res) => {
         expect(res.body.message).toBe(
-          'Free plan limit reached. You can only create 10 reflections.',
+          'Plan limit reached. You can only create 10 reflections.',
         );
       });
   });

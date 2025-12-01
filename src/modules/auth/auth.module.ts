@@ -53,4 +53,4 @@ import { AccountLockingService } from './services/account-locking.service';
   ],
   exports: [AuthGuard, JwtModule, AccountLockingService],
 })
-export class AuthModule {}
+export class AuthModule { }

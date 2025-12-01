@@ -9,6 +9,8 @@ import {
 } from '../types/reflection';
 import { CustomHttpException } from '@shared/custom.exception';
 import { PaginationMeta } from '@shared/helpers/pagination.helper';
+import { UserModelAction } from '@modules/users/action-models/user.action-model';
+import { PlansService } from '@modules/plans/plans.service';
 
 /**
  * Core service for reflection business logic
@@ -19,7 +21,9 @@ export class ReflectionsCoreService {
   constructor(
     private readonly reflectionsActionModel: ReflectionsActionModel,
     private readonly reflectionsValidationService: ReflectionsValidationService,
-  ) {}
+    private readonly userModelAction: UserModelAction,
+    private readonly plansService: PlansService,
+  ) { }
 
   async createReflection(
     dto: CreateReflectionType,
@@ -28,12 +32,25 @@ export class ReflectionsCoreService {
     this.reflectionsValidationService.validateReflectionContent(dto.content);
     this.reflectionsValidationService.validateReflectionSource(dto);
 
-    const reflectionCount = await this.reflectionsActionModel.count({ userId });
-    if (reflectionCount >= 10) {
-      throw new CustomHttpException(
-        'Free plan limit reached. You can only create 10 reflections.',
-        HttpStatus.FORBIDDEN,
-      );
+    // Check plan limits
+    const user = await this.userModelAction.get({ id: userId });
+    const plan = user?.planId
+      ? await this.plansService.getPlanById(user.planId)
+      : null;
+    // Default to 10 if no plan found (shouldn't happen for active users)
+    const limit = plan ? plan.reflectionLimit : 10;
+
+    // -1 means unlimited
+    if (limit !== -1) {
+      const reflectionCount = await this.reflectionsActionModel.count({
+        userId,
+      });
+      if (reflectionCount >= limit) {
+        throw new CustomHttpException(
+          `Plan limit reached. You can only create ${limit} reflections.`,
+          HttpStatus.FORBIDDEN,
+        );
+      }
     }
 
     const reflection = await this.reflectionsActionModel.create({
