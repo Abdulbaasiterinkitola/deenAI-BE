@@ -1,5 +1,4 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import UserCoreService from './services/user-core.service';

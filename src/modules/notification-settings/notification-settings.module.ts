@@ -2,7 +2,6 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CacheModule } from '@nestjs/cache-manager';
 import { NotificationSettingsController } from './notification-settings.controller';
 import { NotificationSettingsService } from './notification-settings.service';
 import { NotificationSettingsCoreService } from './services/notification-settings-core.service';
