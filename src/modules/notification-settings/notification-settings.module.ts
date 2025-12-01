@@ -9,6 +9,7 @@ import { NotificationSettingsValidationService } from './services/notification-s
 import { NotificationSettings } from './models/notification-setting.model';
 import { NotificationSettingsModelAction } from './model-actions/notification-settings.model-action';
 import { UsersModule } from '@modules/users/users.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 const daysToSeconds = (days: number) => days * 24 * 60 * 60;
 
@@ -16,6 +17,7 @@ const daysToSeconds = (days: number) => days * 24 * 60 * 60;
   imports: [
     TypeOrmModule.forFeature([NotificationSettings]),
     forwardRef(() => UsersModule),
+    CacheModule.register(),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService): JwtModuleOptions => ({

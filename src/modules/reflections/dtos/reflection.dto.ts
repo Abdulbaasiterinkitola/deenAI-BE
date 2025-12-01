@@ -165,6 +165,15 @@ export class ReflectionQueryDto {
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   orderBy?: 'ASC' | 'DESC';
+
+  @ApiProperty({
+    description: 'Search term to filter reflections by content',
+    example: 'patience',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }
 
 /**

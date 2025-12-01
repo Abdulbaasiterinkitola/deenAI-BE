@@ -19,10 +19,12 @@ import { UserAccountDeletionService } from './services/user-account-deletion.ser
 import { StreaksModule } from '@modules/streaks/streaks.module';
 import { ProfileModule } from '@modules/profile/profile.module';
 import { UserRegistrationService } from './services/user-registration.service';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, PasswordResetOtp, AccountDeletionCode]),
+    CacheModule.register(),
     forwardRef(() => AuthModule),
     forwardRef(() => NotificationSettingsModule),
     EmailServiceModule,

@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { ReflectionsActionModel } from '../action-models/reflections.action-model';
 import { ReflectionsValidationService } from './reflections-validation.service';
 import { Reflection } from '../models/reflection.model';
+import { ILike, FindOptionsWhere } from 'typeorm';
 import {
   CreateReflectionType,
   ReflectionQueryType,
@@ -159,11 +160,15 @@ export class ReflectionsCoreService {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const orderBy = query.orderBy ?? 'DESC';
+    const filterRecordOptions: FindOptionsWhere<Reflection> = {
+      userId,
+    };
+    if (query.search) {
+      filterRecordOptions.content = ILike(`%${query.search}%`);
+    }
 
     return await this.reflectionsActionModel.list({
-      filterRecordOptions: {
-        userId,
-      },
+      filterRecordOptions,
       paginationPayload: {
         page,
         limit,
