@@ -1,5 +1,5 @@
 {
-  "name": "deenAI-BE",
+  "name": "deenaibe",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -32,7 +32,7 @@
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
     "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js",
-    "seed:plans": "ts-node -r tsconfig-paths/register src/database/seeds/seed-plans.ts" 
+    "seed:plans": "ts-node -r tsconfig-paths/register src/database/seeds/seed-plans.ts"
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
@@ -44,7 +44,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/jwt": "^11.0.1",
-    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-express": "^11.1.9",
     "@nestjs/schedule": "^6.0.1",
     "@nestjs/swagger": "^11.2.1",
     "@nestjs/typeorm": "^11.0.0",

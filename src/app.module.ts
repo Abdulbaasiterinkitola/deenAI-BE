@@ -24,6 +24,8 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
+import { RecitersModule } from './modules/reciters/reciters.module';
+
 
 @Module({
   imports: [
@@ -59,6 +61,7 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
     SubscriptionsModule,
     FeedbackModule,
     SqueezeModule,
+    RecitersModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AuthGuard }],
