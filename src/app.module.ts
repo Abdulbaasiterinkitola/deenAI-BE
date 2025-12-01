@@ -62,11 +62,8 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
     SubscriptionsModule,
     FeedbackModule,
     SqueezeModule,
-<<<<<<< HEAD
     RecitersModule,
-=======
     NewsletterModule,
->>>>>>> dev
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AuthGuard }],
