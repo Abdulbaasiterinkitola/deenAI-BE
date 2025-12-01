@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Logger } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { WaitlistService } from './waitlist.service';
 import { WaitlistDto } from './dtos/waitlist.dto';
 import { ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
@@ -6,6 +7,9 @@ import { Public } from '@guards/public.decorator';
 
 @Controller('waitlist')
 @Public()
+@Throttle({
+  default: { limit: 3, ttl: 60 * 1000 }, // 3 requests per minute
+})
 export class WaitlistController {
   private readonly logger = new Logger(WaitlistController.name);
 

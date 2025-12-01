@@ -8,6 +8,7 @@ import { AppleAuthValidator } from './validators/apple-auth.validator';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { RequestOtpDto } from './dtos/forgot-password.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
+import { Throttle } from '@nestjs/throttler';
 import { ResetPasswordService } from './services/reset-password.service';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { Public } from '@guards/public.decorator';
@@ -24,6 +25,9 @@ import {
 } from './docs';
 @Controller('auth')
 @ApiTags('Authentication')
+@Throttle({
+  default: { limit: 15, ttl: 60 * 1000 }, // 15 requests per minute
+})
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(
