@@ -1,5 +1,4 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import UserCoreService from './services/user-core.service';
@@ -20,6 +19,7 @@ import { UserAccountDeletionService } from './services/user-account-deletion.ser
 import { StreaksModule } from '@modules/streaks/streaks.module';
 import { ProfileModule } from '@modules/profile/profile.module';
 import { UserRegistrationService } from './services/user-registration.service';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
