@@ -246,7 +246,7 @@ export class ChatsCoreService {
       });
 
     return from(chatPromise).pipe(
-      mergeMap(async () => {
+      mergeMap(async (chat) => {
         const recentMessages = await this.getLastMessages(chatId, 6);
         const latestMessage =
           recentMessages[recentMessages.length - 1] ?? undefined;
@@ -294,6 +294,44 @@ export class ChatsCoreService {
               // Track usage
               await this.tokenUsageService.trackUsage(userId, finalUsage);
 
+              let chatTitle = chat.title;
+
+              // Generate and update title if this is the first message (hasTitle is false)
+              if (!chat.hasTitle) {
+                try {
+                  // Generate title and get usage stats
+                  const { title: generatedTitle, usage: titleUsage } =
+                    await this.geminiService.generateTitle(
+                      latestMessage.content,
+                    );
+
+                  // Track token usage for the title generation
+                  await this.tokenUsageService.trackUsage(userId, titleUsage);
+
+                  // Add title usage to final usage stats
+                  finalUsage.inputTokens += titleUsage.inputTokens;
+                  finalUsage.outputTokens += titleUsage.outputTokens;
+                  finalUsage.totalTokens += titleUsage.totalTokens;
+
+                  await this.chatActionModel.update({
+                    updatePayload: {
+                      title: generatedTitle,
+                      hasTitle: true,
+                    },
+                    identifierOptions: { id: chatId },
+                  });
+
+                  chatTitle = generatedTitle;
+                } catch (error) {
+                  // Log error but don't fail the request if title generation fails
+                  this.logger.error(
+                    `Failed to generate title for chat ${chatId}: ${
+                      error instanceof Error ? error.message : 'Unknown error'
+                    }`,
+                  );
+                }
+              }
+
               const finalResponse = {
                 success: true,
                 message: 'Message sent successfully',
@@ -301,6 +339,7 @@ export class ChatsCoreService {
                   userMessage: latestMessage,
                   aiMessage: aiMessage,
                   usage: finalUsage,
+                  title: chatTitle,
                 },
               };
               subscriber.next({ data: JSON.stringify(finalResponse) });
