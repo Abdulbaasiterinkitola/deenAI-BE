@@ -1,58 +1,38 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateReciters1894000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // For Postgres - create uuid extension if missing (no-op for other DBs)
+    // Create uuid extension if Postgres
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
 
-    await queryRunner.createTable(
-      new Table({
-        name: 'reciters',
-        columns: [
-          {
-            name: 'id',
-            type: 'uuid',
-            isPrimary: true,
-            generationStrategy: 'uuid',
-            default: `uuid_generate_v4()`,
-          },
-          { name: 'reciter_name', type: 'varchar', isNullable: false },
-          { name: 'surah', type: 'varchar', isNullable: false },
-          { name: 'start_ayah', type: 'integer', isNullable: false },
-          { name: 'end_ayah', type: 'integer', isNullable: false },
-          { name: 'file_path', type: 'varchar', isNullable: false },
-          { name: 'file_size', type: 'bigint', isNullable: false, default: 0 },
-          { name: 'duration', type: 'integer', isNullable: true },
-          { name: 'created_at', type: 'timestamp with time zone', default: 'now()' },
-          { name: 'updated_at', type: 'timestamp with time zone', default: 'now()' },
-        ],
-      }),
-      true,
-    );
+    // Create table with raw SQL so schema is explicit and consistent with other migrations
+    await queryRunner.query(`
+      CREATE TABLE IF NOT EXISTS reciters (
+        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        reciter_name varchar NOT NULL,
+        surah varchar NOT NULL,
+        start_ayah integer NOT NULL,
+        end_ayah integer NOT NULL,
+        file_path varchar NOT NULL,
+        file_size bigint NOT NULL DEFAULT 0,
+        duration integer,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+    `);
 
-    await queryRunner.createIndex(
-      'reciters',
-      new TableIndex({ name: 'IDX_RECITERS_RECITER_NAME', columnNames: ['reciter_name'] }),
-    );
-    await queryRunner.createIndex(
-      'reciters',
-      new TableIndex({ name: 'IDX_RECITERS_SURAH', columnNames: ['surah'] }),
-    );
-    await queryRunner.createIndex(
-      'reciters',
-      new TableIndex({ name: 'IDX_RECITERS_START_AYAH', columnNames: ['start_ayah'] }),
-    );
-    await queryRunner.createIndex(
-      'reciters',
-      new TableIndex({ name: 'IDX_RECITERS_END_AYAH', columnNames: ['end_ayah'] }),
-    );
+    // Indexes (raw SQL)
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_reciters_reciter_name ON reciters(reciter_name);`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_reciters_surah ON reciters(surah);`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_reciters_start_ayah ON reciters(start_ayah);`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_reciters_end_ayah ON reciters(end_ayah);`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex('reciters', 'IDX_RECITERS_END_AYAH');
-    await queryRunner.dropIndex('reciters', 'IDX_RECITERS_START_AYAH');
-    await queryRunner.dropIndex('reciters', 'IDX_RECITERS_SURAH');
-    await queryRunner.dropIndex('reciters', 'IDX_RECITERS_RECITER_NAME');
-    await queryRunner.dropTable('reciters');
+    await queryRunner.query(`DROP INDEX IF EXISTS idx_reciters_end_ayah;`);
+    await queryRunner.query(`DROP INDEX IF EXISTS idx_reciters_start_ayah;`);
+    await queryRunner.query(`DROP INDEX IF EXISTS idx_reciters_surah;`);
+    await queryRunner.query(`DROP INDEX IF EXISTS idx_reciters_reciter_name;`);
+    await queryRunner.query(`DROP TABLE IF EXISTS reciters;`);
   }
 }

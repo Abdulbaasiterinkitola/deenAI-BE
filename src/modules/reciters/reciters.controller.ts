@@ -21,28 +21,23 @@ import { RecitersService } from './reciters.service';
 import { CreateReciterDto } from './dtos/create-reciter.dto';
 import { ReciterFilterDto } from './dtos/reciter-filter.dto';
 import { AdminGuard } from './guards/admin.guard';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiOkResponse, ApiQuery, ApiProduces } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Request, Response } from 'express';
+import { RecitersDocs } from './docs/reciters.doc'; // <-- docs helper
 
 const STORAGE_PATH = process.env.RECITER_AUDIO_STORAGE_PATH || 'uploads/reciters';
 const MAX_SIZE = Number(process.env.RECITER_AUDIO_MAX_SIZE || 50 * 1024 * 1024);
 
 fs.mkdirSync(STORAGE_PATH, { recursive: true });
 
-@ApiTags('reciters')
+@RecitersDocs.tag()
 @Controller({ path: 'reciters', version: '1' })
 export class RecitersController {
   constructor(private recitersService: RecitersService, private configService: ConfigService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List reciters with pagination and filters' })
-  @ApiOkResponse({ type: [Object] })
-  @ApiQuery({ name: 'reciterName', required: false })
-  @ApiQuery({ name: 'surah', required: false })
-  @ApiQuery({ name: 'startAyah', required: false })
-  @ApiQuery({ name: 'endAyah', required: false })
+  @RecitersDocs.getAll()
   async list(@Query() query: ReciterFilterDto, @Req() req: Request) {
     const res = await this.recitersService.list(query);
     const host = req.protocol + '://' + req.get('host');
@@ -61,6 +56,7 @@ export class RecitersController {
 
   @Post('upload')
   @UseGuards(AdminGuard)
+  @RecitersDocs.upload()
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -82,28 +78,12 @@ export class RecitersController {
       },
     }),
   )
-  @ApiOperation({ summary: 'Admin upload reciter MP3 file' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        reciterName: { type: 'string' },
-        surah: { type: 'string' },
-        startAyah: { type: 'number' },
-        endAyah: { type: 'number' },
-        duration: { type: 'number' },
-        file: { type: 'string', format: 'binary' },
-      },
-      required: ['reciterName', 'surah', 'startAyah', 'endAyah', 'file'],
-    },
-  })
   async upload(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateReciterDto, @Req() req: Request) {
     if (!file) throw new HttpException('MP3 file is required', HttpStatus.BAD_REQUEST);
 
     const created = await this.recitersService.createReciter({
       ...dto,
-      filePath: file.filename, // store filename, not absolute path
+      filePath: file.filename,
       fileSize: file.size,
       duration: dto.duration,
     });
@@ -127,15 +107,13 @@ export class RecitersController {
   }
 
   @Get(':id/download')
-  @ApiOperation({ summary: 'Download or stream reciter MP3 by id' })
-  @ApiProduces('audio/mpeg')
+  @RecitersDocs.download()
   async download(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: Request, @Res() res: Response) {
     const reciter = await this.recitersService.getById(id);
     if (!reciter) {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Reciter not found' });
     }
 
-    // Compute full file path
     const storage = this.configService.get<string>('RECITER_AUDIO_STORAGE_PATH') || STORAGE_PATH;
     const fileFullPath = path.isAbsolute(reciter.filePath) ? reciter.filePath : path.join(storage, reciter.filePath);
 
