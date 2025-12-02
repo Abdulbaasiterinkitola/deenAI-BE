@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from './src/app.controller';
+import { AppService } from './src/app.service';
 import { validateEnv } from '@shared/env.validator';
 import dataSource, { initializeDataSource } from '@database/data-source';
 import authConfig from '@config/auth.config';
@@ -19,12 +19,12 @@ import { ChatsModule } from '@modules/chats/chats.module';
 import { BookmarksModule } from '@modules/bookmarks/bookmarks.module';
 import { PlansModule } from '@modules/plans/plans.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { FeedbackModule } from './modules/feedback/feedback.module';
+import { FeedbackModule } from './src/modules/feedback/feedback.module';
 import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
-import { RecitersModule } from './modules/reciters/reciters.module';
+import { RecitersModule } from './src/modules/reciters/reciters.module';
 
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 
