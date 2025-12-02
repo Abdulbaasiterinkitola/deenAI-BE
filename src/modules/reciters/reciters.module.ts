@@ -13,6 +13,6 @@ import { AdminGuard } from './guards/admin.guard';
   imports: [TypeOrmModule.forFeature([Reciter]), ConfigModule],
   controllers: [RecitersController],
   providers: [ReciterModelAction, RecitersCoreService, RecitersQueryService, RecitersService, AdminGuard],
-  exports: [RecitersService],
+  exports: [RecitersService, ReciterModelAction, RecitersQueryService, RecitersCoreService, AdminGuard],
 })
 export class RecitersModule {}
