@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddReflectionMigrationFix1764593134234
-  implements MigrationInterface
-{
+export class AddReflectionMigrationFix1764593134234 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE reflections ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'quran';

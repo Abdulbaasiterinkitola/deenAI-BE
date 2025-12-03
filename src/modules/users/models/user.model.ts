@@ -75,4 +75,8 @@ export class User extends AbstractBaseEntity {
     nullable: true,
   })
   billingStart: Date | null;
+
+  @Index()
+  @Column({ name: 'is_superadmin', type: 'boolean', default: false })
+  isSuperadmin: boolean;
 }

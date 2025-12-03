@@ -8,6 +8,7 @@ import { Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationExceptionFilter } from '@shared/validation-exception.filter';
 import { seedPlans } from '@database/seeds/seed-plans';
+import { seedSuperadmin } from '@database/seeds/seed-superadmin';
 import { join } from 'path';
 
 async function bootstrap() {
@@ -43,6 +44,7 @@ async function bootstrap() {
 
     try {
       await seedPlans();
+      await seedSuperadmin();
       logger.log('Database seeding completed!');
     } catch (seedError) {
       logger.error('Error during database seeding', seedError);

@@ -15,11 +15,12 @@ export class ThrottlerConfigService implements ThrottlerOptionsFactory {
   createThrottlerOptions(): ThrottlerModuleOptions {
     const isProduction =
       this.configService.get<string>('NODE_ENV') === 'production';
-    
+
     let redisUrl = this.configService.get<string>('REDIS_URL');
-    
+
     if (!redisUrl) {
-      const redisHost = this.configService.get<string>('REDIS_HOST') || '127.0.0.1';
+      const redisHost =
+        this.configService.get<string>('REDIS_HOST') || '127.0.0.1';
       const redisPort = this.configService.get<number>('REDIS_PORT') || 6379;
       redisUrl = `redis://${redisHost}:${redisPort}`;
       this.logger.log(
@@ -28,7 +29,7 @@ export class ThrottlerConfigService implements ThrottlerOptionsFactory {
     }
 
     this.logger.log(`Configuring throttler with Redis at: ${redisUrl}`);
-    
+
     // Create storage - errors will be handled by the unhandledRejection handler in main.ts
     const storage = new ThrottlerStorageRedisService(redisUrl);
 
