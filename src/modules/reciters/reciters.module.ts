@@ -7,12 +7,21 @@ import { RecitersQueryService } from './services/reciters-query.service';
 import { RecitersService } from './reciters.service';
 import { RecitersController } from './reciters.controller';
 import { ConfigModule } from '@nestjs/config';
-import { AdminGuard } from './guards/admin.guard';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Reciter]), ConfigModule],
   controllers: [RecitersController],
-  providers: [ReciterModelAction, RecitersCoreService, RecitersQueryService, RecitersService, AdminGuard],
-  exports: [RecitersService, ReciterModelAction, RecitersQueryService, RecitersCoreService, AdminGuard],
+  providers: [
+    ReciterModelAction,
+    RecitersCoreService,
+    RecitersQueryService,
+    RecitersService,
+  ],
+  exports: [
+    RecitersService,
+    ReciterModelAction,
+    RecitersQueryService,
+    RecitersCoreService,
+  ],
 })
 export class RecitersModule {}

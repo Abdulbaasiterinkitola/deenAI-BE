@@ -11,6 +11,7 @@ export class RecitersQueryService {
     if (filter.reciterName) where.reciterName = filter.reciterName;
     if (filter.surah) where.surah = filter.surah;
     // removed startAyah/endAyah — filtering only by reciterName and surah now
+    if (filter.surahNumber) where.surahNumber = filter.surahNumber;
 
     const page = filter.page || 1;
     const limit = filter.limit || 10;

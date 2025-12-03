@@ -10,6 +10,10 @@ export class Reciter extends AbstractBaseEntity {
   @Column({ name: 'surah' })
   surah: string;
 
+  @Column({ name: 'surah_number', type: 'integer' })
+  @Index()
+  surahNumber: number;
+
   @Column({ name: 'file_path' })
   filePath: string;
 

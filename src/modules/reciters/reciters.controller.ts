@@ -20,13 +20,14 @@ import { ConfigService } from '@nestjs/config';
 import { RecitersService } from './reciters.service';
 import { CreateReciterDto } from './dtos/create-reciter.dto';
 import { ReciterFilterDto } from './dtos/reciter-filter.dto';
-import { AdminGuard } from './guards/admin.guard';
+import { SuperadminGuard } from '@guards/superadmin.guard';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Request, Response } from 'express';
 import { RecitersDocs } from './docs/reciters.doc'; // <-- docs helper
 
-const STORAGE_PATH = process.env.RECITER_AUDIO_STORAGE_PATH || 'uploads/reciters';
+const STORAGE_PATH =
+  process.env.RECITER_AUDIO_STORAGE_PATH || 'uploads/reciters';
 const MAX_SIZE = Number(process.env.RECITER_AUDIO_MAX_SIZE || 50 * 1024 * 1024);
 
 fs.mkdirSync(STORAGE_PATH, { recursive: true });
@@ -34,7 +35,10 @@ fs.mkdirSync(STORAGE_PATH, { recursive: true });
 @RecitersDocs.tag()
 @Controller({ path: 'reciters', version: '1' })
 export class RecitersController {
-  constructor(private recitersService: RecitersService, private configService: ConfigService) {}
+  constructor(
+    private recitersService: RecitersService,
+    private configService: ConfigService,
+  ) {}
 
   @Get()
   @RecitersDocs.getAll()
@@ -45,15 +49,22 @@ export class RecitersController {
       id: r.id,
       reciterName: r.reciterName,
       surah: r.surah,
+      surahNumber: r.surahNumber,
       fileSize: Number(r.fileSize),
+      duration: r.duration,
       downloadUrl: `${host}/api/v1/reciters/${r.id}/download`,
       createdAt: r.createdAt,
     }));
-    return { success: true, message: 'Reciters fetched', data: payload, meta: res.paginationMeta };
+    return {
+      success: true,
+      message: 'Reciters fetched',
+      data: payload,
+      meta: res.paginationMeta,
+    };
   }
 
   @Post('upload')
-  @UseGuards(AdminGuard)
+  @UseGuards(SuperadminGuard)
   @RecitersDocs.upload()
   @UseInterceptors(
     FileInterceptor('file', {
@@ -61,7 +72,10 @@ export class RecitersController {
         destination: (_, __, cb) => cb(null, STORAGE_PATH),
         filename: (_, file, cb) => {
           const ext = path.extname(file.originalname);
-          const base = path.basename(file.originalname, ext).replace(/\s+/g, '_').toLowerCase();
+          const base = path
+            .basename(file.originalname, ext)
+            .replace(/\s+/g, '_')
+            .toLowerCase();
           cb(null, `${Date.now()}-${base}${ext}`);
         },
       }),
@@ -70,14 +84,25 @@ export class RecitersController {
         const allowed = ['audio/mpeg', 'audio/mp3'];
         const ext = path.extname(file.originalname).toLowerCase();
         if (!allowed.includes(file.mimetype) && ext !== '.mp3') {
-          return cb(new HttpException('Invalid file type. Only MP3 allowed', HttpStatus.BAD_REQUEST), false);
+          return cb(
+            new HttpException(
+              'Invalid file type. Only MP3 allowed',
+              HttpStatus.BAD_REQUEST,
+            ),
+            false,
+          );
         }
         cb(null, true);
       },
     }),
   )
-  async upload(@UploadedFile() file: Express.Multer.File, @Body() dto: CreateReciterDto, @Req() req: Request) {
-    if (!file) throw new HttpException('MP3 file is required', HttpStatus.BAD_REQUEST);
+  async upload(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: CreateReciterDto,
+    @Req() req: Request,
+  ) {
+    if (!file)
+      throw new HttpException('MP3 file is required', HttpStatus.BAD_REQUEST);
 
     const created = await this.recitersService.createReciter({
       ...dto,
@@ -95,7 +120,9 @@ export class RecitersController {
         id: created.id,
         reciterName: created.reciterName,
         surah: created.surah,
+        surahNumber: created.surahNumber,
         fileSize: Number(created.fileSize),
+        duration: created.duration,
         downloadUrl,
         createdAt: created.createdAt,
       },
@@ -104,17 +131,29 @@ export class RecitersController {
 
   @Get(':id/download')
   @RecitersDocs.download()
-  async download(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: Request, @Res() res: Response) {
+  async download(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     const reciter = await this.recitersService.getById(id);
     if (!reciter) {
-      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Reciter not found' });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ success: false, message: 'Reciter not found' });
     }
 
-    const storage = this.configService.get<string>('RECITER_AUDIO_STORAGE_PATH') || STORAGE_PATH;
-    const fileFullPath = path.isAbsolute(reciter.filePath) ? reciter.filePath : path.join(storage, reciter.filePath);
+    const storage =
+      this.configService.get<string>('RECITER_AUDIO_STORAGE_PATH') ||
+      STORAGE_PATH;
+    const fileFullPath = path.isAbsolute(reciter.filePath)
+      ? reciter.filePath
+      : path.join(storage, reciter.filePath);
 
     if (!fs.existsSync(fileFullPath)) {
-      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'File not found' });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ success: false, message: 'File not found' });
     }
 
     const stat = fs.statSync(fileFullPath);

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RecitersCoreService } from './services/reciters-core.service';
 import { RecitersQueryService } from './services/reciters-query.service';
 import { CreateReciterDto } from './dtos/create-reciter.dto';
+import { ReciterFilterDto } from './dtos/reciter-filter.dto';
 
 @Injectable()
 export class RecitersService {
@@ -10,7 +11,13 @@ export class RecitersService {
     private queryService: RecitersQueryService,
   ) {}
 
-  createReciter(payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number }) {
+  createReciter(
+    payload: Partial<CreateReciterDto> & {
+      filePath: string;
+      fileSize: number;
+      duration?: number;
+    },
+  ) {
     return this.core.create(payload);
   }
 
@@ -19,6 +26,6 @@ export class RecitersService {
   }
 
   list(filter: any) {
-    return this.queryService.list(filter);
+    return this.queryService.list(filter as ReciterFilterDto);
   }
 }

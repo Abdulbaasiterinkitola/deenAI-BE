@@ -9,10 +9,16 @@ export class RecitersCoreService {
 
   async create(
     payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number },
+    payload: Partial<CreateReciterDto> & {
+      filePath: string;
+      fileSize: number;
+      duration?: number;
+    },
   ): Promise<Reciter> {
     const createPayload: Partial<Reciter> = {
       reciterName: payload.reciterName,
       surah: payload.surah,
+      surahNumber: payload.surahNumber,
       filePath: payload.filePath,
       fileSize: payload.fileSize,
       // Use undefined if duration is not provided so TypeScript type matches Reciter.duration?: number

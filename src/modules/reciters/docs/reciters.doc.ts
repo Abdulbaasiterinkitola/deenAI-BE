@@ -14,8 +14,13 @@ export class RecitersDocs {
 
       ApiQuery({ name: 'page', required: false, example: 1 }),
       ApiQuery({ name: 'limit', required: false, example: 10 }),
-      ApiQuery({ name: 'reciterName', required: false, example: 'Mishary Alafasy' }),
+      ApiQuery({
+        name: 'reciterName',
+        required: false,
+        example: 'Mishary Alafasy',
+      }),
       ApiQuery({ name: 'surah', required: false, example: 'Al-Fatihah' }),
+      ApiQuery({ name: 'surahNumber', required: false, example: 1 }),
 
       ApiResponse({
         status: 200,
@@ -38,14 +43,14 @@ export class RecitersDocs {
 
   static upload() {
     return applyDecorators(
-      ApiOperation({ summary: 'Upload reciter audio (Admin only)' }),
+      ApiOperation({ summary: 'Upload reciter audio (Superadmin only)' }),
       ApiResponse({
         status: 201,
         description: 'Reciter uploaded successfully',
         type: ReciterResponseDto,
       }),
       ApiResponse({ status: 400, description: 'Invalid file or bad request' }),
-      ApiResponse({ status: 403, description: 'Forbidden (Admin only)' }),
+      ApiResponse({ status: 403, description: 'Forbidden (Superadmin only)' }),
     );
   }
 

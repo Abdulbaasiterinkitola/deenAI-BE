@@ -23,8 +23,7 @@ export class RegisterDocs {
           example: {
             success: true,
             status: 'success',
-            message:
-              'User registered successfully.',
+            message: 'User registered successfully.',
             data: {
               tokens: {
                 accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -50,7 +49,7 @@ export class RegisterDocs {
                 timezone: 'UTC',
                 createdAt: '2025-11-20T19:02:39.633Z',
                 updatedAt: '2025-11-20T19:02:39.633Z',
-              }
+              },
             },
             status_code: 201,
           },
