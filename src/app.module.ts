@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Module } from '@nestjs/common'; 
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
@@ -39,17 +39,11 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
       load: [authConfig],
     }),
 
-    // Cache module - memory store by default. isGlobal true so services can inject CACHE_MANAGER.
     CacheModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        // Default TTL left to per-service settings. We register global cache manager.
-        return {
-          ttl: 0,
-          isGlobal: true,
-        };
-      },
-      inject: [ConfigService],
+      useFactory: () => ({
+        ttl: 0,
+        isGlobal: true,
+      }),
     }),
 
     ThrottlerModule.forRootAsync({
@@ -57,7 +51,9 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
       useClass: ThrottlerConfigService,
     }),
     ScheduleModule.forRoot(),
+
     TypeOrmModule.forRootAsync({
+      imports: [],
       useFactory: () => ({
         ...dataSource.options,
       }),
