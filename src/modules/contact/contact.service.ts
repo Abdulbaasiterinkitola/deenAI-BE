@@ -13,7 +13,7 @@ export class ContactService {
     private readonly coreService: ContactCoreService,
     private readonly validationService: ContactValidationService,
     private readonly emailService: EmailService,
-  ) { }
+  ) {}
 
   async submitContact(payload: ContactDto): Promise<ContactSubmission> {
     const sanitizedPayload = this.validationService.validatePayload(payload);
