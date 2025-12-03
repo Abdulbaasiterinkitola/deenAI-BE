@@ -8,7 +8,7 @@ export class RecitersCoreService {
   constructor(private reciterModelAction: ReciterModelAction) {}
 
   async create(
-    payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number },
+    // payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number },
     payload: Partial<CreateReciterDto> & {
       filePath: string;
       fileSize: number;
