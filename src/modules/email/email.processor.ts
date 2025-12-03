@@ -13,6 +13,8 @@ import VerificationCodeEmail from './templates/verification-code';
 import AccountDeletionCompleteEmail from './templates/account-deletion-complete';
 import AccountDeletionRequestEmail from './templates/deletion-otp';
 import FeedbackEmail from './templates/feedback-email';
+import ContactConfirmation from './templates/contact-confirmation';
+import ContactNotification from './templates/contact-notification';
 import { Job } from 'bull';
 
 type MailTransporter = {
@@ -39,6 +41,8 @@ const TEMPLATE_MAP: Record<string, EmailTemplate> = {
   'account-deletion': AccountDeletionRequestEmail,
   'account-deletion-complete': AccountDeletionCompleteEmail,
   feedback: FeedbackEmail,
+  'contact-confirmation': ContactConfirmation,
+  'contact-notification': ContactNotification,
 };
 
 @Processor('email')

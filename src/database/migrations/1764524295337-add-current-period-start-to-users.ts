@@ -10,6 +10,8 @@ export class AddCurrentPeriodStartToUsers1764524295337 implements MigrationInter
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE users DROP COLUMN IF EXISTS current_period_start`);
+    await queryRunner.query(
+      `ALTER TABLE users DROP COLUMN IF EXISTS current_period_start`,
+    );
   }
 }

@@ -6,9 +6,13 @@ import { ContactSubmission } from './models/contact-submission.model';
 import { ContactSubmissionActionModel } from './action-models/contact-submission.action-model';
 import { ContactCoreService } from './services/contact-core.service';
 import { ContactValidationService } from './services/contact-validation.service';
+import { EmailServiceModule } from '@modules/email/email.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ContactSubmission])],
+  imports: [
+    TypeOrmModule.forFeature([ContactSubmission]),
+    EmailServiceModule,
+  ],
   controllers: [ContactController],
   providers: [
     ContactService,
