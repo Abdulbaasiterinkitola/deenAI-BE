@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { validateEnv } from '@shared/env.validator';
@@ -25,7 +26,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
 import { RecitersModule } from './modules/reciters/reciters.module';
-
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 
 @Module({
@@ -35,6 +35,20 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
       validate: validateEnv,
       load: [authConfig],
     }),
+
+    // Cache module - memory store by default. isGlobal true so services can inject CACHE_MANAGER.
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        // Default TTL left to per-service settings. We register global cache manager.
+        return {
+          ttl: 0,
+          isGlobal: true,
+        };
+      },
+      inject: [ConfigService],
+    }),
+
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
@@ -47,6 +61,7 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
         return dataSource;
       },
     }),
+
     AuthModule,
     UsersModule,
     EmailServiceModule,

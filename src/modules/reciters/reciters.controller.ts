@@ -45,8 +45,6 @@ export class RecitersController {
       id: r.id,
       reciterName: r.reciterName,
       surah: r.surah,
-      startAyah: r.startAyah,
-      endAyah: r.endAyah,
       fileSize: Number(r.fileSize),
       downloadUrl: `${host}/api/v1/reciters/${r.id}/download`,
       createdAt: r.createdAt,
@@ -97,8 +95,6 @@ export class RecitersController {
         id: created.id,
         reciterName: created.reciterName,
         surah: created.surah,
-        startAyah: created.startAyah,
-        endAyah: created.endAyah,
         fileSize: Number(created.fileSize),
         downloadUrl,
         createdAt: created.createdAt,
@@ -124,7 +120,7 @@ export class RecitersController {
     const stat = fs.statSync(fileFullPath);
     const fileSize = stat.size;
     const range = req.headers.range;
-    const fileName = `${reciter.reciterName.replace(/\s+/g, '_').toLowerCase()}-${reciter.surah}-${reciter.startAyah}-${reciter.endAyah}.mp3`;
+    const fileName = `${reciter.reciterName.replace(/\s+/g, '_').toLowerCase()}-${reciter.surah}.mp3`;
 
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');

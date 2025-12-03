@@ -11,12 +11,6 @@ export class ReciterResponseDto {
   surah: string;
 
   @ApiProperty()
-  startAyah: number;
-
-  @ApiProperty()
-  endAyah: number;
-
-  @ApiProperty()
   fileSize: number;
 
   @ApiProperty()

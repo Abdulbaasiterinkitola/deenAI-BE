@@ -16,8 +16,6 @@ export class RecitersDocs {
       ApiQuery({ name: 'limit', required: false, example: 10 }),
       ApiQuery({ name: 'reciterName', required: false, example: 'Mishary Alafasy' }),
       ApiQuery({ name: 'surah', required: false, example: 'Al-Fatihah' }),
-      ApiQuery({ name: 'startAyah', required: false, example: 1 }),
-      ApiQuery({ name: 'endAyah', required: false, example: 7 }),
 
       ApiResponse({
         status: 200,

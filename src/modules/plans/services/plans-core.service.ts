@@ -3,10 +3,14 @@ import { PlanModelAction } from '../model-actions/plan.model-action';
 import { Plan } from '../models/plan.model';
 import { PaginationMeta } from '@shared/helpers/pagination.helper';
 import { PlanQueryDto } from '../dto/plan-query.dto';
+import { PlansCacheService } from './plans-cache.service';
 
 @Injectable()
 export class PlansCoreService {
-  constructor(private readonly planModelAction: PlanModelAction) {}
+  constructor(
+    private readonly planModelAction: PlanModelAction,
+    private readonly plansCacheService: PlansCacheService,
+  ) {}
 
   async listPlans(
     query: PlanQueryDto,
@@ -37,12 +41,23 @@ export class PlansCoreService {
           updatePayload: plan,
           identifierOptions: { id: existing.id },
         });
+
+        // invalidate caches for updated plan
+        await this.plansCacheService.delById(existing.id);
+        if (plan.slug) await this.plansCacheService.delBySlug(plan.slug as string);
+        await this.plansCacheService.delAll();
         continue;
       }
 
-      await this.planModelAction.create({
+      const created = await this.planModelAction.create({
         createPayload: plan,
       });
+
+      // invalidate after create to ensure list/get returns fresh values
+      await this.plansCacheService.delAll();
+      if (created && created.id) {
+        await this.plansCacheService.delById(created.id);
+      }
     }
   }
 }

@@ -7,15 +7,16 @@ import { Reciter } from '../models/reciter.model';
 export class RecitersCoreService {
   constructor(private reciterModelAction: ReciterModelAction) {}
 
-  async create(payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number; }): Promise<Reciter> {
+  async create(
+    payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number },
+  ): Promise<Reciter> {
     const createPayload: Partial<Reciter> = {
       reciterName: payload.reciterName,
       surah: payload.surah,
-      startAyah: payload.startAyah,
-      endAyah: payload.endAyah,
       filePath: payload.filePath,
       fileSize: payload.fileSize,
-      duration: payload.duration || null,
+      // Use undefined if duration is not provided so TypeScript type matches Reciter.duration?: number
+      duration: typeof payload.duration === 'number' ? payload.duration : undefined,
     };
 
     return (await this.reciterModelAction.create({

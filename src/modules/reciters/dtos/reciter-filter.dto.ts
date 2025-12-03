@@ -1,39 +1,31 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ReciterFilterDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional({ example: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
+
+  @ApiPropertyOptional({ example: 'Mishary Alafasy' })
   @IsOptional()
   @IsString()
   reciterName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Al-Fatihah' })
   @IsOptional()
   @IsString()
   surah?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  startAyah?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  endAyah?: number;
-
-  @ApiPropertyOptional({ description: 'Page number', default: 1 })
-  @Type(() => Number)
-  @IsOptional()
-  page?: number = 1;
-
-  @ApiPropertyOptional({ description: 'Items per page', default: 10 })
-  @Type(() => Number)
-  @IsOptional()
-  limit?: number = 10;
+  // removed startAyah and endAyah from the DTO per design decision
 }
