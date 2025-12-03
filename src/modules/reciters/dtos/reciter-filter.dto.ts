@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -13,19 +13,13 @@ export class ReciterFilterDto {
   @IsString()
   surah?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Surah number (1-114)' })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  startAyah?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  endAyah?: number;
+  @Max(114)
+  surahNumber?: number;
 
   @ApiPropertyOptional({ description: 'Page number', default: 1 })
   @Type(() => Number)

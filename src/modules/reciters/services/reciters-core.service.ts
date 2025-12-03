@@ -7,12 +7,17 @@ import { Reciter } from '../models/reciter.model';
 export class RecitersCoreService {
   constructor(private reciterModelAction: ReciterModelAction) {}
 
-  async create(payload: Partial<CreateReciterDto> & { filePath: string; fileSize: number; duration?: number; }): Promise<Reciter> {
+  async create(
+    payload: Partial<CreateReciterDto> & {
+      filePath: string;
+      fileSize: number;
+      duration?: number;
+    },
+  ): Promise<Reciter> {
     const createPayload: Partial<Reciter> = {
       reciterName: payload.reciterName,
       surah: payload.surah,
-      startAyah: payload.startAyah,
-      endAyah: payload.endAyah,
+      surahNumber: payload.surahNumber,
       filePath: payload.filePath,
       fileSize: payload.fileSize,
       duration: payload.duration || null,

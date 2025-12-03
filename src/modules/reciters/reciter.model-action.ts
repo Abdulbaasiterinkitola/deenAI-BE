@@ -10,4 +10,3 @@ export class ReciterModelAction extends AbstractModelAction<Reciter> {
     super(repository, Reciter);
   }
 }
- 

@@ -9,10 +9,7 @@ import { ContactValidationService } from './services/contact-validation.service'
 import { EmailServiceModule } from '@modules/email/email.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ContactSubmission]),
-    EmailServiceModule,
-  ],
+  imports: [TypeOrmModule.forFeature([ContactSubmission]), EmailServiceModule],
   controllers: [ContactController],
   providers: [
     ContactService,

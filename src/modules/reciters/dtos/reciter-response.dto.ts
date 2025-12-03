@@ -11,13 +11,13 @@ export class ReciterResponseDto {
   surah: string;
 
   @ApiProperty()
-  startAyah: number;
-
-  @ApiProperty()
-  endAyah: number;
+  surahNumber: number;
 
   @ApiProperty()
   fileSize: number;
+
+  @ApiProperty({ required: false })
+  duration?: number | null;
 
   @ApiProperty()
   downloadUrl: string;

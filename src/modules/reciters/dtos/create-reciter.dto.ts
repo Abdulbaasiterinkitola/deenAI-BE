@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsInt, Min, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  IsOptional,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateReciterDto {
@@ -12,15 +19,11 @@ export class CreateReciterDto {
   @IsNotEmpty()
   surah: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Surah number (1-114)' })
   @IsInt()
   @Min(1)
-  startAyah: number;
-
-  @ApiProperty()
-  @IsInt()
-  @Min(1)
-  endAyah: number;
+  @Max(114)
+  surahNumber: number;
 
   @ApiProperty({ required: false })
   @IsOptional()

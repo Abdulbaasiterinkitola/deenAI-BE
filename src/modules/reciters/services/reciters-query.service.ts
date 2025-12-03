@@ -10,8 +10,7 @@ export class RecitersQueryService {
     const where: any = {};
     if (filter.reciterName) where.reciterName = filter.reciterName;
     if (filter.surah) where.surah = filter.surah;
-    if (filter.startAyah) where.startAyah = filter.startAyah;
-    if (filter.endAyah) where.endAyah = filter.endAyah;
+    if (filter.surahNumber) where.surahNumber = filter.surahNumber;
 
     const page = filter.page || 1;
     const limit = filter.limit || 10;
