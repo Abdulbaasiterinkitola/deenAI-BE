@@ -27,6 +27,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerConfigService } from './config/throttler.config';
 import { ThrottlerBehindProxyGuard } from './guards/throttler-behind-proxy.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
+import { RecitersModule } from './modules/reciters/reciters.module';
+
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 
 @Module({
@@ -67,6 +69,7 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
     SubscriptionsModule,
     FeedbackModule,
     SqueezeModule,
+    RecitersModule,
     NewsletterModule,
   ],
   controllers: [AppController],
