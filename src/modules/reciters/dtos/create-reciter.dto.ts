@@ -1,18 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsInt, Min } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min, Max } from 'class-validator';
 
 export class CreateReciterDto {
-  @ApiProperty({ description: 'Name of the reciter' })
-  @IsString({ message: 'Reciter name must be a string' })
+  @ApiProperty()
+  @IsString()
   reciterName: string;
 
-  @ApiProperty({ description: 'Surah associated with the reciter' })
-  @IsString({ message: 'Surah must be a string' })
+  @ApiProperty()
+  @IsString()
   surah: string;
 
-  @ApiProperty({ description: 'Duration in seconds', required: false })
+  @ApiProperty({ description: 'Surah number (1-114)', required: false })
   @IsOptional()
-  @IsInt({ message: 'Duration must be an integer' })
-  @Min(1, { message: 'Duration must be at least 1 second' })
+  @IsInt()
+  @Min(1)
+  @Max(114)
+  surahNumber?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
   duration?: number;
 }
