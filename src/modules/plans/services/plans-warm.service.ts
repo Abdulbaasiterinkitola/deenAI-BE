@@ -2,6 +2,9 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { PlansCacheService } from './plans-cache.service';
 import { PlansCoreService } from './plans-core.service';
 import { ConfigService } from '@nestjs/config';
+import { PlanQueryDto } from '../dto/plan-query.dto';
+
+
 
 @Injectable()
 export class PlansWarmService implements OnApplicationBootstrap {
@@ -16,7 +19,7 @@ export class PlansWarmService implements OnApplicationBootstrap {
     if (!shouldWarm) return;
 
     try {
-      const res = await this.plansCore.listPlans({ page: 1, limit: 1000 } as any);
+      const res = await this.plansCore.listPlans({ page: 1, limit: 1000 } as PlanQueryDto);
       const items = res?.items ?? [];
       if (items && items.length) {
         await this.plansCache.setAll(items);
