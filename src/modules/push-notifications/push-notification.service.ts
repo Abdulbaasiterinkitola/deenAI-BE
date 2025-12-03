@@ -22,7 +22,11 @@ export class PushNotificationService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async saveDeviceToken(userId: string, token: string, platform: 'ios' | 'android' | 'web'): Promise<DeviceToken> {
+  async saveDeviceToken(
+    userId: string,
+    token: string,
+    platform: 'ios' | 'android' | 'web',
+  ): Promise<DeviceToken> {
     let deviceToken = await this.deviceTokenRepository.findOne({
       where: { token },
     });
@@ -53,7 +57,9 @@ export class PushNotificationService {
     });
 
     if (!tokens || tokens.length === 0) {
-      throw new NotFoundException(`No active device tokens found for user ${userId}`);
+      throw new NotFoundException(
+        `No active device tokens found for user ${userId}`,
+      );
     }
 
     for (const token of tokens) {
@@ -61,7 +67,10 @@ export class PushNotificationService {
     }
   }
 
-  async sendToMultipleUsers(userIds: string[], payload: PushPayload): Promise<{ sent: number; failed: number }> {
+  async sendToMultipleUsers(
+    userIds: string[],
+    payload: PushPayload,
+  ): Promise<{ sent: number; failed: number }> {
     let sent = 0;
     let failed = 0;
 
@@ -78,7 +87,9 @@ export class PushNotificationService {
     return { sent, failed };
   }
 
-  async broadcastToAllActive(payload: PushPayload): Promise<{ sent: number; failed: number }> {
+  async broadcastToAllActive(
+    payload: PushPayload,
+  ): Promise<{ sent: number; failed: number }> {
     const tokens = await this.deviceTokenRepository.find({
       where: { isActive: true },
     });
@@ -92,18 +103,24 @@ export class PushNotificationService {
         sent++;
       } catch (error) {
         failed++;
-        this.logger.error(`Failed to send broadcast to token ${token.token}`, error);
+        this.logger.error(
+          `Failed to send broadcast to token ${token.token}`,
+          error,
+        );
       }
     }
 
     return { sent, failed };
   }
 
-  async sendToToken(token: string, payload: PushPayload): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async sendToToken(token: string, _payload: PushPayload): Promise<void> {
     try {
       // Implement FCM or your push service integration here
       // This is a placeholder for the actual implementation
-      this.logger.log(`Push notification sent to token: ${token}`);
+      this.logger.log(
+        `(Placeholder) Push notification sent to token: ${token}`,
+      );
       // Example: await this.firebaseAdmin.messaging().send({ token, notification: {...} });
     } catch (error) {
       this.logger.error(`Failed to send push to token ${token}`, error);
@@ -118,10 +135,7 @@ export class PushNotificationService {
   }
 
   async deactivateUserTokens(userId: string): Promise<void> {
-    await this.deviceTokenRepository.update(
-      { userId },
-      { isActive: false },
-    );
+    await this.deviceTokenRepository.update({ userId }, { isActive: false });
     this.logger.log(`Deactivated all tokens for user ${userId}`);
   }
 }

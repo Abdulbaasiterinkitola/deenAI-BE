@@ -30,7 +30,7 @@ export class NotificationsProcessor {
 
   @Process('send-bulk-email')
   async handleSendBulkEmail(job: Job<SendBulkEmailDto>) {
-    const { userIds, filters, subject, message, template, context } = job.data;
+    const { userIds, filters, subject, template, context } = job.data;
     let recipients: User[] = [];
 
     if (userIds && userIds.length > 0) {
@@ -81,7 +81,12 @@ export class NotificationsProcessor {
           unsubscribeLink: `${process.env.FRONTEND_URL}/newsletter/unsubscribe`,
         };
 
-        await this.emailService.sendEmail(user.email, subject, templateName, emailContext);
+        await this.emailService.sendEmail(
+          user.email,
+          subject,
+          templateName,
+          emailContext,
+        );
         log.status = NotificationStatus.SENT;
         log.sentAt = new Date();
         sent++;
@@ -93,7 +98,7 @@ export class NotificationsProcessor {
       }
 
       await this.notificationLogRepository.save(log);
-      job.progress(((i + 1) / recipients.length) * 100);
+      await job.progress(((i + 1) / recipients.length) * 100);
     }
 
     this.logger.log(`Bulk email completed: ${sent} sent, ${failed} failed`);
@@ -154,7 +159,7 @@ export class NotificationsProcessor {
       }
 
       await this.notificationLogRepository.save(log);
-      job.progress(((i + 1) / recipients.length) * 100);
+      await job.progress(((i + 1) / recipients.length) * 100);
     }
 
     this.logger.log(`Bulk push completed: ${sent} sent, ${failed} failed`);
@@ -162,7 +167,9 @@ export class NotificationsProcessor {
   }
 
   @Process('broadcast-push')
-  async handleBroadcastPush(job: Job<{ title: string; body: string; data?: any; imageUrl?: string }>) {
+  async handleBroadcastPush(
+    job: Job<{ title: string; body: string; data?: any; imageUrl?: string }>,
+  ) {
     const { title, body, data, imageUrl } = job.data;
 
     const result = await this.pushNotificationService.broadcastToAllActive({
@@ -172,7 +179,9 @@ export class NotificationsProcessor {
       imageUrl,
     });
 
-    this.logger.log(`Broadcast completed: ${result.sent} sent, ${result.failed} failed`);
+    this.logger.log(
+      `Broadcast completed: ${result.sent} sent, ${result.failed} failed`,
+    );
     return result;
   }
 }

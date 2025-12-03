@@ -1,4 +1,4 @@
-import { IsString, IsUUID, IsOptional, ValidateNested } from 'class-validator';
+import { IsString, IsUUID, IsOptional } from 'class-validator';
 
 export class SendPushDto {
   @IsUUID()
