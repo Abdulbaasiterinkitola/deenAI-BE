@@ -5,6 +5,7 @@ import {
   UploadedFiles,
   Body,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -14,9 +15,11 @@ import {
   UploadCollectionResponseDto,
 } from './dto/collection.dto';
 import { UploadCollectionDocs } from './docs/collection-docs.decorator';
+import { SuperadminGuard } from '../../guards/superadmin.guard';
 
 @ApiTags('Collections')
 @Controller('collections')
+@UseGuards(SuperadminGuard)
 export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
