@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as zlib from 'zlib';
 import { pipeline } from 'stream/promises';
-import { CompressionAlgorithm } from '../model/collection-model';
+import { CompressionAlgorithm } from '../models/collection-model';
 
 export interface CompressionResult {
   originalSize: number;

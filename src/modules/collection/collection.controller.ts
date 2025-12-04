@@ -1,4 +1,36 @@
-import { Controller } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFiles,
+  Body,
+  BadRequestException,
+} from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
+import { CollectionService } from './collection.service';
+import {
+  CreateCollectionDto,
+  UploadCollectionResponseDto,
+} from './dto/collection.dto';
+import { UploadCollectionDocs } from './docs/collection-docs.decorator';
 
-@Controller('collection')
-export class CollectionController {}
+@ApiTags('Collections')
+@Controller('collections')
+export class CollectionController {
+  constructor(private readonly collectionService: CollectionService) {}
+
+  @Post('upload')
+  @UploadCollectionDocs()
+  @UseInterceptors(FilesInterceptor('files'))
+  async uploadCollection(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() createCollectionDto: CreateCollectionDto,
+  ): Promise<UploadCollectionResponseDto[]> {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('At least one file must be uploaded');
+    }
+
+    return this.collectionService.uploadCollections(files, createCollectionDto);
+  }
+}

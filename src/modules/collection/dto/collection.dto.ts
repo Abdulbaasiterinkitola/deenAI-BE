@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { CollectionType } from '../model/collection-model';
+import { CollectionType } from '../models/collection-model';
 
 export class CreateCollectionDto {
   @ApiProperty({
@@ -54,6 +54,13 @@ export class CreateCollectionDto {
   // We can accept a stringified JSON or an object depending on how multipart handles it.
   // Usually multipart sends objects as JSON strings.
   metadata?: string;
+
+  @ApiProperty({
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+    description: 'Collection files (JSON/XML)',
+  })
+  files: any[];
 }
 
 export class UploadCollectionResponseDto {

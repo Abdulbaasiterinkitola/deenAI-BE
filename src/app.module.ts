@@ -30,6 +30,7 @@ import { SqueezeModule } from '@modules/squeeze/squeeze.module';
 import { RecitersModule } from './modules/reciters/reciters.module';
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 import { SuperadminModule } from '@modules/superadmin/superadmin.module';
+import { CollectionModule } from '@modules/collection/collection.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { SuperadminModule } from '@modules/superadmin/superadmin.module';
     RecitersModule,
     NewsletterModule,
     SuperadminModule,
+    CollectionModule,
   ],
   controllers: [AppController],
   providers: [
