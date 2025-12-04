@@ -15,6 +15,7 @@ import { SuperadminController } from './superadmin.controller';
 import { SuperadminService } from './superadmin.service';
 import { SuperAdminUserCrudService } from './services/superadmin-crud.service';
 import { SuperadminCrudValidator } from './services/super-admin-crud-validation.service';
+import { SuperadminCrudController } from './controllers/superadmin-crud.controller';
 
 @Module({
   imports: [
@@ -26,8 +27,8 @@ import { SuperadminCrudValidator } from './services/super-admin-crud-validation.
   ],
   controllers: [
     SuperadminNotificationsController,
-    SuperadminController,
     SuperadminStatsController,
+    SuperadminCrudController
   ],
   providers: [
     SuperadminNotificationsService,

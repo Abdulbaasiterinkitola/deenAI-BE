@@ -3,11 +3,9 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  IsEnum,
   IsUUID,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { UserStatus } from '@modules/users/enums/user-status.enum';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
