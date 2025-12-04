@@ -7,6 +7,7 @@ import { CustomHttpException } from '@shared/custom.exception';
 import { HttpStatus } from '@nestjs/common';
 import { Plan } from './models/plan.model';
 import { PlansCacheService } from './services/plans-cache.service';
+import { computePaginationMeta } from '@shared/helpers/pagination.helper';
 
 @Injectable()
 export class PlansService {
@@ -19,23 +20,34 @@ export class PlansService {
   async getAll(query: PlanQueryDto) {
     this.plansValidationService.validatePagination(query.page, query.limit);
 
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
     // Try reading cached full list first
     const cached = await this.plansCacheService.getAll();
     if (cached) {
-      const items = cached.map((plan) => PlanResponseDto.fromEntity(plan));
-      // approximate pagination meta from full list
+      // Apply pagination to cached results
+      const total = cached.length;
+      const skip = (page - 1) * limit;
+      const paginatedPlans = cached.slice(skip, skip + limit);
+      const items = paginatedPlans.map((plan) =>
+        PlanResponseDto.fromEntity(plan),
+      );
+      const paginationMeta = computePaginationMeta(total, limit, page);
+
       return {
         items,
-        paginationMeta: { total: items.length, page: 1, limit: items.length },
+        paginationMeta,
       };
     }
 
     // Fallback to DB
-    const { items, paginationMeta } = await this.plansCoreService.listPlans(query);
+    const { items, paginationMeta } =
+      await this.plansCoreService.listPlans(query);
 
     if (items && items.length) {
-      // warm full list cache
-      await this.plansCacheService.setAll(items as Plan[]);
+      // Cache full list for future requests
+      await this.plansCacheService.setAll(items);
     }
 
     return {

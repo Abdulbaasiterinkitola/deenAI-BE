@@ -44,7 +44,7 @@ export class PlansCoreService {
 
         // invalidate caches for updated plan
         await this.plansCacheService.delById(existing.id);
-        if (plan.slug) await this.plansCacheService.delBySlug(plan.slug as string);
+        if (plan.slug) await this.plansCacheService.delBySlug(plan.slug);
         await this.plansCacheService.delAll();
         continue;
       }
