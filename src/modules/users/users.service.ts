@@ -13,6 +13,9 @@ import { UserRegistrationService } from './services/user-registration.service';
 import { UserSessionService } from './services/user-session.service';
 import { UserAccountDeletionService } from './services/user-account-deletion.service';
 import { UserStatsService } from './services/user-stats.service';
+import { EntityManager } from 'typeorm';
+import { UserModelAction } from './action-models/user.action-model';
+
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
@@ -27,6 +30,8 @@ export class UsersService {
     private readonly userSessionService: UserSessionService,
     private readonly userAccountDeletionService: UserAccountDeletionService,
     private readonly userStatsService: UserStatsService,
+    // Injected to handle specific transactional updates required by payments
+    private readonly userModelAction: UserModelAction,
   ) {}
 
   private readonly PROFILE_CACHE_TTL_MS = 30 * 60 * 1000;
@@ -58,8 +63,6 @@ export class UsersService {
 
     if (cachedUser) {
       this.logger.log(`Cache hit for user ID: ${id}`);
-      // The cache stores plain objects, so we re-instantiate the class
-      // to ensure all class methods are available.
       return Object.assign(new User(), cachedUser);
     }
 
@@ -67,11 +70,36 @@ export class UsersService {
     const user = await this.userCoreService.getUserById(id);
 
     if (user) {
-      // Cache the profile for 30 minutes (1800000 ms)
       await this.cacheManager.set(cacheKey, user, this.PROFILE_CACHE_TTL_MS);
     }
 
     return user;
+  }
+
+  /**
+   * Updates user plan and resets billing cycles within a transaction scope.
+   * This is critical for payment processing integrity.
+   */
+  async updateUserPlanWithTransaction(
+    userId: string,
+    planId: string,
+    manager: EntityManager,
+  ) {
+    // Update plan and reset billing dates
+    await this.userModelAction.update({
+      identifierOptions: { id: userId },
+      updatePayload: {
+        planId,
+        billingStart: new Date(),
+        currentPeriodStart: new Date(),
+      },
+      transactionOptions: {
+        useTransaction: true,
+        transaction: manager,
+      },
+    });
+
+    await this.invalidateProfileCache(userId);
   }
 
   async updateUserPassword(id: string, hashedPassword: string) {
@@ -79,8 +107,6 @@ export class UsersService {
       id,
       hashedPassword,
     );
-    // Invalidate cache on update
-
     await this.invalidateProfileCache(id);
     return updatedUser;
   }
@@ -129,13 +155,11 @@ export class UsersService {
   }
 
   async requestAccountDeletion(user: User) {
-    // Generate deletion code
     const deletionCode =
       await this.deletionCodeService.generateAccountDeletionCode(
         user.id,
         user.email,
       );
-    // Send email with OTP
 
     try {
       await this.emailService.sendEmail(
@@ -152,7 +176,6 @@ export class UsersService {
         }`,
       );
     }
-    // return response
     return { success: true, message: 'Account deletion OTP sent to email' };
   }
 
@@ -171,15 +194,11 @@ export class UsersService {
     return (await this.plansService.getPlanById(user.planId)) as Plan;
   }
 
-  /**
-   * Update specific user fields
-   */
   async updateUserFields(userId: string, fields: Partial<User>) {
     const updatedUser = await this.userCoreService.updateUserFields(
       userId,
       fields,
     );
-    // Invalidate cache on update
     await this.invalidateProfileCache(userId);
     return updatedUser;
   }

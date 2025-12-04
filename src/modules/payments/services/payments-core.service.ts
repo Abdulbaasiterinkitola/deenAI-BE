@@ -78,7 +78,6 @@ export class PaymentsCoreService {
     }
 
     // 4. Map Product ID to Internal Plan
-    // Ensure productId exists
     if (!transactionData.productId) {
       throw new CustomHttpException(
         'Invalid transaction data: Product ID is missing',
@@ -94,47 +93,39 @@ export class PaymentsCoreService {
       );
     }
 
-    // 5. Transaction: Create Record & Upgrade User
-    // FIX: Allow null here because .create() returns T | null
-    let savedTransaction: PaymentTransaction | null = null;
-
-    await this.dataSource.transaction(async (manager) => {
+    // 5. Transaction: Create Record & Upgrade User Atomically
+    return await this.dataSource.transaction(async (manager) => {
       // A. Create Payment Transaction Record
-      savedTransaction = await this.paymentTransactionModelAction.create({
+      const savedTransaction = await this.paymentTransactionModelAction.create({
         createPayload: {
           ...transactionData,
           userId,
           planId: plan.id,
-          status: PaymentStatus.COMPLETED, // Assuming success if verification passed
-        } as any, // Cast to any to avoid Partial vs DeepPartial mismatch in complex types
+          status: PaymentStatus.COMPLETED,
+        } as any,
         transactionOptions: { useTransaction: true, transaction: manager },
       });
 
       if (!savedTransaction) {
-        throw new Error('Failed to create payment transaction record');
+        throw new CustomHttpException(
+          'Failed to create payment transaction record',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
 
-      // B. Update User Plan & Billing Info
-      // We update the plan, set billing start to now
-      await this.usersService.updateUserFields(userId, {
-        planId: plan.id,
-        billingStart: new Date(),
-        currentPeriodStart: new Date(),
-      });
+      // B. Update User Plan & Billing Info within the same transaction
+      await this.usersService.updateUserPlanWithTransaction(
+        userId,
+        plan.id,
+        manager,
+      );
 
       this.logger.log(
         `User ${userId} upgraded to plan ${plan.slug} via ${platform}`,
       );
+
+      return savedTransaction;
     });
-
-    if (!savedTransaction) {
-      throw new CustomHttpException(
-        'Transaction failed to save',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    return savedTransaction!;
   }
 
   /**
@@ -144,18 +135,32 @@ export class PaymentsCoreService {
     data: VerifyGooglePurchaseDto,
   ): Promise<Partial<PaymentTransaction>> {
     try {
-      const serviceAccountJson = this.configService.get<string>(
+      const serviceAccountRaw = this.configService.get<string>(
         'payment.google.serviceAccountJson',
       );
-      const packageName = 'com.deenai.app'; // Should be in config
+      const packageName = 'com.deenai.app'; // Ideally move to config
 
-      if (!serviceAccountJson) {
+      if (!serviceAccountRaw) {
         throw new Error('Google Service Account JSON not configured');
+      }
+
+      // Safe JSON parsing for env variable
+      let credentials;
+      try {
+        // Handle Base64 encoded JSON (common practice to avoid newline issues)
+        if (!serviceAccountRaw.trim().startsWith('{')) {
+          const buffer = Buffer.from(serviceAccountRaw, 'base64');
+          credentials = JSON.parse(buffer.toString('utf-8'));
+        } else {
+          credentials = JSON.parse(serviceAccountRaw);
+        }
+      } catch (e) {
+        throw new Error('Failed to parse Google Service Account JSON');
       }
 
       // Initialize Google Auth
       const auth = new google.auth.GoogleAuth({
-        credentials: JSON.parse(serviceAccountJson),
+        credentials,
         scopes: ['https://www.googleapis.com/auth/androidpublisher'],
       });
 
@@ -192,14 +197,15 @@ export class PaymentsCoreService {
         productId: data.productId,
         purchaseDate: new Date(Number(purchase.startTimeMillis)),
         expirationDate,
-        originalTransactionId: purchase.linkedPurchaseToken || null, // Best effort for original ID
+        originalTransactionId: purchase.linkedPurchaseToken || null,
         isTrialPeriod: purchase.paymentState === 2, // 2 = Free Trial
-        isIntroductoryPricePeriod: false, // Logic depends on priceAmountMicros vs standard
+        isIntroductoryPricePeriod: false,
         rawResponse: purchase as any,
       };
     } catch (error) {
       this.logger.error('Google verification failed', error);
-      // In dev/test, if no credentials, you might want to throw a mock error or return a mock success depending on strictness
+      
+      // Mock logic for non-production environments
       if (process.env.NODE_ENV !== 'production') {
         this.logger.warn('Returning MOCK Google transaction for non-prod');
         return {
@@ -249,7 +255,6 @@ export class PaymentsCoreService {
       if (body.status !== 0) {
         // Status 21007 means receipt is Sandbox but sent to Prod URL
         if (body.status === 21007 && environment === 'Production') {
-          // Retry with sandbox URL (common during app review)
           const sandboxResponse = await axios.post(
             'https://sandbox.itunes.apple.com/verifyReceipt',
             {
@@ -258,7 +263,10 @@ export class PaymentsCoreService {
             },
           );
           if (sandboxResponse.data.status === 0) {
-            return this.parseAppleResponse(sandboxResponse.data, data.productId);
+            return this.parseAppleResponse(
+              sandboxResponse.data,
+              data.productId,
+            );
           }
         }
         throw new Error(`Apple receipt status: ${body.status}`);
@@ -291,9 +299,7 @@ export class PaymentsCoreService {
     body: any,
     targetProductId: string,
   ): Partial<PaymentTransaction> {
-    // Find the latest receipt info for the specific product
     const latestReceipts = body.latest_receipt_info || body.receipt.in_app;
-    // Sort by purchase date descending
     const sorted = latestReceipts.sort(
       (a, b) => Number(b.purchase_date_ms) - Number(a.purchase_date_ms),
     );
@@ -323,14 +329,30 @@ export class PaymentsCoreService {
    * Helper to map store product IDs to internal Plan entities
    */
   private async mapProductToPlan(productId: string) {
-    // This mapping logic might need to be more sophisticated or stored in DB
-    // For now, we assume product IDs contain the slug or map directly
-    // e.g. "com.deenai.premium.monthly" -> "premium-monthly"
-
+    const lowerId = productId.toLowerCase();
     let slug = 'free';
-    if (productId.includes('monthly')) slug = 'premium-monthly';
-    else if (productId.includes('yearly')) slug = 'premium-yearly';
 
-    return await this.plansService.getBySlug(slug);
+    // Robust mapping for known product IDs
+    const ID_MAP: Record<string, string> = {
+      'com.deenai.premium.monthly': 'premium-monthly',
+      'com.deenai.premium.yearly': 'premium-yearly',
+      // Add more specific mappings here
+    };
+
+    if (ID_MAP[productId]) {
+      slug = ID_MAP[productId];
+    } else if (lowerId.includes('monthly')) {
+      slug = 'premium-monthly';
+    } else if (lowerId.includes('yearly')) {
+      slug = 'premium-yearly';
+    }
+
+    const plan = await this.plansService.getBySlug(slug);
+    
+    if (!plan) {
+      this.logger.error(`Critical: Plan slug '${slug}' mapped from product '${productId}' not found in DB.`);
+    }
+
+    return plan;
   }
 }
