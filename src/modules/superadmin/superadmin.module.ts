@@ -9,6 +9,10 @@ import { UsersModule } from '../users/users.module';
 import { PushNotificationsModule } from '../push-notifications/push-notifications.module';
 import { NotificationLog } from '../notification-settings/entities/notification-log.entity';
 import { User } from '../users/models/user.model';
+import { SuperadminController } from './superadmin.controller';
+import { SuperadminService } from './superadmin.service';
+import { SuperAdminUserCrudService } from './services/superadmin-crud.service';
+import { SuperadminCrudValidator } from './services/super-admin-crud-validation.service';
 
 @Module({
   imports: [
@@ -18,8 +22,14 @@ import { User } from '../users/models/user.model';
     UsersModule,
     PushNotificationsModule,
   ],
-  controllers: [SuperadminNotificationsController],
-  providers: [SuperadminNotificationsService, NotificationsProcessor],
+  controllers: [SuperadminNotificationsController, SuperadminController],
+  providers: [
+    SuperadminNotificationsService,
+    NotificationsProcessor,
+    SuperadminService,
+    SuperAdminUserCrudService,
+    SuperadminCrudValidator,
+  ],
   exports: [SuperadminNotificationsService],
 })
 export class SuperadminModule {}

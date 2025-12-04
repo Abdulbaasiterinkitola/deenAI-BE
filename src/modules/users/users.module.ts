@@ -47,6 +47,11 @@ import { CacheModule } from '@nestjs/cache-manager';
     UserAccountDeletionService,
     SubscriptionCacheService,
   ],
-  exports: [UsersService, UserValidationService, SubscriptionCacheService],
+  exports: [
+    UsersService,
+    UserValidationService,
+    SubscriptionCacheService,
+    UserModelAction,
+  ],
 })
 export class UsersModule {}
