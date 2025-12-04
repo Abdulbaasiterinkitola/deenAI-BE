@@ -22,7 +22,7 @@ import { SendPushDto } from '../dtos/send-push.dto';
 import { SendBulkPushDto } from '../dtos/send-bulk-push.dto';
 import { SendTestEmailDto } from '../dtos/send-test-email.dto';
 import { NotificationHistoryQueryDto } from '../dtos/notification-history-query.dto';
-import { SuperadminGuard } from '../guards/superadmin.guard';
+import { SuperadminGuard } from '../../../guards/superadmin.guard';
 
 @ApiTags('Superadmin Notifications')
 @ApiBearerAuth()

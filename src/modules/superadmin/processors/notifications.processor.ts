@@ -44,7 +44,8 @@ export class NotificationsProcessor {
         query.andWhere('user.status = :status', { status: filters.status });
       }
       if (filters.plan) {
-        query.andWhere('user.plan = :plan', { plan: filters.plan });
+        query.leftJoin('user.plan', 'plan');
+        query.andWhere('plan.slug = :planSlug', { planSlug: filters.plan });
       }
       if (filters.registrationDateFrom) {
         query.andWhere('user.createdAt >= :dateFrom', {
@@ -121,7 +122,8 @@ export class NotificationsProcessor {
         query.andWhere('user.status = :status', { status: filters.status });
       }
       if (filters.plan) {
-        query.andWhere('user.plan = :plan', { plan: filters.plan });
+        query.leftJoin('user.plan', 'plan');
+        query.andWhere('plan.slug = :planSlug', { planSlug: filters.plan });
       }
 
       recipients = await query.getMany();
