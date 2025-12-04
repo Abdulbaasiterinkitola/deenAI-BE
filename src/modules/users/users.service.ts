@@ -12,6 +12,7 @@ import UserValidationService from './services/user-validation.service';
 import { UserRegistrationService } from './services/user-registration.service';
 import { UserSessionService } from './services/user-session.service';
 import { UserAccountDeletionService } from './services/user-account-deletion.service';
+import { UserStatsService } from './services/user-stats.service';
 @Injectable()
 export class UsersService {
   logger = new Logger(UsersService.name);
@@ -25,6 +26,7 @@ export class UsersService {
     private readonly userRegistrationService: UserRegistrationService,
     private readonly userSessionService: UserSessionService,
     private readonly userAccountDeletionService: UserAccountDeletionService,
+    private readonly userStatsService: UserStatsService,
   ) {}
 
   private readonly PROFILE_CACHE_TTL_MS = 30 * 60 * 1000;
@@ -184,5 +186,9 @@ export class UsersService {
 
   async incrementFailedAttempts(userId: string) {
     return await this.userCoreService.incrementFailedAttempts(userId);
+  }
+
+  async getOverviewStats() {
+    return await this.userStatsService.getOverviewStats();
   }
 }
