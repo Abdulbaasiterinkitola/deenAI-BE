@@ -9,6 +9,7 @@ import { PlansModule } from '@modules/plans/plans.module';
 import { SubscriptionsController } from './subscriptions.controller';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),

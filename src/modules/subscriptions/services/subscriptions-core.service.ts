@@ -5,19 +5,19 @@ import { CustomHttpException } from '@shared/custom.exception';
 import { HttpStatus } from '@nestjs/common';
 import { Plan } from '@modules/plans/models/plan.model';
 import { PlanResponseDto } from '@modules/plans/dto/plan-response.dto';
+import { SubscriptionCacheService } from '@shared/services/subscription-cache.service';
 
 @Injectable()
 export class SubscriptionsCoreService {
   constructor(
     private readonly userModelAction: UserModelAction,
     private readonly plansService: PlansService,
+    private readonly subscriptionCacheService: SubscriptionCacheService,
   ) {}
 
   async changePlan(userId: string, planId: string): Promise<PlanResponseDto> {
-    // Validate plan exists using PlansService
     const planDto = await this.plansService.getById(planId);
 
-    // Convert DTO back to entity (we need the Plan entity)
     const plan: Plan = {
       id: planDto.id,
       name: planDto.name,
@@ -44,6 +44,9 @@ export class SubscriptionsCoreService {
       }
     }
 
+    // Invalidate subscription cache after plan change
+    await this.subscriptionCacheService.del(userId);
+
     return plan;
   }
 
@@ -63,9 +66,8 @@ export class SubscriptionsCoreService {
       );
     }
 
-    const PlanResponseDto = await this.plansService.getById(planId);
-
-    return PlanResponseDto;
+    // This will use the plans cache internally
+    return await this.plansService.getById(planId);
   }
 
   // Premium user subscription renewal
@@ -88,5 +90,8 @@ export class SubscriptionsCoreService {
       },
       identifierOptions: { id: userId },
     });
+
+    // Invalidate subscription cache after renewal
+    await this.subscriptionCacheService.del(userId);
   }
 }

@@ -2,13 +2,12 @@ import { Entity, Column, Index } from 'typeorm';
 import { AbstractBaseEntity } from '@entities/base.entity';
 
 @Entity('reciters')
+@Index(['reciterName'])
 export class Reciter extends AbstractBaseEntity {
   @Column({ name: 'reciter_name' })
-  @Index()
   reciterName: string;
 
   @Column({ name: 'surah' })
-  @Index()
   surah: string;
 
   @Column({ name: 'surah_number', type: 'integer' })
@@ -21,6 +20,7 @@ export class Reciter extends AbstractBaseEntity {
   @Column({ name: 'file_size', type: 'bigint' })
   fileSize: number;
 
+  // optional duration in seconds
   @Column({ name: 'duration', type: 'integer', nullable: true })
-  duration?: number | null;
+  duration?: number;
 }
