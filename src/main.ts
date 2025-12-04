@@ -88,6 +88,7 @@ async function bootstrap() {
     .addTag('Plans')
     .addTag('Waitlist')
     .addTag('Contact')
+    .addTag('Superadmin Notifications')
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, config);

@@ -1,9 +1,25 @@
 import { Module } from '@nestjs/common';
-import { SuperadminService } from './superadmin.service';
-import { SuperadminController } from './superadmin.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bull';
+import { SuperadminNotificationsController } from './controllers/superadmin-notifications.controller';
+import { SuperadminNotificationsService } from './services/superadmin-notifications.service';
+import { NotificationsProcessor } from './processors/notifications.processor';
+import { EmailServiceModule } from '../email/email.module';
+import { UsersModule } from '../users/users.module';
+import { PushNotificationsModule } from '../push-notifications/push-notifications.module';
+import { NotificationLog } from '../notification-settings/entities/notification-log.entity';
+import { User } from '../users/models/user.model';
 
 @Module({
-  controllers: [SuperadminController],
-  providers: [SuperadminService],
+  imports: [
+    TypeOrmModule.forFeature([NotificationLog, User]),
+    BullModule.registerQueue({ name: 'notifications' }),
+    EmailServiceModule,
+    UsersModule,
+    PushNotificationsModule,
+  ],
+  controllers: [SuperadminNotificationsController],
+  providers: [SuperadminNotificationsService, NotificationsProcessor],
+  exports: [SuperadminNotificationsService],
 })
 export class SuperadminModule {}
