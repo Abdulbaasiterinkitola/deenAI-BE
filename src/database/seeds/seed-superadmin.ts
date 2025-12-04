@@ -1,9 +1,54 @@
 import dataSource, { initializeDataSource } from '@database/data-source';
 import { User } from '@modules/users/models/user.model';
+import { Profile } from '@modules/profile/models/profile.model';
 import { AuthProvider } from '@modules/users/enums';
 import { UserStatus } from '@modules/users/enums/user-status.enum';
 import * as bcrypt from 'bcrypt';
 import { Logger } from '@nestjs/common';
+
+const generateUsername = (name: string, userId: string): string => {
+  const base = name?.replace(/\s+/g, '').toLowerCase() || 'user';
+  const suffix = userId.replace(/-/g, '').slice(-6);
+  return `${base}_${suffix}`;
+};
+
+const ensureProfileExists = async (
+  userId: string,
+  userName: string,
+): Promise<void> => {
+  const profileRepository = dataSource.getRepository(Profile);
+  const existingProfile = await profileRepository.findOne({
+    where: { userId },
+  });
+
+  if (!existingProfile) {
+    let username = generateUsername(userName, userId).toLowerCase();
+    
+    // Ensure username is unique (very unlikely but handle edge case)
+    let counter = 0;
+    while (counter < 10) {
+      const existingProfileWithUsername = await profileRepository.findOne({
+        where: { username },
+      });
+      
+      if (!existingProfileWithUsername) {
+        break;
+      }
+      
+      // If username exists, append a number
+      username = `${generateUsername(userName, userId).toLowerCase()}${counter}`;
+      counter++;
+    }
+    
+    const profile = profileRepository.create({
+      userId,
+      username,
+      avatar: null,
+      language: null,
+    });
+    await profileRepository.save(profile);
+  }
+};
 
 export const seedSuperadmin = async () => {
   const logger = new Logger('SuperadminSeed');
@@ -29,7 +74,9 @@ export const seedSuperadmin = async () => {
   });
 
   if (existingSuperadmin) {
-    logger.log('Superadmin already exists, skipping seeding');
+    logger.log('Superadmin already exists, ensuring profile exists');
+    await ensureProfileExists(existingSuperadmin.id, existingSuperadmin.name);
+    logger.log('Superadmin profile ensured');
     return;
   }
 
@@ -43,7 +90,8 @@ export const seedSuperadmin = async () => {
     );
     existingUser.isSuperadmin = true;
     await userRepository.save(existingUser);
-    logger.log('User updated to superadmin');
+    await ensureProfileExists(existingUser.id, existingUser.name);
+    logger.log('User updated to superadmin and profile ensured');
     return;
   }
 
@@ -59,8 +107,11 @@ export const seedSuperadmin = async () => {
     isSuperadmin: true,
   });
 
-  await userRepository.save(superadmin);
-  logger.log(`Superadmin created successfully with email: ${superadminEmail}`);
+  const savedSuperadmin = await userRepository.save(superadmin);
+  await ensureProfileExists(savedSuperadmin.id, savedSuperadmin.name);
+  logger.log(
+    `Superadmin created successfully with email: ${superadminEmail} and profile created`,
+  );
 };
 
 // Allow running this seed standalone: `ts-node src/database/seeds/seed-superadmin.ts`
