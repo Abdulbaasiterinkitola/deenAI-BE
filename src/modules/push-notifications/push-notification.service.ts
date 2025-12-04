@@ -113,7 +113,7 @@ export class PushNotificationService {
     return { sent, failed };
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-unused-vars
   async sendToToken(token: string, _payload: PushPayload): Promise<void> {
     try {
       // Implement FCM or your push service integration here
