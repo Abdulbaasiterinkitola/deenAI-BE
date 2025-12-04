@@ -59,7 +59,7 @@ export class PaymentsCoreService {
     if (transactionData.transactionId) {
       const existingTransaction =
         await this.paymentsQueryService.findByTransactionId(
-          transactionData.transactionId,
+          transactionData.transactionId!,
         );
 
       if (existingTransaction) {

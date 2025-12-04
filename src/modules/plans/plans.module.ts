@@ -11,10 +11,7 @@ import { PlansWarmService } from './services/plans-warm.service';
 import { PlansController } from './plans.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Plan]),
-    CacheModule.register(),
-  ],
+  imports: [TypeOrmModule.forFeature([Plan]), CacheModule.register()],
   controllers: [PlansController],
   providers: [
     PlansService,
