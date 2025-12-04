@@ -33,6 +33,7 @@ import { PaymentsModule } from '@modules/payments/payments.module';
 import paymentConfig from '@config/payment.config';
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 import { SuperadminModule } from '@modules/superadmin/superadmin.module';
+import { CollectionModule } from '@modules/collection/collection.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { SuperadminModule } from '@modules/superadmin/superadmin.module';
     NewsletterModule,
     PaymentsModule,
     SuperadminModule,
+    CollectionModule,
   ],
   controllers: [AppController],
   providers: [
