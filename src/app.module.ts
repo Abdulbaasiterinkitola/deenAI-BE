@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { validateEnv } from '@shared/env.validator';
@@ -38,11 +39,20 @@ import { SuperadminModule } from '@modules/superadmin/superadmin.module';
       validate: validateEnv,
       load: [authConfig],
     }),
+
+    CacheModule.registerAsync({
+      useFactory: () => ({
+        ttl: 0,
+        isGlobal: true,
+      }),
+    }),
+
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       useClass: ThrottlerConfigService,
     }),
     ScheduleModule.forRoot(),
+
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         ...dataSource.options,
@@ -54,6 +64,7 @@ import { SuperadminModule } from '@modules/superadmin/superadmin.module';
         return dataSource;
       },
     }),
+
     AuthModule,
     UsersModule,
     EmailServiceModule,
