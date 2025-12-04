@@ -8,6 +8,7 @@ export type UserType = {
   authProvider: AuthProvider;
   isEmailVerified: boolean;
   status: UserStatus;
+  plan?: string; // For filtering
 };
 
 export type ResetPasswordEmailOptions = {
