@@ -65,6 +65,18 @@ export class ChatsDocs {
         status: 401,
         description: 'Authentication required',
       }),
+      ApiResponse({
+        status: 402,
+        description: 'Token limit reached',
+        schema: {
+          example: {
+            statusCode: 402,
+            message:
+              'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
+            error: 'Payment Required',
+          },
+        },
+      }),
     );
   }
 
@@ -128,6 +140,18 @@ export class ChatsDocs {
       ApiResponse({
         status: 401,
         description: 'Authentication required',
+      }),
+      ApiResponse({
+        status: 402,
+        description: 'Token limit reached',
+        schema: {
+          example: {
+            statusCode: 402,
+            message:
+              'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
+            error: 'Payment Required',
+          },
+        },
       }),
       ApiResponse({
         status: 403,
