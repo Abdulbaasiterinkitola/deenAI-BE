@@ -17,8 +17,10 @@ export default class UserCoreService {
   async createUser(createPayload: UserType, transaction?: EntityManager) {
     await this.userValidationService.createUserValidation(createPayload);
 
+    const { plan, ...userCreatePayload } = createPayload;
+
     const createdUser = await this.userModelAction.create({
-      createPayload,
+      createPayload: userCreatePayload,
       ...(transaction
         ? {
             transactionOptions: {
