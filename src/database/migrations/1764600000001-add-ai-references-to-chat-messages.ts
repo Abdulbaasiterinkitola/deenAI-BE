@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddAiReferencesToChatMessages1764600000001 implements MigrationInterface {
+export class AddAiReferencesToChatMessages1764600000001
+  implements MigrationInterface
+{
   name = 'AddAiReferencesToChatMessages1764600000001';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

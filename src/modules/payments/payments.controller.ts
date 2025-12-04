@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@guards/auth.guard';
+import { PaymentGuard } from '@guards/payment.guard';
 import { PaymentsService } from './payments.service';
 import {
   VerifyGooglePurchaseDto,
@@ -18,10 +19,12 @@ import {
 import { PaymentsDocs } from './docs/payments.doc';
 import { AuthUser } from '@guards/auth-user.decorator';
 import { User } from '@modules/users/models/user.model';
+import { RequirePayment } from '@guards/require-payment.decorator';
 
 @PaymentsDocs.tag()
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PaymentGuard)
+@RequirePayment()
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}

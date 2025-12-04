@@ -25,7 +25,7 @@ import { SuperadminCrudController } from './controllers/superadmin-crud.controll
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([NotificationLog, User,Plan,TokenUsage]),
+    TypeOrmModule.forFeature([NotificationLog, User, Plan, TokenUsage]),
     BullModule.registerQueue({ name: 'notifications' }),
     EmailServiceModule,
     UsersModule,
@@ -36,7 +36,7 @@ import { SuperadminCrudController } from './controllers/superadmin-crud.controll
     SuperadminNotificationsController,
     SuperadminStatsController,
     SuperadminCrudController,
-    SuperadminTokenStatsController
+    SuperadminTokenStatsController,
   ],
   providers: [
     SuperadminNotificationsService,
@@ -47,7 +47,7 @@ import { SuperadminCrudController } from './controllers/superadmin-crud.controll
     SuperadminCrudValidator,
     SuperadminTokenStatsService,
     TokenUsageActionModel,
-    TokenUsageService
+    TokenUsageService,
   ],
   exports: [SuperadminNotificationsService],
 })

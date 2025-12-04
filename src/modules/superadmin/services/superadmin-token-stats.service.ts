@@ -89,7 +89,7 @@ export class SuperadminTokenStatsService {
       await this.cacheManager.set(cacheKey, result, 120);
       return result;
     } catch (err) {
-      this.logger.error('Overview aggregation failed', err as any);
+      this.logger.error('Overview aggregation failed', err);
       throw new CustomHttpException('Failed to compute overview', 500);
     }
   }
@@ -145,7 +145,7 @@ export class SuperadminTokenStatsService {
         period === 'month' ? 'week' : period;
       return { granularity, points };
     } catch (err) {
-      this.logger.error('Usage trend aggregation failed', err as any);
+      this.logger.error('Usage trend aggregation failed', err);
       throw new CustomHttpException('Failed to compute usage trend', 500);
     }
   }
@@ -197,7 +197,7 @@ export class SuperadminTokenStatsService {
         totalTokens: Number(r.totalTokens || 0),
       }));
     } catch (err) {
-      this.logger.error('Top users query failed', err as any);
+      this.logger.error('Top users query failed', err);
       throw new CustomHttpException('Failed to compute top users', 500);
     }
   }
@@ -230,7 +230,7 @@ export class SuperadminTokenStatsService {
         avgPerRequest,
       };
     } catch (err) {
-      this.logger.error('Breakdown query failed', err as any);
+      this.logger.error('Breakdown query failed', err);
       throw new CustomHttpException('Failed to compute breakdown', 500);
     }
   }
@@ -277,7 +277,7 @@ export class SuperadminTokenStatsService {
           : 0,
       }));
     } catch (err) {
-      this.logger.error('Plan aggregation failed', err as any);
+      this.logger.error('Plan aggregation failed', err);
       throw new CustomHttpException('Failed to compute plan stats', 500);
     }
   }
@@ -301,13 +301,18 @@ export class SuperadminTokenStatsService {
         `SELECT billing_start FROM users WHERE id = $1`,
         [userId],
       );
-      const billingStart = billingStartRow?.[0]?.billing_start
-        ? new Date(billingStartRow[0].billing_start)
-        : (() => {
-            const d = new Date();
-            d.setUTCDate(d.getUTCDate() - 30);
-            return d;
-          })();
+      const billingStartRaw =
+        (billingStartRow?.[0]?.billing_start as string | Date | null) ?? null;
+      const billingStart =
+        billingStartRaw instanceof Date
+          ? billingStartRaw
+          : billingStartRaw
+            ? new Date(billingStartRaw)
+            : (() => {
+                const d = new Date();
+                d.setUTCDate(d.getUTCDate() - 30);
+                return d;
+              })();
 
       const periodRow = await this.dataSource.query(
         `SELECT COALESCE(SUM(input_tokens + output_tokens),0) AS total FROM token_usage WHERE user_id = $1 AND created_at >= $2`,
@@ -353,7 +358,7 @@ export class SuperadminTokenStatsService {
         history: points,
       };
     } catch (err) {
-      this.logger.error('User detail query failed', err as any);
+      this.logger.error('User detail query failed', err);
       throw new CustomHttpException('Failed to compute user detail', 500);
     }
   }
@@ -406,7 +411,7 @@ export class SuperadminTokenStatsService {
 
       return { granularity, points };
     } catch (err) {
-      this.logger.error('Time series query failed', err as any);
+      this.logger.error('Time series query failed', err);
       throw new CustomHttpException('Failed to compute time series', 500);
     }
   }

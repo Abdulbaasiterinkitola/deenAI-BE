@@ -64,6 +64,7 @@
     "dotenv": "^17.2.3",
     "googleapis": "^167.0.0",
     "jsonwebtoken": "^9.0.2",
+    "keyv": "^5.5.5",
     "luxon": "^3.7.2",
     "ms": "^2.1.3",
     "multer": "^2.0.2",
@@ -140,7 +141,8 @@
       "^@database/(.*)$": "<rootDir>/database/$1",
       "^@config/(.*)$": "<rootDir>/config/$1",
       "^@entities/(.*)$": "<rootDir>/entities/$1",
-      "^@helpers/(.*)$": "<rootDir>/shared/helpers/$1"
+      "^@helpers/(.*)$": "<rootDir>/shared/helpers/$1",
+      "^@guards/(.*)$": "<rootDir>/guards/$1"
     }
   }
 }

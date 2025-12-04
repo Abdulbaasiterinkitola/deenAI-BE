@@ -47,14 +47,20 @@ export class TokenStatsDocs {
   static breakdown() {
     return applyDecorators(
       ApiOperation({ summary: 'Token breakdown' }),
-      ApiResponse({ status: 200, description: 'Input vs output breakdown and averages' }),
+      ApiResponse({
+        status: 200,
+        description: 'Input vs output breakdown and averages',
+      }),
     );
   }
 
   static plans() {
     return applyDecorators(
       ApiOperation({ summary: 'Token usage by plan' }),
-      ApiResponse({ status: 200, description: 'Token usage aggregated by plan' }),
+      ApiResponse({
+        status: 200,
+        description: 'Token usage aggregated by plan',
+      }),
     );
   }
 
