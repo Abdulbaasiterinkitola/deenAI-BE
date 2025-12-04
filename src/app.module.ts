@@ -30,6 +30,7 @@ import { ThrottlerBehindProxyGuard } from './guards/throttler-behind-proxy.guard
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
 import { RecitersModule } from './modules/reciters/reciters.module';
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
+import { SuperadminModule } from '@modules/superadmin/superadmin.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
     SqueezeModule,
     RecitersModule,
     NewsletterModule,
+    SuperadminModule,
   ],
   controllers: [AppController],
   providers: [
