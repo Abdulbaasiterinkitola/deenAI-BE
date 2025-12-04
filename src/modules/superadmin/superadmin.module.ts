@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { SuperadminNotificationsController } from './controllers/superadmin-notifications.controller';
 import { SuperadminNotificationsService } from './services/superadmin-notifications.service';
+import { SuperadminStatsController } from './controllers/superadmin-stats.controller';
+import { SuperadminStatsService } from './services/superadmin-stats.service';
 import { NotificationsProcessor } from './processors/notifications.processor';
 import { EmailServiceModule } from '../email/email.module';
 import { UsersModule } from '../users/users.module';
@@ -22,11 +24,16 @@ import { SuperadminCrudValidator } from './services/super-admin-crud-validation.
     UsersModule,
     PushNotificationsModule,
   ],
-  controllers: [SuperadminNotificationsController, SuperadminController],
+  controllers: [
+    SuperadminNotificationsController,
+    SuperadminController,
+    SuperadminStatsController,
+  ],
   providers: [
     SuperadminNotificationsService,
     NotificationsProcessor,
     SuperadminService,
+    SuperadminStatsService,
     SuperAdminUserCrudService,
     SuperadminCrudValidator,
   ],

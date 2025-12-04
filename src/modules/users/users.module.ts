@@ -21,6 +21,7 @@ import { ProfileModule } from '@modules/profile/profile.module';
 import { UserRegistrationService } from './services/user-registration.service';
 import { SubscriptionCacheService } from '@shared/services/subscription-cache.service';
 import { CacheModule } from '@nestjs/cache-manager';
+import { UserStatsService } from './services/user-stats.service';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     UserRegistrationService,
     UserSessionService,
     UserAccountDeletionService,
+    UserStatsService,
     SubscriptionCacheService,
   ],
   exports: [

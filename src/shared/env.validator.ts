@@ -80,6 +80,20 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   GEMINI_API_KEY?: string;
+
+  // Google Play
+  @IsString()
+  @IsOptional()
+  GOOGLE_PLAY_SERVICE_ACCOUNT_JSON?: string;
+
+  // Apple App Store
+  @IsString()
+  @IsOptional()
+  APPLE_SHARED_SECRET?: string;
+
+  @IsString()
+  @IsOptional()
+  APPLE_BUNDLE_ID?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
