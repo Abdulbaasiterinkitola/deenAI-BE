@@ -43,7 +43,7 @@ export class SuperadminDocs {
       ApiQuery({
         name: 'status',
         required: false,
-        description: 'Filter users by status (active/inactive/paused)',
+        description: 'Filter users by status (active/paused)',
         type: String,
       }),
       ApiQuery({
@@ -276,7 +276,7 @@ export class SuperadminDocs {
       }),
       ApiResponse({
         status: 400,
-        description: 'User is already inactive or cannot self-deactivate.',
+        description: 'User is already paused or cannot self-deactivate.',
       }),
       ApiResponse({
         status: 404,

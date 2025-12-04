@@ -1,6 +1,8 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { UserModelAction } from '@modules/users/action-models/user.action-model';
 import { CustomHttpException } from '@shared/custom.exception';
+import { UserStatus } from '@modules/users/enums/user-status.enum';
+import { User } from '@modules/users/models/user.model';
 
 @Injectable()
 export class SuperadminCrudValidator {
@@ -39,8 +41,8 @@ export class SuperadminCrudValidator {
     }
   }
 
-  validateUserCanBeActivated(user: any) {
-    if (user.status === 'active') {
+  validateUserCanBeActivated(user: User) {
+    if (user.status === UserStatus.ACTIVE) {
       throw new CustomHttpException(
         'User is already active',
         HttpStatus.BAD_REQUEST,
@@ -48,16 +50,16 @@ export class SuperadminCrudValidator {
     }
   }
 
-  validateUserCanBeDeactivated(user: any) {
-    if (user.status === 'paused') {
+  validateUserCanBeDeactivated(user: User) {
+    if (user.status === UserStatus.PAUSED) {
       throw new CustomHttpException(
-        'User is already inactive',
+        'User is already paused',
         HttpStatus.BAD_REQUEST,
       );
     }
   }
 
-  validateUserCanBePromoted(user: any) {
+  validateUserCanBePromoted(user: User) {
     if (user.isSuperadmin) {
       throw new CustomHttpException(
         'User is already a superadmin',
@@ -66,7 +68,7 @@ export class SuperadminCrudValidator {
     }
   }
 
-  validateUserCanBeDemoted(user: any) {
+  validateUserCanBeDemoted(user: User) {
     if (!user.isSuperadmin) {
       throw new CustomHttpException(
         'User is not a superadmin',

@@ -1,5 +1,6 @@
 import { IsOptional, IsInt, Min, Max, IsEnum, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { UserStatus } from '@modules/users/enums/user-status.enum';
 
 export class UserListQueryDto {
   @IsOptional()
@@ -16,8 +17,8 @@ export class UserListQueryDto {
   limit?: number;
 
   @IsOptional()
-  @IsEnum(['active', 'inactive', 'suspended'])
-  status?: string;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 
   @IsOptional()
   @IsString()
