@@ -27,7 +27,7 @@ import { SuperadminCrudController } from './controllers/superadmin-crud.controll
   controllers: [
     SuperadminNotificationsController,
     SuperadminStatsController,
-    SuperadminCrudController
+    SuperadminCrudController,
   ],
   providers: [
     SuperadminNotificationsService,

@@ -53,7 +53,11 @@ export class PaymentTransaction extends AbstractBaseEntity {
   @Column({ name: 'is_trial_period', type: 'boolean', default: false })
   isTrialPeriod: boolean;
 
-  @Column({ name: 'is_introductory_price_period', type: 'boolean', default: false })
+  @Column({
+    name: 'is_introductory_price_period',
+    type: 'boolean',
+    default: false,
+  })
   isIntroductoryPricePeriod: boolean;
 
   @Column({ name: 'raw_response', type: 'jsonb', nullable: true })

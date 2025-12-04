@@ -20,4 +20,3 @@ export class SuperadminStatsController {
     return this.superadminStatsService.getOverviewStats();
   }
 }
-
