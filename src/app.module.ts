@@ -28,6 +28,8 @@ import { ThrottlerConfigService } from './config/throttler.config';
 import { ThrottlerBehindProxyGuard } from './guards/throttler-behind-proxy.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
 import { RecitersModule } from './modules/reciters/reciters.module';
+import { PaymentsModule } from '@modules/payments/payments.module';
+import paymentConfig from '@config/payment.config';
 
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
 
@@ -36,7 +38,7 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnv,
-      load: [authConfig],
+      load: [authConfig,paymentConfig],
     }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
@@ -71,6 +73,7 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
     SqueezeModule,
     RecitersModule,
     NewsletterModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
