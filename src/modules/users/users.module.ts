@@ -49,6 +49,11 @@ import { UserStatsService } from './services/user-stats.service';
     UserStatsService,
     SubscriptionCacheService,
   ],
-  exports: [UsersService, UserValidationService, SubscriptionCacheService],
+  exports: [
+    UsersService,
+    UserValidationService,
+    SubscriptionCacheService,
+    UserModelAction,
+  ],
 })
 export class UsersModule {}

@@ -23,23 +23,23 @@ const ensureProfileExists = async (
 
   if (!existingProfile) {
     let username = generateUsername(userName, userId).toLowerCase();
-    
+
     // Ensure username is unique (very unlikely but handle edge case)
     let counter = 0;
     while (counter < 10) {
       const existingProfileWithUsername = await profileRepository.findOne({
         where: { username },
       });
-      
+
       if (!existingProfileWithUsername) {
         break;
       }
-      
+
       // If username exists, append a number
       username = `${generateUsername(userName, userId).toLowerCase()}${counter}`;
       counter++;
     }
-    
+
     const profile = profileRepository.create({
       userId,
       username,

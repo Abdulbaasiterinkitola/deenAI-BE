@@ -42,14 +42,24 @@ export class CreatePaymentTransactions1895000000000 implements MigrationInterfac
     `);
 
     // Create Indexes
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_payment_user_id ON payment_transactions(user_id);`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_payment_plan_id ON payment_transactions(plan_id);`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_payment_status ON payment_transactions(status);`);
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS idx_payment_user_id ON payment_transactions(user_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS idx_payment_plan_id ON payment_transactions(plan_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS idx_payment_status ON payment_transactions(status);`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP TABLE IF EXISTS payment_transactions`);
-    await queryRunner.query(`DROP TYPE IF EXISTS "payment_transactions_status_enum"`);
-    await queryRunner.query(`DROP TYPE IF EXISTS "payment_transactions_platform_enum"`);
+    await queryRunner.query(
+      `DROP TYPE IF EXISTS "payment_transactions_status_enum"`,
+    );
+    await queryRunner.query(
+      `DROP TYPE IF EXISTS "payment_transactions_platform_enum"`,
+    );
   }
 }

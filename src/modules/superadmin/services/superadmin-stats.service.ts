@@ -6,7 +6,10 @@ import { StatsOverviewDto } from '../dtos/stats-overview.dto';
 export class SuperadminStatsService {
   constructor(private readonly usersService: UsersService) {}
 
-  async getOverviewStats(): Promise<{ message: string; data: StatsOverviewDto }> {
+  async getOverviewStats(): Promise<{
+    message: string;
+    data: StatsOverviewDto;
+  }> {
     const stats = await this.usersService.getOverviewStats();
 
     return {
@@ -22,4 +25,3 @@ export class SuperadminStatsService {
     };
   }
 }
-

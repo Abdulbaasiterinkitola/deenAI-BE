@@ -36,4 +36,3 @@ export class StatsOverviewDto {
   })
   statusBreakdown: StatusBreakdownDto;
 }
-
