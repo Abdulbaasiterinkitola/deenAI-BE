@@ -19,6 +19,7 @@ import { UserAccountDeletionService } from './services/user-account-deletion.ser
 import { StreaksModule } from '@modules/streaks/streaks.module';
 import { ProfileModule } from '@modules/profile/profile.module';
 import { UserRegistrationService } from './services/user-registration.service';
+import { SubscriptionCacheService } from '@shared/services/subscription-cache.service';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
@@ -44,7 +45,8 @@ import { CacheModule } from '@nestjs/cache-manager';
     UserRegistrationService,
     UserSessionService,
     UserAccountDeletionService,
+    SubscriptionCacheService,
   ],
-  exports: [UsersService, UserValidationService],
+  exports: [UsersService, UserValidationService, SubscriptionCacheService],
 })
 export class UsersModule {}
