@@ -9,7 +9,7 @@ export class PaymentTransaction extends AbstractBaseEntity {
   @Column({ name: 'user_id', type: 'uuid', nullable: false })
   userId: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

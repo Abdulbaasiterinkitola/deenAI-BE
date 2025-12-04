@@ -36,7 +36,7 @@ export class CreatePaymentTransactions1895000000000 implements MigrationInterfac
         updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
         
         CONSTRAINT uq_payment_transaction_id UNIQUE (transaction_id),
-        CONSTRAINT fk_payment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        CONSTRAINT fk_payment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
         CONSTRAINT fk_payment_plan FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE RESTRICT
       );
     `);
