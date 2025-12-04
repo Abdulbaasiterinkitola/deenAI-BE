@@ -17,6 +17,7 @@ export default class UserCoreService {
   async createUser(createPayload: UserType, transaction?: EntityManager) {
     await this.userValidationService.createUserValidation(createPayload);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { plan, ...userCreatePayload } = createPayload;
 
     const createdUser = await this.userModelAction.create({
