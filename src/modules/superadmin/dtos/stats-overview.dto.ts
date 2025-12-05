@@ -36,3 +36,45 @@ export class StatsOverviewDto {
   })
   statusBreakdown: StatusBreakdownDto;
 }
+
+export class UserGrowthPoint {
+  @ApiProperty({
+    description: 'Timestamp for the period',
+    example: '2025-01-15T00:00:00.000Z',
+  })
+  timestamp!: string;
+
+  @ApiProperty({
+    description: 'Number of users registered in this period',
+    example: 25,
+  })
+  count!: number;
+
+  @ApiProperty({
+    description: 'Cumulative count of users up to this period',
+    example: 150,
+  })
+  cumulative!: number;
+
+  @ApiProperty({
+    description: 'Growth rate percentage compared to previous period',
+    example: 12.5,
+    required: false,
+  })
+  growthRate?: number | null;
+}
+
+export class UserGrowthDto {
+  @ApiProperty({
+    description: 'Time period granularity',
+    enum: ['day', 'week', 'month'],
+    example: 'day',
+  })
+  period!: 'day' | 'week' | 'month';
+
+  @ApiProperty({
+    description: 'Time series data points for user growth',
+    type: [UserGrowthPoint],
+  })
+  points!: UserGrowthPoint[];
+}
