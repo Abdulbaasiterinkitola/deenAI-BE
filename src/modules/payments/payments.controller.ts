@@ -16,6 +16,12 @@ import {
   VerifyGooglePurchaseDto,
   VerifyApplePurchaseDto,
 } from './dtos/verify-purchase.dto';
+import {
+  VerifyPurchaseResponseDto,
+  PaginatedTransactionsResponseDto,
+  PaymentTransactionResponseDto,
+} from './dtos/payment-response.dto';
+import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
 import { PaymentsDocs } from './docs/payments.doc';
 
 @PaymentsDocs.tag()
@@ -27,10 +33,7 @@ export class PaymentsController {
 
   @Post('verify-google-purchase')
   @PaymentsDocs.verifyGooglePurchase()
-  async verifyGooglePurchase(
-    @Req() req: any,
-    @Body() dto: VerifyGooglePurchaseDto,
-  ) {
+  async verifyGooglePurchase(@Req() req: any, @Body() dto: VerifyGooglePurchaseDto) {
     const transaction = await this.paymentsService.verifyGooglePurchase(
       req.user.id,
       dto,
@@ -44,10 +47,7 @@ export class PaymentsController {
 
   @Post('verify-apple-purchase')
   @PaymentsDocs.verifyApplePurchase()
-  async verifyApplePurchase(
-    @Req() req: any,
-    @Body() dto: VerifyApplePurchaseDto,
-  ) {
+  async verifyApplePurchase(@Req() req: any, @Body() dto: VerifyApplePurchaseDto) {
     const transaction = await this.paymentsService.verifyApplePurchase(
       req.user.id,
       dto,
