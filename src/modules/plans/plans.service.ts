@@ -86,4 +86,11 @@ export class PlansService {
     if (plan) await this.plansCacheService.setById(id, plan);
     return plan;
   }
+
+  async getPlanByProductId(
+    provider: 'google' | 'apple',
+    productId: string,
+  ): Promise<Plan | null> {
+    return this.plansCoreService.getPlanByProductId(provider, productId);
+  }
 }

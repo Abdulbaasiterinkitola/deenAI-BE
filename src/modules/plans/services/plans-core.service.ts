@@ -33,6 +33,17 @@ export class PlansCoreService {
     return this.planModelAction.get({ slug });
   }
 
+  async getPlanByProductId(
+    provider: 'google' | 'apple',
+    productId: string,
+  ): Promise<Plan | null> {
+    const query =
+      provider === 'google'
+        ? { googleProductId: productId }
+        : { appleProductId: productId };
+    return this.planModelAction.get(query);
+  }
+
   async seedDefaults(plans: Partial<Plan>[]) {
     for (const plan of plans) {
       const existing = await this.planModelAction.get({ slug: plan.slug });

@@ -56,4 +56,4 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
     PaymentsWebhookService,
   ],
 })
-export class PaymentsModule { }
+export class PaymentsModule {}

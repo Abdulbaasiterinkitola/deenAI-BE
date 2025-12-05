@@ -52,7 +52,7 @@ export class GooglePaymentsService {
     );
   }
 
-  private buildClient() {
+  private buildClient(): any {
     const serviceAccountRaw = this.configService.get<string>(
       'payment.google.serviceAccountJson',
     );
@@ -83,7 +83,7 @@ export class GooglePaymentsService {
     return new google.auth.GoogleAuth({
       credentials,
       scopes: ['https://www.googleapis.com/auth/androidpublisher'],
-    });
+    }) as any;
   }
 
   private buildPublisher(
@@ -98,7 +98,7 @@ export class GooglePaymentsService {
   private async tryGetSubscription(
     publisher: AndroidPublisher,
     dto: VerifyGooglePurchaseDto,
-  ): Promise<androidpublisher_v3.Schema$SubscriptionPurchase | null> {
+  ): Promise<any> {
     try {
       const { data } = await publisher.purchases.subscriptions.get({
         packageName: dto.packageName,
@@ -125,7 +125,7 @@ export class GooglePaymentsService {
   private async tryGetProduct(
     publisher: AndroidPublisher,
     dto: VerifyGooglePurchaseDto,
-  ): Promise<androidpublisher_v3.Schema$ProductPurchase | null> {
+  ): Promise<any> {
     try {
       const { data } = await publisher.purchases.products.get({
         packageName: dto.packageName,

@@ -1,11 +1,18 @@
-import { Controller, Post, Body, Headers, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { PaymentsWebhookService } from './services/payments-webhook.service';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Payments Webhooks')
 @Controller('payments/webhooks')
 export class PaymentsWebhookController {
-  constructor(private readonly webhookService: PaymentsWebhookService) { }
+  constructor(private readonly webhookService: PaymentsWebhookService) {}
 
   @Post('google')
   @HttpCode(HttpStatus.OK)
@@ -23,7 +30,7 @@ export class PaymentsWebhookController {
   @ApiOperation({ summary: 'Handle Apple App Store Webhooks' })
   async handleAppleWebhook(@Body() payload: any) {
     // Apple signature verification is inside the service as it needs the payload structure
-    await this.webhookService.verifyAppleSignature(payload);
+    this.webhookService.verifyAppleSignature(payload);
     await this.webhookService.processAppleWebhook(payload);
   }
 }

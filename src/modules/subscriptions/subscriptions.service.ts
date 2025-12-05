@@ -28,7 +28,7 @@ export class SubscriptionsService {
     private readonly userModelAction: UserModelAction,
     private readonly plansService: PlansService,
     private readonly subscriptionCacheService: SubscriptionCacheService,
-  ) { }
+  ) {}
 
   async getActiveSubscriptionForUser(
     userId: string,
@@ -92,10 +92,15 @@ export class SubscriptionsService {
   }
 
   async getUserByAppleId(transactionId: string): Promise<User | null> {
-    return await this.userModelAction.get({ appleOriginalTransactionId: transactionId });
+    return await this.userModelAction.get({
+      appleOriginalTransactionId: transactionId,
+    });
   }
 
-  async getPlanByProductId(provider: 'google' | 'apple', productId: string): Promise<Plan | null> {
+  getPlanByProductId(
+    provider: 'google' | 'apple',
+    productId: string,
+  ): Promise<Plan | null> {
     return this.plansService.getPlanByProductId(provider, productId);
   }
 
@@ -104,5 +109,6 @@ export class SubscriptionsService {
       updatePayload: { planId: null },
       identifierOptions: { id: userId },
     });
+    return;
   }
 }
