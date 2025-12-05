@@ -41,4 +41,9 @@ export class Plan extends AbstractBaseEntity {
 
   @Column({ type: 'text', array: true, default: '{}' })
   features: string[];
+  @Column({ name: 'google_product_id', type: 'varchar', nullable: true })
+  googleProductId: string | null;
+
+  @Column({ name: 'apple_product_id', type: 'varchar', nullable: true })
+  appleProductId: string | null;
 }

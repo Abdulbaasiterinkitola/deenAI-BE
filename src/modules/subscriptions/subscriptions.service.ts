@@ -4,6 +4,8 @@ import { SubscriptionsValidationService } from './services/subscriptions-validat
 import { PlanChangeResponseDto } from '@modules/users/dtos/plan-change-response.dto';
 import { UserModelAction } from '@modules/users/action-models/user.action-model';
 import { UserStatus } from '@modules/users/enums/user-status.enum';
+import { User } from '@modules/users/models/user.model';
+import { Plan } from '@modules/plans/models/plan.model';
 
 export type SubscriptionSnapshot = {
   plan: {
@@ -16,13 +18,16 @@ export type SubscriptionSnapshot = {
 };
 import { PlanResponseDto } from '@modules/plans/dto/plan-response.dto';
 
+import { PlansService } from '@modules/plans/plans.service';
+
 @Injectable()
 export class SubscriptionsService {
   constructor(
     private readonly subscriptionsCoreService: SubscriptionsCoreService,
     private readonly subscriptionsValidationService: SubscriptionsValidationService,
     private readonly userModelAction: UserModelAction,
-  ) {}
+    private readonly plansService: PlansService,
+  ) { }
 
   async getActiveSubscriptionForUser(
     userId: string,
@@ -65,5 +70,24 @@ export class SubscriptionsService {
 
   async getCurrentPlan(userId: string): Promise<PlanResponseDto> {
     return await this.subscriptionsCoreService.getCurrentPlan(userId);
+  }
+
+  async getUserByGoogleToken(token: string): Promise<User | null> {
+    return await this.userModelAction.get({ googlePurchaseToken: token });
+  }
+
+  async getUserByAppleId(transactionId: string): Promise<User | null> {
+    return await this.userModelAction.get({ appleOriginalTransactionId: transactionId });
+  }
+
+  async getPlanByProductId(provider: 'google' | 'apple', productId: string): Promise<Plan | null> {
+    return this.plansService.getPlanByProductId(provider, productId);
+  }
+
+  async cancelSubscription(userId: string): Promise<void> {
+    await this.userModelAction.update({
+      updatePayload: { planId: null },
+      identifierOptions: { id: userId },
+    });
   }
 }

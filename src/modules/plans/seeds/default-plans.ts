@@ -36,6 +36,9 @@ export const defaultPlans = [
       'Recitations & Qibla Finder',
       'Multi-Language Translations',
     ],
+    // Run npm run seed:plans to update the database with the real IDs when available
+    googleProductId: 'premium_monthly_google_id',
+    appleProductId: 'premium_monthly_apple_id',
   },
   {
     slug: 'premium-yearly',
@@ -54,6 +57,8 @@ export const defaultPlans = [
       'Recitations & Qibla Finder',
       'Multi-Language Translations',
     ],
+    googleProductId: 'premium_yearly_google_id',
+    appleProductId: 'premium_yearly_apple_id',
   },
   {
     slug: 'partnerships',
