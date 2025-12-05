@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddTokenUsageCreatedAtIndex1765001234567 implements MigrationInterface {
+export class AddTokenUsageCreatedAtIndex1765001234567
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS idx_token_usage_created_at 
