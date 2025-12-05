@@ -5,6 +5,7 @@ import {
   StatsOverviewDto,
   UserGrowthDto,
   UserGrowthPoint,
+  UserEngagementDto,
 } from '../dtos/stats-overview.dto';
 import { CustomHttpException } from '@shared/custom.exception';
 
@@ -179,6 +180,93 @@ export class SuperadminStatsService {
     } catch (err) {
       this.logger.error('User growth aggregation failed', err);
       throw new CustomHttpException('Failed to compute user growth', 500);
+    }
+  }
+
+  async getUserEngagement(): Promise<{
+    message: string;
+    data: UserEngagementDto;
+  }> {
+    try {
+      // Query all engagement metrics in parallel for better performance
+      const [
+        usersWithStreaksRow,
+        averageStreakRow,
+        averageHighestStreakRow,
+        usersWithReflectionsRow,
+        usersWithBookmarksRow,
+        usersWithChatsRow,
+        totalReflectionsRow,
+        totalBookmarksRow,
+        totalChatsRow,
+      ] = await Promise.all([
+        // Users with active streaks (current_streak > 0)
+        this.dataSource.query(
+          `SELECT COUNT(DISTINCT user_id)::bigint AS count 
+           FROM streaks 
+           WHERE current_streak > 0`,
+        ),
+        // Average streak length (only for users with active streaks)
+        this.dataSource.query(
+          `SELECT COALESCE(AVG(current_streak), 0) AS avg 
+           FROM streaks 
+           WHERE current_streak > 0`,
+        ),
+        // Average highest streak across all users
+        this.dataSource.query(
+          `SELECT COALESCE(AVG(highest_streak), 0) AS avg 
+           FROM streaks`,
+        ),
+        // Users with reflections
+        this.dataSource.query(
+          `SELECT COUNT(DISTINCT user_id)::bigint AS count 
+           FROM reflections`,
+        ),
+        // Users with bookmarks
+        this.dataSource.query(
+          `SELECT COUNT(DISTINCT user_id)::bigint AS count 
+           FROM bookmarks`,
+        ),
+        // Users with chats
+        this.dataSource.query(
+          `SELECT COUNT(DISTINCT user_id)::bigint AS count 
+           FROM chats`,
+        ),
+        // Total reflections
+        this.dataSource.query(
+          `SELECT COUNT(*)::bigint AS count FROM reflections`,
+        ),
+        // Total bookmarks
+        this.dataSource.query(
+          `SELECT COUNT(*)::bigint AS count FROM bookmarks`,
+        ),
+        // Total chats
+        this.dataSource.query(`SELECT COUNT(*)::bigint AS count FROM chats`),
+      ]);
+
+      const result: UserEngagementDto = {
+        usersWithStreaks: Number(usersWithStreaksRow?.[0]?.count || 0),
+        averageStreakLength: Number(
+          parseFloat(averageStreakRow?.[0]?.avg || '0').toFixed(2),
+        ),
+        averageHighestStreak: Number(
+          parseFloat(averageHighestStreakRow?.[0]?.avg || '0').toFixed(2),
+        ),
+        usersWithReflections: Number(usersWithReflectionsRow?.[0]?.count || 0),
+        usersWithBookmarks: Number(usersWithBookmarksRow?.[0]?.count || 0),
+        usersWithChats: Number(usersWithChatsRow?.[0]?.count || 0),
+        totalReflections: Number(totalReflectionsRow?.[0]?.count || 0),
+        totalBookmarks: Number(totalBookmarksRow?.[0]?.count || 0),
+        totalChats: Number(totalChatsRow?.[0]?.count || 0),
+      };
+
+      return {
+        message: 'User engagement statistics retrieved successfully',
+        data: result,
+      };
+    } catch (err) {
+      this.logger.error('User engagement aggregation failed', err);
+      throw new CustomHttpException('Failed to compute user engagement', 500);
     }
   }
 }

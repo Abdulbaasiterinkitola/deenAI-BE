@@ -176,4 +176,73 @@ export class SuperadminStatsDocs {
       }),
     );
   }
+
+  static getUserEngagement() {
+    return applyDecorators(
+      ApiOperation({
+        summary: 'Get user engagement metrics',
+        description:
+          'Retrieves user engagement statistics including users with streaks, average streak lengths, and users with reflections, bookmarks, and chats. Requires superadmin privileges.',
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'User engagement statistics retrieved successfully',
+        schema: {
+          example: {
+            success: true,
+            status: 'success',
+            message: 'User engagement statistics retrieved successfully',
+            data: {
+              usersWithStreaks: 45,
+              averageStreakLength: 12.5,
+              averageHighestStreak: 18.3,
+              usersWithReflections: 120,
+              usersWithBookmarks: 85,
+              usersWithChats: 95,
+              totalReflections: 450,
+              totalBookmarks: 320,
+              totalChats: 180,
+            },
+            status_code: 200,
+          },
+        },
+      }),
+      ApiResponse({
+        status: 401,
+        description: 'Unauthorized - Authentication required',
+        schema: {
+          example: {
+            success: false,
+            status: 'error',
+            message: 'Unauthorized',
+            status_code: 401,
+          },
+        },
+      }),
+      ApiResponse({
+        status: 403,
+        description: 'Forbidden - Superadmin privileges required',
+        schema: {
+          example: {
+            success: false,
+            status: 'error',
+            message: 'Access forbidden',
+            status_code: 403,
+          },
+        },
+      }),
+      ApiResponse({
+        status: 500,
+        description: 'Internal server error',
+        schema: {
+          example: {
+            success: false,
+            status: 'error',
+            message: 'Failed to compute user engagement',
+            status_code: 500,
+          },
+        },
+      }),
+    );
+  }
 }

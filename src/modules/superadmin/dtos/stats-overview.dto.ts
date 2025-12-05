@@ -78,3 +78,59 @@ export class UserGrowthDto {
   })
   points!: UserGrowthPoint[];
 }
+
+export class UserEngagementDto {
+  @ApiProperty({
+    description: 'Number of users who have active streaks (current_streak > 0)',
+    example: 45,
+  })
+  usersWithStreaks!: number;
+
+  @ApiProperty({
+    description: 'Average streak length across all users with streaks',
+    example: 12.5,
+  })
+  averageStreakLength!: number;
+
+  @ApiProperty({
+    description: 'Average highest streak length across all users',
+    example: 18.3,
+  })
+  averageHighestStreak!: number;
+
+  @ApiProperty({
+    description: 'Number of unique users who have created at least one reflection',
+    example: 120,
+  })
+  usersWithReflections!: number;
+
+  @ApiProperty({
+    description: 'Number of unique users who have created at least one bookmark',
+    example: 85,
+  })
+  usersWithBookmarks!: number;
+
+  @ApiProperty({
+    description: 'Number of unique users who have created at least one chat',
+    example: 95,
+  })
+  usersWithChats!: number;
+
+  @ApiProperty({
+    description: 'Total number of reflections across all users',
+    example: 450,
+  })
+  totalReflections!: number;
+
+  @ApiProperty({
+    description: 'Total number of bookmarks across all users',
+    example: 320,
+  })
+  totalBookmarks!: number;
+
+  @ApiProperty({
+    description: 'Total number of chats across all users',
+    example: 180,
+  })
+  totalChats!: number;
+}

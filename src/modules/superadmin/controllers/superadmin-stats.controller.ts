@@ -5,6 +5,7 @@ import { SuperadminGuard } from '../../../guards/superadmin.guard';
 import {
   StatsOverviewDto,
   UserGrowthDto,
+  UserEngagementDto,
 } from '../dtos/stats-overview.dto';
 import { SuperadminStatsDocs } from '../docs/stats.doc';
 
@@ -35,5 +36,14 @@ export class SuperadminStatsController {
       startDate,
       endDate,
     });
+  }
+
+  @Get('users/engagement')
+  @SuperadminStatsDocs.getUserEngagement()
+  async getUserEngagement(): Promise<{
+    message: string;
+    data: UserEngagementDto;
+  }> {
+    return this.superadminStatsService.getUserEngagement();
   }
 }
