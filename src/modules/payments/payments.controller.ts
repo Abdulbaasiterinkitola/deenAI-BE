@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   UseGuards,
-  Req,
   Get,
   Query,
   Param,
@@ -16,13 +15,9 @@ import {
   VerifyGooglePurchaseDto,
   VerifyApplePurchaseDto,
 } from './dtos/verify-purchase.dto';
-import {
-  VerifyPurchaseResponseDto,
-  PaginatedTransactionsResponseDto,
-  PaymentTransactionResponseDto,
-} from './dtos/payment-response.dto';
-import { PaginationMetaDto } from '@shared/dtos/pagination-meta.dto';
 import { PaymentsDocs } from './docs/payments.doc';
+import { AuthUser } from '@guards/auth-user.decorator';
+import { User } from '@modules/users/models/user.model';
 
 @PaymentsDocs.tag()
 @ApiBearerAuth()
@@ -33,9 +28,12 @@ export class PaymentsController {
 
   @Post('verify-google-purchase')
   @PaymentsDocs.verifyGooglePurchase()
-  async verifyGooglePurchase(@Req() req: any, @Body() dto: VerifyGooglePurchaseDto) {
+  async verifyGooglePurchase(
+    @AuthUser() user: User,
+    @Body() dto: VerifyGooglePurchaseDto,
+  ) {
     const transaction = await this.paymentsService.verifyGooglePurchase(
-      req.user.id,
+      user.id,
       dto,
     );
     return {
@@ -47,9 +45,12 @@ export class PaymentsController {
 
   @Post('verify-apple-purchase')
   @PaymentsDocs.verifyApplePurchase()
-  async verifyApplePurchase(@Req() req: any, @Body() dto: VerifyApplePurchaseDto) {
+  async verifyApplePurchase(
+    @AuthUser() user: User,
+    @Body() dto: VerifyApplePurchaseDto,
+  ) {
     const transaction = await this.paymentsService.verifyApplePurchase(
-      req.user.id,
+      user.id,
       dto,
     );
     return {
@@ -62,12 +63,12 @@ export class PaymentsController {
   @Get('transactions')
   @PaymentsDocs.getUserTransactions()
   async getUserTransactions(
-    @Req() req: any,
+    @AuthUser() user: User,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
     const { items, meta } = await this.paymentsService.getUserTransactions(
-      req.user.id,
+      user.id,
       page,
       limit,
     );
@@ -82,12 +83,12 @@ export class PaymentsController {
   @Get('transactions/:id')
   @PaymentsDocs.getTransactionById()
   async getTransactionById(
-    @Req() req: any,
+    @AuthUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     const transaction = await this.paymentsService.getTransactionById(
       id,
-      req.user.id,
+      user.id,
     );
     return {
       success: true,

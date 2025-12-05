@@ -21,7 +21,7 @@ export class PaymentsQueryService {
         filterRecordOptions: { userId },
         paginationPayload: { page, limit },
         order: { purchaseDate: 'DESC' },
-        relations: ['plan'], // Include plan details
+        relations: ['plan'],
       });
 
     return { items: payload, meta: paginationMeta };
@@ -50,7 +50,6 @@ export class PaymentsQueryService {
   async getActiveSubscription(
     userId: string,
   ): Promise<PaymentTransaction | null> {
-    // Find the most recent completed transaction that hasn't expired
     const result = await this.paymentTransactionModelAction.list({
       filterRecordOptions: {
         userId,
@@ -70,8 +69,10 @@ export class PaymentsQueryService {
 
     return latest || null;
   }
-  
-  async findByTransactionId(transactionId: string): Promise<PaymentTransaction | null> {
+
+  async findByTransactionId(
+    transactionId: string,
+  ): Promise<PaymentTransaction | null> {
     return this.paymentTransactionModelAction.get({ transactionId });
   }
 }

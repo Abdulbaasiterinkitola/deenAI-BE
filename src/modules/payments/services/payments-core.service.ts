@@ -144,17 +144,16 @@ export class PaymentsCoreService {
         throw new Error('Google Service Account JSON not configured');
       }
 
-      // Safe JSON parsing for env variable
+      // Robust JSON parsing (Handles Base64 encoded or Raw JSON)
       let credentials;
       try {
-        // Handle Base64 encoded JSON (common practice to avoid newline issues)
         if (!serviceAccountRaw.trim().startsWith('{')) {
           const buffer = Buffer.from(serviceAccountRaw, 'base64');
           credentials = JSON.parse(buffer.toString('utf-8'));
         } else {
           credentials = JSON.parse(serviceAccountRaw);
         }
-      } catch (e) {
+      } catch {
         throw new Error('Failed to parse Google Service Account JSON');
       }
 
@@ -178,7 +177,6 @@ export class PaymentsCoreService {
 
       const purchase = response.data;
 
-      // Check if valid
       if (!purchase.orderId) {
         throw new CustomHttpException(
           'Invalid purchase order ID from Google',
@@ -204,8 +202,8 @@ export class PaymentsCoreService {
       };
     } catch (error) {
       this.logger.error('Google verification failed', error);
-      
-      // Mock logic for non-production environments
+
+      // Mock for non-production environments
       if (process.env.NODE_ENV !== 'production') {
         this.logger.warn('Returning MOCK Google transaction for non-prod');
         return {
@@ -219,6 +217,7 @@ export class PaymentsCoreService {
           rawResponse: { mock: true },
         };
       }
+
       throw new CustomHttpException(
         'Failed to verify Google purchase',
         HttpStatus.BAD_REQUEST,
@@ -332,11 +331,11 @@ export class PaymentsCoreService {
     const lowerId = productId.toLowerCase();
     let slug = 'free';
 
-    // Robust mapping for known product IDs
     const ID_MAP: Record<string, string> = {
       'com.deenai.premium.monthly': 'premium-monthly',
       'com.deenai.premium.yearly': 'premium-yearly',
-      // Add more specific mappings here
+      premium_monthly: 'premium-monthly',
+      premium_yearly: 'premium-yearly',
     };
 
     if (ID_MAP[productId]) {
@@ -348,9 +347,11 @@ export class PaymentsCoreService {
     }
 
     const plan = await this.plansService.getBySlug(slug);
-    
+
     if (!plan) {
-      this.logger.error(`Critical: Plan slug '${slug}' mapped from product '${productId}' not found in DB.`);
+      this.logger.error(
+        `Critical: Plan slug '${slug}' mapped from product '${productId}' not found in DB.`,
+      );
     }
 
     return plan;
