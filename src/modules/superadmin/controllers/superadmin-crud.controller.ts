@@ -27,7 +27,7 @@ import { UpdateUserDto } from '../dtos/update-user.dto';
 import { UserListQueryDto } from '../dtos/user-list-query.dto';
 import { SuperadminService } from '../superadmin.service';
 
-@ApiTags('Superadmin CRUD')
+@ApiTags('Superadmin Users Management')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('superadmin/users')
 @UseGuards(SuperadminGuard)
