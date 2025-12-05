@@ -23,7 +23,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     ConfigModule.forFeature(paymentConfig),
     forwardRef(() => UsersModule),
     PlansModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [PaymentsController],
   providers: [
