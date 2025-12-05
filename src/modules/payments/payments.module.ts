@@ -12,6 +12,7 @@ import { PaymentsQueryService } from './services/payments-query.service';
 import { PaymentsValidationService } from './services/payments-validation.service';
 import { PaymentStatusService } from './services/payment-status.service';
 import { PaymentGuard } from '@guards/payment.guard';
+import { GooglePaymentsService } from './services/google-payments.service';
 
 import { UsersModule } from '@modules/users/users.module';
 import { PlansModule } from '@modules/plans/plans.module';
@@ -34,6 +35,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     PaymentTransactionModelAction,
     PaymentStatusService,
     PaymentGuard,
+    GooglePaymentsService,
   ],
   exports: [
     PaymentsService,

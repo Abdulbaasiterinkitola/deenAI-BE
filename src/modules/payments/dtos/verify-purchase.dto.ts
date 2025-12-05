@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class VerifyGooglePurchaseDto {
   @ApiProperty({
@@ -11,12 +11,29 @@ export class VerifyGooglePurchaseDto {
   productId: string;
 
   @ApiProperty({
+    description: 'The package name of the Android app',
+    example: 'com.deenai.app',
+  })
+  @IsString()
+  @IsNotEmpty()
+  packageName: string;
+
+  @ApiProperty({
     description: 'The purchase token returned by Google Play',
     example: 'fji39f3...',
   })
   @IsString()
   @IsNotEmpty()
   purchaseToken: string;
+
+  @ApiProperty({
+    description: 'Internal plan ID (optional override for mapping)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  planId?: string;
 }
 
 export class VerifyApplePurchaseDto {

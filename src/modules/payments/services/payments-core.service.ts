@@ -1,7 +1,6 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
-import { google } from 'googleapis';
 import axios from 'axios';
 
 import { PaymentTransactionModelAction } from '../action-models/payment-transaction.model-action';
@@ -16,6 +15,11 @@ import {
 import { PaymentTransaction } from '../models/payment-transaction.model';
 import { CustomHttpException } from '@shared/custom.exception';
 import { PaymentsQueryService } from './payments-query.service';
+import { GooglePaymentsService } from './google-payments.service';
+import {
+  GooglePurchaseState,
+  GooglePurchaseResponseDto,
+} from '../dtos/google-purchase-response.dto';
 
 @Injectable()
 export class PaymentsCoreService {
@@ -29,6 +33,7 @@ export class PaymentsCoreService {
     private readonly plansService: PlansService,
     private readonly configService: ConfigService,
     private readonly dataSource: DataSource,
+    private readonly googlePaymentsService: GooglePaymentsService,
   ) {}
 
   /**
@@ -44,11 +49,14 @@ export class PaymentsCoreService {
 
     // 2. Platform Specific Verification
     let transactionData: Partial<PaymentTransaction>;
+    let googleVerification: GooglePurchaseResponseDto | null = null;
 
     if (platform === PaymentPlatform.GOOGLE) {
-      transactionData = await this.verifyGooglePurchase(
+      googleVerification = await this.googlePaymentsService.verifyPurchase(
         verificationData as VerifyGooglePurchaseDto,
       );
+      transactionData =
+        this.mapGoogleVerificationToTransaction(googleVerification);
     } else {
       transactionData = await this.verifyApplePurchase(
         verificationData as VerifyApplePurchaseDto,
@@ -85,10 +93,43 @@ export class PaymentsCoreService {
       );
     }
 
-    const plan = await this.mapProductToPlan(transactionData.productId);
+    const plan = await this.mapProductToPlan(
+      transactionData.productId,
+      'planId' in verificationData ? verificationData.planId : undefined,
+    );
     if (!plan) {
       throw new CustomHttpException(
         `Plan not found for product ID: ${transactionData.productId}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const targetStatus =
+      googleVerification?.state === GooglePurchaseState.PENDING
+        ? PaymentStatus.PENDING
+        : googleVerification?.state === GooglePurchaseState.CANCELED
+          ? PaymentStatus.CANCELLED
+          : googleVerification?.state === GooglePurchaseState.EXPIRED
+            ? PaymentStatus.FAILED
+            : PaymentStatus.COMPLETED;
+
+    if (googleVerification?.state === GooglePurchaseState.PENDING) {
+      return (await this.paymentTransactionModelAction.create({
+        createPayload: {
+          ...transactionData,
+          userId,
+          planId: plan.id,
+          status: targetStatus,
+        },
+      })) as PaymentTransaction;
+    }
+
+    if (
+      googleVerification?.state === GooglePurchaseState.CANCELED ||
+      googleVerification?.state === GooglePurchaseState.EXPIRED
+    ) {
+      throw new CustomHttpException(
+        'Google purchase is not active.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -101,8 +142,8 @@ export class PaymentsCoreService {
           ...transactionData,
           userId,
           planId: plan.id,
-          status: PaymentStatus.COMPLETED,
-        } as any,
+          status: targetStatus,
+        },
         transactionOptions: { useTransaction: true, transaction: manager },
       });
 
@@ -128,101 +169,20 @@ export class PaymentsCoreService {
     });
   }
 
-  /**
-   * Google Play Verification Logic
-   */
-  private async verifyGooglePurchase(
-    data: VerifyGooglePurchaseDto,
-  ): Promise<Partial<PaymentTransaction>> {
-    try {
-      const serviceAccountRaw = this.configService.get<string>(
-        'payment.google.serviceAccountJson',
-      );
-      const packageName = 'com.deenai.app'; // Ideally move to config
-
-      if (!serviceAccountRaw) {
-        throw new Error('Google Service Account JSON not configured');
-      }
-
-      // Robust JSON parsing (Handles Base64 encoded or Raw JSON)
-      let credentials;
-      try {
-        if (!serviceAccountRaw.trim().startsWith('{')) {
-          const buffer = Buffer.from(serviceAccountRaw, 'base64');
-          credentials = JSON.parse(buffer.toString('utf-8'));
-        } else {
-          credentials = JSON.parse(serviceAccountRaw);
-        }
-      } catch {
-        throw new Error('Failed to parse Google Service Account JSON');
-      }
-
-      // Initialize Google Auth
-      const auth = new google.auth.GoogleAuth({
-        credentials,
-        scopes: ['https://www.googleapis.com/auth/androidpublisher'],
-      });
-
-      const androidPublisher = google.androidpublisher({
-        version: 'v3',
-        auth,
-      });
-
-      // Verify Subscription
-      const response = await androidPublisher.purchases.subscriptions.get({
-        packageName,
-        subscriptionId: data.productId,
-        token: data.purchaseToken,
-      });
-
-      const purchase = response.data;
-
-      if (!purchase.orderId) {
-        throw new CustomHttpException(
-          'Invalid purchase order ID from Google',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      // Determine expiration
-      const expirationDate = purchase.expiryTimeMillis
-        ? new Date(Number(purchase.expiryTimeMillis))
-        : null;
-
-      return {
-        platform: PaymentPlatform.GOOGLE,
-        transactionId: purchase.orderId,
-        productId: data.productId,
-        purchaseDate: new Date(Number(purchase.startTimeMillis)),
-        expirationDate,
-        originalTransactionId: purchase.linkedPurchaseToken || null,
-        isTrialPeriod: purchase.paymentState === 2, // 2 = Free Trial
-        isIntroductoryPricePeriod: false,
-        rawResponse: purchase as any,
-      };
-    } catch (error) {
-      this.logger.error('Google verification failed', error);
-
-      // Mock for non-production environments
-      if (process.env.NODE_ENV !== 'production') {
-        this.logger.warn('Returning MOCK Google transaction for non-prod');
-        return {
-          platform: PaymentPlatform.GOOGLE,
-          transactionId: `GPA.MOCK-${Date.now()}`,
-          productId: data.productId,
-          purchaseDate: new Date(),
-          expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          isTrialPeriod: false,
-          isIntroductoryPricePeriod: false,
-          rawResponse: { mock: true },
-        };
-      }
-
-      throw new CustomHttpException(
-        'Failed to verify Google purchase',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  private mapGoogleVerificationToTransaction(
+    verification: GooglePurchaseResponseDto,
+  ): Partial<PaymentTransaction> {
+    return {
+      platform: PaymentPlatform.GOOGLE,
+      transactionId: verification.orderId ?? undefined,
+      productId: verification.productId,
+      purchaseDate: verification.purchaseTime ?? new Date(),
+      expirationDate: verification.expirationTime ?? null,
+      originalTransactionId: undefined,
+      isTrialPeriod: false,
+      isIntroductoryPricePeriod: false,
+      rawResponse: verification.rawResponse as any,
+    };
   }
 
   /**
@@ -327,7 +287,11 @@ export class PaymentsCoreService {
   /**
    * Helper to map store product IDs to internal Plan entities
    */
-  private async mapProductToPlan(productId: string) {
+  private async mapProductToPlan(productId: string, planId?: string) {
+    if (planId) {
+      return this.plansService.getById(planId);
+    }
+
     const lowerId = productId.toLowerCase();
     let slug = 'free';
 
