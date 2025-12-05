@@ -1,29 +1,65 @@
 import { AbstractBaseEntity } from '@entities/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, Index } from 'typeorm';
+import { User } from '@modules/users/models/user.model';
+import { Plan } from '@modules/plans/models/plan.model';
+import { PaymentPlatform, PaymentStatus } from '../enums/payment.enums';
 
-@Entity('payment_transactions')
+@Entity({ name: 'payment_transactions' })
 export class PaymentTransaction extends AbstractBaseEntity {
-    @Column()
-    userId: string;
+  @Column({ name: 'user_id', type: 'uuid', nullable: false })
+  userId: string;
 
-    @Column()
-    provider: string; // 'google' | 'apple'
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-    @Column({ unique: true })
-    transactionId: string;
+  @Column({ name: 'plan_id', type: 'uuid', nullable: false })
+  planId: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-    amount: number;
+  @ManyToOne(() => Plan)
+  @JoinColumn({ name: 'plan_id' })
+  plan: Plan;
 
-    @Column({ nullable: true })
-    currency: string;
+  @Column({
+    type: 'enum',
+    enum: PaymentPlatform,
+    nullable: false,
+  })
+  platform: PaymentPlatform;
 
-    @Column()
-    status: string; // 'COMPLETED', 'PENDING', 'FAILED'
+  @Index({ unique: true })
+  @Column({ name: 'transaction_id', type: 'varchar', nullable: false })
+  transactionId: string;
 
-    @Column()
-    type: string; // 'PURCHASE', 'RENEWAL', 'REFUND'
+  @Column({ name: 'product_id', type: 'varchar', nullable: false })
+  productId: string;
 
-    @Column({ type: 'text', nullable: true })
-    rawResponse: string;
+  @Column({ name: 'original_transaction_id', type: 'varchar', nullable: true })
+  originalTransactionId: string | null;
+
+  @Column({ name: 'purchase_date', type: 'timestamp', nullable: false })
+  purchaseDate: Date;
+
+  @Column({ name: 'expiration_date', type: 'timestamp', nullable: true })
+  expirationDate: Date | null;
+
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.PENDING,
+  })
+  status: PaymentStatus;
+
+  @Column({ name: 'is_trial_period', type: 'boolean', default: false })
+  isTrialPeriod: boolean;
+
+  @Column({
+    name: 'is_introductory_price_period',
+    type: 'boolean',
+    default: false,
+  })
+  isIntroductoryPricePeriod: boolean;
+
+  @Column({ name: 'raw_response', type: 'jsonb', nullable: true })
+  rawResponse: Record<string, any> | null;
 }

@@ -8,6 +8,7 @@ import { Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationExceptionFilter } from '@shared/validation-exception.filter';
 import { seedPlans } from '@database/seeds/seed-plans';
+import { seedSuperadmin } from '@database/seeds/seed-superadmin';
 import { join } from 'path';
 
 async function bootstrap() {
@@ -43,6 +44,7 @@ async function bootstrap() {
 
     try {
       await seedPlans();
+      await seedSuperadmin();
       logger.log('Database seeding completed!');
     } catch (seedError) {
       logger.error('Error during database seeding', seedError);
@@ -75,17 +77,33 @@ async function bootstrap() {
     .setDescription('DeenAI Backend API Documentation')
     .setVersion('1.0')
     .addTag('App')
-    .addTag('Health Check')
+    // Core endpoints
+    .addTag('Health')
     .addTag('Authentication')
     .addTag('Users')
     .addTag('Profile')
-    .addTag('Notification Settings')
+    .addTag('Subscriptions')
+    .addTag('Payments')
+    .addTag('Plans')
+    // Main features
+    .addTag('Chats')
     .addTag('Reflections')
     .addTag('Bookmarks')
-    .addTag('Chats')
-    .addTag('Plans')
-    .addTag('Waitlist')
+    .addTag('Notification Settings')
+    .addTag('Streaks')
+    .addTag('Reciters')
+    .addTag('Collections')
+    // Superadmin endpoints (grouped together)
+    .addTag('Superadmin Users Management')
+    .addTag('Superadmin Stats')
+    .addTag('Superadmin AI Stats')
+    .addTag('Superadmin Notifications')
+    // Public/Support endpoints (at the end)
     .addTag('Contact')
+    .addTag('Feedback')
+    .addTag('Newsletter')
+    .addTag('Waitlist')
+    .addTag('Squeeze')
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, config);

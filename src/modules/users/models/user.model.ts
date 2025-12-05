@@ -40,12 +40,12 @@ export class User extends AbstractBaseEntity {
   timezone: string | null;
 
   @Column({
-    name: 'billing_start',
+    name: 'current_period_start',
     type: 'timestamp with time zone',
     default: () => 'NOW()',
     nullable: true,
   })
-  billingStart: Date | null;
+  currentPeriodStart: Date | null;
 
   @ManyToOne(() => Plan, { nullable: true })
   @JoinColumn({ name: 'plan_id' })
@@ -67,4 +67,16 @@ export class User extends AbstractBaseEntity {
 
   @Column({ name: 'last_failed_login', type: 'timestamp', nullable: true })
   lastFailedLogin: Date | null;
+
+  @Column({
+    name: 'billing_start',
+    type: 'timestamp with time zone',
+    default: () => 'NOW()',
+    nullable: true,
+  })
+  billingStart: Date | null;
+
+  @Index()
+  @Column({ name: 'is_superadmin', type: 'boolean', default: false })
+  isSuperadmin: boolean;
 }

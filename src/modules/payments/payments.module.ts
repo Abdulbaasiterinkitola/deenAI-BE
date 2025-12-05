@@ -1,21 +1,59 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import paymentConfig from '@config/payment.config';
+
+import { PaymentTransaction } from './models/payment-transaction.model';
+import { PaymentTransactionModelAction } from './action-models/payment-transaction.model-action';
+import { PaymentsController } from './payments.controller';
+import { PaymentsService } from './payments.service';
+import { PaymentsCoreService } from './services/payments-core.service';
+import { PaymentsQueryService } from './services/payments-query.service';
+import { PaymentsValidationService } from './services/payments-validation.service';
+import { PaymentStatusService } from './services/payment-status.service';
+import { PaymentGuard } from '@guards/payment.guard';
+import { GooglePaymentsService } from './services/google-payments.service';
 import { PaymentsWebhookController } from './payments-webhook.controller';
 import { PaymentsAdminController } from './payments-admin.controller';
 import { PaymentsWebhookService } from './services/payments-webhook.service';
-import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
-import { UsersModule } from '@modules/users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { WebhookLog } from './models/webhook-log.model';
-import { PaymentTransaction } from './models/payment-transaction.model';
+
+import { UsersModule } from '@modules/users/users.module';
+import { PlansModule } from '@modules/plans/plans.module';
+import { AuthModule } from '@modules/auth/auth.module';
+import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([WebhookLog, PaymentTransaction]),
+    TypeOrmModule.forFeature([PaymentTransaction, WebhookLog]),
+    ConfigModule.forFeature(paymentConfig),
+    forwardRef(() => UsersModule),
+    PlansModule,
+    forwardRef(() => AuthModule),
     SubscriptionsModule,
-    UsersModule,
   ],
-  controllers: [PaymentsWebhookController, PaymentsAdminController],
-  providers: [PaymentsWebhookService],
-  exports: [PaymentsWebhookService],
+  controllers: [
+    PaymentsController,
+    PaymentsWebhookController,
+    PaymentsAdminController,
+  ],
+  providers: [
+    PaymentsService,
+    PaymentsCoreService,
+    PaymentsQueryService,
+    PaymentsValidationService,
+    PaymentTransactionModelAction,
+    PaymentStatusService,
+    PaymentGuard,
+    GooglePaymentsService,
+    PaymentsWebhookService,
+  ],
+  exports: [
+    PaymentsService,
+    PaymentTransactionModelAction,
+    PaymentStatusService,
+    PaymentGuard,
+    PaymentsWebhookService,
+  ],
 })
 export class PaymentsModule { }

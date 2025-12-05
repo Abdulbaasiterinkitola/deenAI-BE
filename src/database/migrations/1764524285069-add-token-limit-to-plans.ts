@@ -10,6 +10,8 @@ export class AddTokenLimitToPlans1764524285069 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE plans DROP COLUMN IF EXISTS token_limit`);
+    await queryRunner.query(
+      `ALTER TABLE plans DROP COLUMN IF EXISTS token_limit`,
+    );
   }
 }

@@ -37,6 +37,7 @@ export class ChatsCoreService {
    * @returns The created chat
    */
   async createChat(userId: string, title?: string): Promise<Chat> {
+    await this.validateTokenLimit(userId);
     const chat = await this.chatActionModel.create({
       createPayload: {
         userId,
@@ -79,53 +80,8 @@ export class ChatsCoreService {
     // Validate chat exists and belongs to user
     this.chatsValidationService.validateChatId(chatId);
     this.chatsValidationService.validateMessageContent(messageContent);
-
-    // Get user to check billing cycle and plan
-    const user = await this.usersService.getUserById(userId);
-    if (!user) {
-      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const userPlan = await this.usersService.getUserPlan(userId);
-
-    // Calculate usage for the current billing period
-    let billingStart = user.billingStart;
-
-    if (!billingStart) {
-      // If billingStart is missing:
-      if (userPlan && userPlan.slug !== 'free') {
-        // For Premium users
-        throw new CustomHttpException(
-          'Billing cycle start date is missing for premium user.',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      // For Free users: Default to account creation
-      billingStart = user.createdAt;
-    }
-
-    const monthlyUsage = await this.tokenUsageService.calculateMonthlyUsage(
-      userId,
-      billingStart,
-    );
-
-    if (userPlan) {
-      const tokenLimit = userPlan.tokenLimit;
-
-      // Check if token limit is reached
-      if (typeof tokenLimit === 'number' && monthlyUsage >= tokenLimit) {
-        if (userPlan.slug === 'free') {
-          throw new CustomHttpException(
-            'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
-            HttpStatus.PAYMENT_REQUIRED,
-          );
-        } else {
-          throw new CustomHttpException(
-            'Plan token limit reached. Renew your token quota to continue using AI chat features.',
-            HttpStatus.PAYMENT_REQUIRED,
-          );
-        }
-      }
-    }
+    // validate user token limit.
+    await this.validateTokenLimit(userId);
 
     const chat = await this.chatActionModel.get({ id: chatId, userId });
     this.chatsValidationService.validateChatOwnership(chat, userId);
@@ -246,7 +202,7 @@ export class ChatsCoreService {
       });
 
     return from(chatPromise).pipe(
-      mergeMap(async () => {
+      mergeMap(async (chat) => {
         const recentMessages = await this.getLastMessages(chatId, 6);
         const latestMessage =
           recentMessages[recentMessages.length - 1] ?? undefined;
@@ -294,6 +250,44 @@ export class ChatsCoreService {
               // Track usage
               await this.tokenUsageService.trackUsage(userId, finalUsage);
 
+              let chatTitle = chat.title;
+
+              // Generate and update title if this is the first message (hasTitle is false)
+              if (!chat.hasTitle) {
+                try {
+                  // Generate title and get usage stats
+                  const { title: generatedTitle, usage: titleUsage } =
+                    await this.geminiService.generateTitle(
+                      latestMessage.content,
+                    );
+
+                  // Track token usage for the title generation
+                  await this.tokenUsageService.trackUsage(userId, titleUsage);
+
+                  // Add title usage to final usage stats
+                  finalUsage.inputTokens += titleUsage.inputTokens;
+                  finalUsage.outputTokens += titleUsage.outputTokens;
+                  finalUsage.totalTokens += titleUsage.totalTokens;
+
+                  await this.chatActionModel.update({
+                    updatePayload: {
+                      title: generatedTitle,
+                      hasTitle: true,
+                    },
+                    identifierOptions: { id: chatId },
+                  });
+
+                  chatTitle = generatedTitle;
+                } catch (error) {
+                  // Log error but don't fail the request if title generation fails
+                  this.logger.error(
+                    `Failed to generate title for chat ${chatId}: ${
+                      error instanceof Error ? error.message : 'Unknown error'
+                    }`,
+                  );
+                }
+              }
+
               const finalResponse = {
                 success: true,
                 message: 'Message sent successfully',
@@ -301,6 +295,7 @@ export class ChatsCoreService {
                   userMessage: latestMessage,
                   aiMessage: aiMessage,
                   usage: finalUsage,
+                  title: chatTitle,
                 },
               };
               subscriber.next({ data: JSON.stringify(finalResponse) });
@@ -435,5 +430,55 @@ export class ChatsCoreService {
     }
 
     return updatedChat;
+  }
+
+  // Validates user token limit
+  private async validateTokenLimit(userId: string) {
+    // Get user to check billing cycle and plan
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const userPlan = await this.usersService.getUserPlan(userId);
+
+    // Calculate usage for the current billing period
+    let billingStart = user.billingStart;
+
+    if (!billingStart) {
+      // If billingStart is missing:
+      if (userPlan && userPlan.slug !== 'free') {
+        // For Premium users
+        throw new CustomHttpException(
+          'Billing cycle start date is missing for premium user.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      // For Free users: Default to account creation
+      billingStart = user.createdAt;
+    }
+
+    const monthlyUsage = await this.tokenUsageService.calculateMonthlyUsage(
+      userId,
+      billingStart,
+    );
+
+    if (userPlan) {
+      const tokenLimit = userPlan.tokenLimit;
+
+      // Check if token limit is reached
+      if (typeof tokenLimit === 'number' && monthlyUsage >= tokenLimit) {
+        if (userPlan.slug === 'free') {
+          throw new CustomHttpException(
+            'Free tier limit reached. Please upgrade your plan to continue using AI chat features.',
+            HttpStatus.PAYMENT_REQUIRED,
+          );
+        } else {
+          throw new CustomHttpException(
+            'Plan token limit reached. Renew your token quota to continue using AI chat features.',
+            HttpStatus.PAYMENT_REQUIRED,
+          );
+        }
+      }
+    }
   }
 }

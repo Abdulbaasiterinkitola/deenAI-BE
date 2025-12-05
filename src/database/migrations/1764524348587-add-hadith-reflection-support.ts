@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddHadithReflectionSupport1764524348587 implements MigrationInterface {
+export class AddHadithReflectionSupport1764524348587
+  implements MigrationInterface
+{
   name = 'AddHadithReflectionSupport1764524348587';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -30,8 +32,14 @@ export class AddHadithReflectionSupport1764524348587 implements MigrationInterfa
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE reflections DROP COLUMN IF EXISTS reflection_type`);
-    await queryRunner.query(`ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_book`);
-    await queryRunner.query(`ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_number`);
+    await queryRunner.query(
+      `ALTER TABLE reflections DROP COLUMN IF EXISTS reflection_type`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_book`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_number`,
+    );
   }
 }

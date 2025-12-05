@@ -32,7 +32,7 @@ import { AccountLockingService } from './services/account-locking.service';
     ResetPasswordService,
     AuthValidationService,
     OtpActionModel,
-    AccountLockingService
+    AccountLockingService,
   ],
   imports: [
     EmailServiceModule,

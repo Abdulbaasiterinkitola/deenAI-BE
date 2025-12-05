@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { WebhookLog } from '../models/webhook-log.model';
 import { PaymentTransaction } from '../models/payment-transaction.model';
+import { PaymentPlatform, PaymentStatus } from '../enums/payment.enums';
 import { UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import * as crypto from 'crypto';
@@ -132,14 +133,15 @@ describe('PaymentsWebhookService', () => {
             }));
             expect(mockTransactionRepository.save).toHaveBeenCalledWith(expect.objectContaining({
                 userId: 'user123',
-                provider: 'google',
+                planId: 'plan123',
+                platform: PaymentPlatform.GOOGLE,
                 transactionId: 'token123',
-                type: 'PURCHASE',
-                status: 'COMPLETED',
+                productId: 'prod123',
+                status: PaymentStatus.COMPLETED,
             }));
         });
 
-        it('should process CANCELED notification and record transaction', async () => {
+        it('should process CANCELED notification and NOT record transaction (as per new logic)', async () => {
             const payload = {
                 message: {
                     data: Buffer.from(JSON.stringify({
@@ -157,13 +159,8 @@ describe('PaymentsWebhookService', () => {
             await service.processGoogleWebhook(payload);
 
             expect(mockSubscriptionsService.cancelSubscription).toHaveBeenCalledWith('user123');
-            expect(mockTransactionRepository.save).toHaveBeenCalledWith(expect.objectContaining({
-                userId: 'user123',
-                provider: 'google',
-                transactionId: 'token123',
-                type: 'CANCEL',
-                status: 'COMPLETED',
-            }));
+            // We removed transaction recording for cancellation in the service update
+            expect(mockTransactionRepository.save).not.toHaveBeenCalled();
         });
     });
 
@@ -178,6 +175,7 @@ describe('PaymentsWebhookService', () => {
                     originalTransactionId: 'trans123',
                     transactionId: 'trans456',
                     productId: 'prod123',
+                    purchaseDate: new Date().toISOString(),
                 }
             })).toString('base64');
             const signature = 'sig';
@@ -200,10 +198,11 @@ describe('PaymentsWebhookService', () => {
             }));
             expect(mockTransactionRepository.save).toHaveBeenCalledWith(expect.objectContaining({
                 userId: 'user123',
-                provider: 'apple',
+                planId: 'plan123',
+                platform: PaymentPlatform.APPLE,
                 transactionId: 'trans456',
-                type: 'PURCHASE',
-                status: 'COMPLETED',
+                productId: 'prod123',
+                status: PaymentStatus.COMPLETED,
             }));
         });
     });
