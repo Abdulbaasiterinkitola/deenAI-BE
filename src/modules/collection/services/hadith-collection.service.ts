@@ -81,11 +81,11 @@ export class HadithCollectionsService {
       res.set({
         'Content-Range': `bytes ${start}-${end}/${fileStat.size}`,
         'Accept-Ranges': 'bytes',
-        'Content-Length': end - start + 1,
+        'Content-Length': (end - start + 1).toString(),
       });
     } else {
       res.set({
-        'Content-Length': fileStat.size,
+        'Content-Length': fileStat.size.toString(),
         'Accept-Ranges': 'bytes',
       });
       res.status(200);
@@ -99,13 +99,15 @@ export class HadithCollectionsService {
         `attachment; filename="${item.name}.gz"`,
       );
     } else {
-      res.setHeader(
-        'Content-Type',
-        item.metadata?.mimetype || 'application/octet-stream',
-      );
+      const mimetype =
+        (item.metadata?.mimetype as string) || 'application/octet-stream';
+      const originalFilename =
+        (item.metadata?.originalFilename as string) || item.name;
+
+      res.setHeader('Content-Type', mimetype);
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="${item.metadata?.originalFilename}"`,
+        `attachment; filename="${originalFilename}"`,
       );
     }
 

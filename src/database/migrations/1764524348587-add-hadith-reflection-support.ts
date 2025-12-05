@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddHadithReflectionSupport1764524348587 implements MigrationInterface {
+export class AddHadithReflectionSupport1764524348587
+  implements MigrationInterface
+{
   name = 'AddHadithReflectionSupport1764524348587';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
