@@ -20,7 +20,7 @@ import {
   UserDetailDto,
 } from '../dtos/token-stats.dto';
 
-@ApiTags('superadmin/stats/tokens')
+@ApiTags('Superadmin AI Stats')
 @ApiBearerAuth()
 @UseGuards(SuperadminGuard)
 @Controller('superadmin/stats/tokens')
