@@ -14,7 +14,9 @@ export class AddTokenUsageCreatedAtIndex1765001234567 implements MigrationInterf
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS idx_token_usage_user_created_at;`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS idx_token_usage_user_created_at;`,
+    );
     await queryRunner.query(`DROP INDEX IF EXISTS idx_token_usage_created_at;`);
   }
 }

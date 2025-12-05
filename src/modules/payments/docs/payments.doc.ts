@@ -1,5 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   VerifyPurchaseResponseDto,
   PaginatedTransactionsResponseDto,
@@ -8,14 +14,15 @@ import {
 
 export class PaymentsDocs {
   static tag() {
-      return ApiTags('Payments');
+    return ApiTags('Payments');
   }
 
   static verifyGooglePurchase() {
     return applyDecorators(
       ApiOperation({
         summary: 'Verify Google Play purchase',
-        description: 'Verifies a purchase token from Google Play and upgrades the user plan.',
+        description:
+          'Verifies a purchase token from Google Play and upgrades the user plan.',
       }),
       ApiResponse({
         status: 201,
@@ -29,7 +36,8 @@ export class PaymentsDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Verify Apple App Store purchase',
-        description: 'Verifies a receipt from Apple App Store and upgrades the user plan.',
+        description:
+          'Verifies a receipt from Apple App Store and upgrades the user plan.',
       }),
       ApiResponse({
         status: 201,
@@ -43,7 +51,8 @@ export class PaymentsDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Get payment history',
-        description: 'Retrieve paginated list of past transactions for the authenticated user.',
+        description:
+          'Retrieve paginated list of past transactions for the authenticated user.',
       }),
       ApiQuery({ name: 'page', required: false, example: 1 }),
       ApiQuery({ name: 'limit', required: false, example: 10 }),
@@ -58,7 +67,8 @@ export class PaymentsDocs {
     return applyDecorators(
       ApiOperation({
         summary: 'Get transaction details',
-        description: 'Retrieve detailed information about a specific transaction.',
+        description:
+          'Retrieve detailed information about a specific transaction.',
       }),
       ApiParam({ name: 'id', description: 'Transaction UUID' }),
       ApiResponse({

@@ -59,7 +59,7 @@ export class PaymentsCoreService {
     if (transactionData.transactionId) {
       const existingTransaction =
         await this.paymentsQueryService.findByTransactionId(
-          transactionData.transactionId!,
+          transactionData.transactionId,
         );
 
       if (existingTransaction) {
@@ -85,7 +85,7 @@ export class PaymentsCoreService {
       );
     }
 
-    const plan = await this.mapProductToPlan(transactionData.productId!);
+    const plan = await this.mapProductToPlan(transactionData.productId);
     if (!plan) {
       throw new CustomHttpException(
         `Plan not found for product ID: ${transactionData.productId}`,

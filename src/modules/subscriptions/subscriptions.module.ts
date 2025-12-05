@@ -9,6 +9,9 @@ import { PlansModule } from '@modules/plans/plans.module';
 import { SubscriptionsController } from './subscriptions.controller';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { PaymentsModule } from '@modules/payments/payments.module';
+import { ActiveSubscriptionGuard } from '@guards/active-subscription.guard';
+import { SubscriptionGuard } from '@guards/subscription.guard';
 
 @Module({
   imports: [
@@ -16,6 +19,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     PlansModule,
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
+    PaymentsModule,
   ],
   controllers: [SubscriptionsController],
   providers: [
@@ -23,7 +27,9 @@ import { AuthModule } from '@modules/auth/auth.module';
     SubscriptionsCoreService,
     SubscriptionsValidationService,
     UserModelAction,
+    ActiveSubscriptionGuard,
+    SubscriptionGuard,
   ],
-  exports: [SubscriptionsService],
+  exports: [SubscriptionsService, ActiveSubscriptionGuard, SubscriptionGuard],
 })
 export class SubscriptionsModule {}

@@ -10,6 +10,8 @@ import { PaymentsService } from './payments.service';
 import { PaymentsCoreService } from './services/payments-core.service';
 import { PaymentsQueryService } from './services/payments-query.service';
 import { PaymentsValidationService } from './services/payments-validation.service';
+import { PaymentStatusService } from './services/payment-status.service';
+import { PaymentGuard } from '@guards/payment.guard';
 
 import { UsersModule } from '@modules/users/users.module';
 import { PlansModule } from '@modules/plans/plans.module';
@@ -21,7 +23,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     ConfigModule.forFeature(paymentConfig),
     forwardRef(() => UsersModule),
     PlansModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [PaymentsController],
   providers: [
@@ -30,7 +32,14 @@ import { AuthModule } from '@modules/auth/auth.module';
     PaymentsQueryService,
     PaymentsValidationService,
     PaymentTransactionModelAction,
+    PaymentStatusService,
+    PaymentGuard,
   ],
-  exports: [PaymentsService, PaymentTransactionModelAction],
+  exports: [
+    PaymentsService,
+    PaymentTransactionModelAction,
+    PaymentStatusService,
+    PaymentGuard,
+  ],
 })
 export class PaymentsModule {}
