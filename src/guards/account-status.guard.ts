@@ -8,6 +8,10 @@ import { Reflector } from '@nestjs/core';
 import { UserStatus } from '@modules/users/enums/user-status.enum';
 import { User } from '@modules/users/models/user.model';
 import { IS_ACCOUNT_STATUS_CHECK_SKIPPED_KEY } from './skip-account-status-check.decorator';
+import {
+  REQUIRE_PAYMENT_KEY,
+  RequirePaymentOptions,
+} from './require-payment.decorator';
 
 @Injectable()
 export class AccountStatusGuard implements CanActivate {
@@ -23,12 +27,20 @@ export class AccountStatusGuard implements CanActivate {
       return true;
     }
 
+    const paymentOptions = this.reflector.getAllAndOverride<
+      RequirePaymentOptions | undefined
+    >(REQUIRE_PAYMENT_KEY, [context.getHandler(), context.getClass()]);
+
     const request = context.switchToHttp().getRequest();
     const user: User = request.user;
 
     // If there is no user, it means the endpoint is public (not protected by AuthGuard).
     // In this case, the guard should not block access.
     if (!user) {
+      return true;
+    }
+
+    if (paymentOptions?.allowInactive) {
       return true;
     }
 

@@ -36,7 +36,7 @@ export type ReflectionQueryType = {
   page?: number;
   limit?: number;
   orderBy?: 'ASC' | 'DESC';
-  search?: string; 
+  search?: string;
 };
 
 /**

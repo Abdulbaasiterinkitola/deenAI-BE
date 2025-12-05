@@ -24,7 +24,9 @@ describe('PlansValidationService', () => {
     });
 
     it('should allow undefined params (optional)', () => {
-      expect(() => service.validatePagination(undefined, undefined)).not.toThrow();
+      expect(() =>
+        service.validatePagination(undefined, undefined),
+      ).not.toThrow();
     });
 
     it('should throw error for invalid page number', () => {
@@ -33,12 +35,16 @@ describe('PlansValidationService', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CustomHttpException);
         expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-        expect(error.getResponse().message).toContain('page must be a positive integer');
+        expect(error.getResponse().message).toContain(
+          'page must be a positive integer',
+        );
       }
     });
 
     it('should throw error for non-integer page', () => {
-      expect(() => service.validatePagination(1.5, 10)).toThrow(CustomHttpException);
+      expect(() => service.validatePagination(1.5, 10)).toThrow(
+        CustomHttpException,
+      );
     });
 
     it('should throw error for limit less than 1', () => {
@@ -46,12 +52,16 @@ describe('PlansValidationService', () => {
         service.validatePagination(1, 0);
       } catch (error) {
         expect(error).toBeInstanceOf(CustomHttpException);
-        expect(error.getResponse().message).toContain('limit must be between 1 and 100');
+        expect(error.getResponse().message).toContain(
+          'limit must be between 1 and 100',
+        );
       }
     });
 
     it('should throw error for limit greater than 100', () => {
-      expect(() => service.validatePagination(1, 101)).toThrow(CustomHttpException);
+      expect(() => service.validatePagination(1, 101)).toThrow(
+        CustomHttpException,
+      );
     });
   });
 

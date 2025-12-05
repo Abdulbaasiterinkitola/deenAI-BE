@@ -30,8 +30,14 @@ export class AddHadithReflectionSupport1764524348587 implements MigrationInterfa
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE reflections DROP COLUMN IF EXISTS reflection_type`);
-    await queryRunner.query(`ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_book`);
-    await queryRunner.query(`ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_number`);
+    await queryRunner.query(
+      `ALTER TABLE reflections DROP COLUMN IF EXISTS reflection_type`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_book`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE reflections DROP COLUMN IF EXISTS hadith_number`,
+    );
   }
 }

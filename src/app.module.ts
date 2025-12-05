@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { validateEnv } from '@shared/env.validator';
@@ -27,20 +28,34 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerConfigService } from './config/throttler.config';
 import { ThrottlerBehindProxyGuard } from './guards/throttler-behind-proxy.guard';
 import { SqueezeModule } from '@modules/squeeze/squeeze.module';
+import { RecitersModule } from './modules/reciters/reciters.module';
+import { PaymentsModule } from '@modules/payments/payments.module';
+import paymentConfig from '@config/payment.config';
 import { NewsletterModule } from '@modules/newsletter/newsletter.module';
+import { SuperadminModule } from '@modules/superadmin/superadmin.module';
+import { CollectionModule } from '@modules/collection/collection.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnv,
-      load: [authConfig],
+      load: [authConfig, paymentConfig],
     }),
+
+    CacheModule.registerAsync({
+      useFactory: () => ({
+        ttl: 0,
+        isGlobal: true,
+      }),
+    }),
+
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       useClass: ThrottlerConfigService,
     }),
     ScheduleModule.forRoot(),
+
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         ...dataSource.options,
@@ -52,6 +67,7 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
         return dataSource;
       },
     }),
+
     AuthModule,
     UsersModule,
     EmailServiceModule,
@@ -67,7 +83,11 @@ import { NewsletterModule } from '@modules/newsletter/newsletter.module';
     SubscriptionsModule,
     FeedbackModule,
     SqueezeModule,
+    RecitersModule,
     NewsletterModule,
+    PaymentsModule,
+    SuperadminModule,
+    CollectionModule,
   ],
   controllers: [AppController],
   providers: [

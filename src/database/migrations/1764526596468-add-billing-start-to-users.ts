@@ -10,6 +10,8 @@ export class AddBillingStartToUsers1764526596468 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE users DROP COLUMN IF EXISTS billing_start`);
+    await queryRunner.query(
+      `ALTER TABLE users DROP COLUMN IF EXISTS billing_start`,
+    );
   }
 }
