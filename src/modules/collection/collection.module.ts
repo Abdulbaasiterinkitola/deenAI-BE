@@ -8,16 +8,19 @@ import { CollectionsValidationService } from './services/collection-validator.se
 import { CollectionsCompressionService } from './services/collection-compression.service';
 import { CollectionActionModel } from './action-models/collection.action-model';
 import { Collection } from './models/collection-model';
+import { HadithCollectionsController } from './controllers/hadith.controller';
+import { HadithCollectionsService } from './services/hadith-collection.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Collection]), ConfigModule],
-  controllers: [CollectionController],
+  controllers: [CollectionController, HadithCollectionsController],
   providers: [
     CollectionService,
     CollectionsCoreService,
     CollectionsValidationService,
     CollectionsCompressionService,
     CollectionActionModel,
+    HadithCollectionsService,
   ],
   exports: [CollectionService],
 })
