@@ -88,13 +88,15 @@ export class SuperadminStatsDocs {
       ApiQuery({
         name: 'startDate',
         required: false,
-        description: 'Start date for the growth metrics (ISO 8601 format). Defaults to 30 days ago if not provided.',
+        description:
+          'Start date for the growth metrics (ISO 8601 format). Defaults to 30 days ago if not provided.',
         example: '2025-01-01T00:00:00.000Z',
       }),
       ApiQuery({
         name: 'endDate',
         required: false,
-        description: 'End date for the growth metrics (ISO 8601 format). Defaults to current date if not provided.',
+        description:
+          'End date for the growth metrics (ISO 8601 format). Defaults to current date if not provided.',
         example: '2025-01-31T23:59:59.999Z',
       }),
       ApiResponse({

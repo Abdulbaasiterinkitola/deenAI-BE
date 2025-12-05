@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { SuperadminStatsService } from '../services/superadmin-stats.service';
 import { SuperadminGuard } from '../../../guards/superadmin.guard';
 import {

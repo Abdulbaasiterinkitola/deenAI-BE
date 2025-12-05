@@ -65,7 +65,7 @@ export class SuperadminStatsService {
     const start =
       this.parseDateOrNull(startDate) ||
       new Date(Date.now() - 1000 * 60 * 60 * 24 * defaultDays);
-    let end = this.parseDateOrNull(endDate) || new Date();
+    const end = this.parseDateOrNull(endDate) || new Date();
 
     // Ensure end date includes the full day (end of day)
     if (!endDate) {
@@ -166,7 +166,8 @@ export class SuperadminStatsService {
           timestamp: new Date(row.bucket).toISOString(),
           count,
           cumulative,
-          growthRate: growthRate !== null ? Number(growthRate.toFixed(2)) : null,
+          growthRate:
+            growthRate !== null ? Number(growthRate.toFixed(2)) : null,
         });
       }
 
@@ -188,7 +189,6 @@ export class SuperadminStatsService {
     data: UserEngagementDto;
   }> {
     try {
-      // Query all engagement metrics in parallel for better performance
       const [
         usersWithStreaksRow,
         averageStreakRow,
@@ -200,13 +200,11 @@ export class SuperadminStatsService {
         totalBookmarksRow,
         totalChatsRow,
       ] = await Promise.all([
-        // Users with active streaks (current_streak > 0)
         this.dataSource.query(
           `SELECT COUNT(DISTINCT user_id)::bigint AS count 
            FROM streaks 
            WHERE current_streak > 0`,
         ),
-        // Average streak length (only for users with active streaks)
         this.dataSource.query(
           `SELECT COALESCE(AVG(current_streak), 0) AS avg 
            FROM streaks 
@@ -247,9 +245,11 @@ export class SuperadminStatsService {
       const result: UserEngagementDto = {
         usersWithStreaks: Number(usersWithStreaksRow?.[0]?.count || 0),
         averageStreakLength: Number(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           parseFloat(averageStreakRow?.[0]?.avg || '0').toFixed(2),
         ),
         averageHighestStreak: Number(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           parseFloat(averageHighestStreakRow?.[0]?.avg || '0').toFixed(2),
         ),
         usersWithReflections: Number(usersWithReflectionsRow?.[0]?.count || 0),

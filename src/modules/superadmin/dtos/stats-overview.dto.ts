@@ -99,13 +99,15 @@ export class UserEngagementDto {
   averageHighestStreak!: number;
 
   @ApiProperty({
-    description: 'Number of unique users who have created at least one reflection',
+    description:
+      'Number of unique users who have created at least one reflection',
     example: 120,
   })
   usersWithReflections!: number;
 
   @ApiProperty({
-    description: 'Number of unique users who have created at least one bookmark',
+    description:
+      'Number of unique users who have created at least one bookmark',
     example: 85,
   })
   usersWithBookmarks!: number;
