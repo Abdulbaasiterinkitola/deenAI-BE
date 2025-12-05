@@ -20,7 +20,8 @@ export class RecitersCoreService {
       surahNumber: payload.surahNumber,
       filePath: payload.filePath,
       fileSize: payload.fileSize,
-      duration: payload.duration || null,
+      duration:
+        typeof payload.duration === 'number' ? payload.duration : undefined,
     };
 
     return (await this.reciterModelAction.create({
