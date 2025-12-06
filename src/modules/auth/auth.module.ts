@@ -18,6 +18,7 @@ import { PasswordResetOtp } from './models/otp.model';
 import { OtpActionModel } from './action-models/otp.action-model';
 import { ProfileModule } from '@modules/profile/profile.module';
 import { AccountLockingService } from './services/account-locking.service';
+import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module';
 
 @Module({
   controllers: [AuthController],
@@ -38,6 +39,7 @@ import { AccountLockingService } from './services/account-locking.service';
     EmailServiceModule,
     UsersModule,
     ProfileModule,
+    SubscriptionsModule,
     TypeOrmModule.forFeature([PasswordResetOtp]),
     forwardRef(() => UsersModule),
     JwtModule.registerAsync({
