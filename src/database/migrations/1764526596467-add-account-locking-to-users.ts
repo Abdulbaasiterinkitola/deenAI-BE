@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddAccountLockingToUsers1764526596467
-  implements MigrationInterface
-{
+export class AddAccountLockingToUsers1764526596467 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Add account locking columns to users table
     await queryRunner.query(`

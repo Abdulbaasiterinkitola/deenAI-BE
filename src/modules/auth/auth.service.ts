@@ -57,9 +57,10 @@ export class AuthService {
     // Get token usage data (handle gracefully if user has no plan)
     let tokenUsage: PlanWithTokenUsageDto | null = null;
     try {
-      tokenUsage =
-        await this.subscriptionsService.getCurrentPlanWithTokenUsage(user.id);
-    } catch (error) {
+      tokenUsage = await this.subscriptionsService.getCurrentPlanWithTokenUsage(
+        user.id,
+      );
+    } catch {
       // User may not have a plan yet, continue without token usage data
       // This prevents login from failing if user doesn't have a plan
     }
@@ -73,9 +74,10 @@ export class AuthService {
 
     let tokenUsage: PlanWithTokenUsageDto | null = null;
     try {
-      tokenUsage =
-        await this.subscriptionsService.getCurrentPlanWithTokenUsage(user.id);
-    } catch (error) {
+      tokenUsage = await this.subscriptionsService.getCurrentPlanWithTokenUsage(
+        user.id,
+      );
+    } catch {
       // User may not have a plan yet, continue without token usage data
     }
 
@@ -89,9 +91,10 @@ export class AuthService {
     // Get token usage data (handle gracefully if user has no plan)
     let tokenUsage: PlanWithTokenUsageDto | null = null;
     try {
-      tokenUsage =
-        await this.subscriptionsService.getCurrentPlanWithTokenUsage(user.id);
-    } catch (error) {
+      tokenUsage = await this.subscriptionsService.getCurrentPlanWithTokenUsage(
+        user.id,
+      );
+    } catch {
       // User may not have a plan yet, continue without token usage data
     }
 

@@ -111,8 +111,10 @@ export class SubscriptionsService {
     }
 
     // Calculate tokens used in the current billing period
-    const tokensUsed =
-      await this.tokenUsageService.calculateMonthlyUsage(userId, billingStart);
+    const tokensUsed = await this.tokenUsageService.calculateMonthlyUsage(
+      userId,
+      billingStart,
+    );
 
     const tokensLimit = plan.tokenLimit;
     const tokensRemaining = Math.max(0, tokensLimit - tokensUsed);

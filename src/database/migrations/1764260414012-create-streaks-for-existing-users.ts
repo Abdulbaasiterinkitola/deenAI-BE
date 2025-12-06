@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateStreaksForExistingUsers1764260414012
-  implements MigrationInterface
-{
+export class CreateStreaksForExistingUsers1764260414012 implements MigrationInterface {
   name = 'CreateStreaksForExistingUsers1764260414012';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

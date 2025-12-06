@@ -48,4 +48,3 @@ export class PlanWithTokenUsageDto {
   })
   isApproachingLimit: boolean;
 }
-
