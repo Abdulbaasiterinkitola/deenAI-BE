@@ -9,6 +9,10 @@ import { Plan } from '@modules/plans/models/plan.model';
 import { PlanResponseDto } from '@modules/plans/dto/plan-response.dto';
 import { SubscriptionCacheService } from '@shared/services/subscription-cache.service';
 import { PlansService } from '@modules/plans/plans.service';
+import { TokenUsageService } from '@modules/token-usage/token-usage.service';
+import { PlanWithTokenUsageDto } from './dtos/plan-with-token-usage.dto';
+import { CustomHttpException } from '@shared/custom.exception';
+import { HttpStatus } from '@nestjs/common';
 
 export type SubscriptionSnapshot = {
   plan: {
@@ -28,6 +32,7 @@ export class SubscriptionsService {
     private readonly userModelAction: UserModelAction,
     private readonly plansService: PlansService,
     private readonly subscriptionCacheService: SubscriptionCacheService,
+    private readonly tokenUsageService: TokenUsageService,
   ) {}
 
   async getActiveSubscriptionForUser(
@@ -110,5 +115,52 @@ export class SubscriptionsService {
       identifierOptions: { id: userId },
     });
     return;
+  }
+
+  async getCurrentPlanWithTokenUsage(
+    userId: string,
+  ): Promise<PlanWithTokenUsageDto> {
+    // Get user to check billing cycle
+    const user = await this.userModelAction.get({ id: userId });
+
+    if (!user) {
+      throw new CustomHttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Get current plan
+    const plan = await this.subscriptionsCoreService.getCurrentPlan(userId);
+
+    // Determine billing cycle start date
+    let billingStart = user.billingStart;
+
+    if (!billingStart) {
+      // For free users, default to account creation
+      // For premium users, this should not happen, but we'll handle it gracefully
+      billingStart = user.createdAt;
+    }
+
+    // Calculate tokens used in the current billing period
+    const tokensUsed = await this.tokenUsageService.calculateMonthlyUsage(
+      userId,
+      billingStart,
+    );
+
+    const tokensLimit = plan.tokenLimit;
+    const tokensRemaining = Math.max(0, tokensLimit - tokensUsed);
+    const tokensUsedPercentage =
+      tokensLimit > 0 ? Math.round((tokensUsed / tokensLimit) * 100) : 0;
+    const isLimitReached = tokensUsed >= tokensLimit;
+    const isApproachingLimit = tokensUsedPercentage >= 80;
+
+    return {
+      plan,
+      tokensUsed,
+      tokensLimit,
+      tokensRemaining,
+      tokensUsedPercentage,
+      billingCycleStart: billingStart,
+      isLimitReached,
+      isApproachingLimit,
+    };
   }
 }
