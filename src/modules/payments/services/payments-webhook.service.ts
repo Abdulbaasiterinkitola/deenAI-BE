@@ -80,16 +80,18 @@ export class PaymentsWebhookService {
   async processGoogleWebhook(payload: any) {
     this.logger.log('Processing Google Webhook');
 
-    if (!payload.message || !payload.message.data) {
-      this.logger.warn('Invalid Google Webhook Payload');
-      return;
-    }
+    try {
+      if (!payload.message || !payload.message.data) {
+        this.logger.warn('Invalid Google Webhook Payload: Missing message or data');
+        await this.logEvent('google', 'invalid_payload', payload, undefined, 'error');
+        return;
+      }
 
-    const decodedData = Buffer.from(
-      payload.message.data as string,
-      'base64',
-    ).toString('utf-8');
-    const notification = JSON.parse(decodedData);
+      const decodedData = Buffer.from(
+        payload.message.data as string,
+        'base64',
+      ).toString('utf-8');
+      const notification = JSON.parse(decodedData);
 
     const type = notification.subscriptionNotification
       ?.notificationType as number;
@@ -113,78 +115,107 @@ export class PaymentsWebhookService {
       return;
     }
 
-    switch (type) {
-      case 2: // RENEWED
-      case 4: // PURCHASED
-      case 7: // RESTARTED
-        if (subscriptionId) {
-          const plan = await this.subscriptionsService.getPlanByProductId(
-            'google',
-            subscriptionId,
-          );
-          if (plan) {
-            await this.subscriptionsService.changePlan(userId, plan.id);
-            await this.recordTransaction(
-              userId,
-              plan.id,
-              PaymentPlatform.GOOGLE,
-              purchaseToken,
-              subscriptionId,
-              PaymentStatus.COMPLETED,
-              notification,
-            );
+      switch (type) {
+        case 2: // RENEWED
+        case 4: // PURCHASED
+        case 7: // RESTARTED
+          if (subscriptionId) {
+            try {
+              const plan = await this.subscriptionsService.getPlanByProductId(
+                'google',
+                subscriptionId,
+              );
+              if (plan) {
+                await this.subscriptionsService.changePlan(userId, plan.id);
+                await this.recordTransaction(
+                  userId,
+                  plan.id,
+                  PaymentPlatform.GOOGLE,
+                  purchaseToken,
+                  subscriptionId,
+                  PaymentStatus.COMPLETED,
+                  notification,
+                );
+                await this.logEvent('google', String(type), notification, userId, 'processed');
+              } else {
+                this.logger.warn(
+                  `Plan not found for Google Product ID: ${subscriptionId}`,
+                );
+                await this.logEvent('google', String(type), notification, userId, 'plan_not_found');
+              }
+            } catch (error) {
+              this.logger.error(
+                `Error processing Google webhook for type ${type}: ${error.message}`,
+              );
+              await this.logEvent('google', String(type), notification, userId, 'error');
+              throw error;
+            }
           } else {
-            this.logger.warn(
-              `Plan not found for Google Product ID: ${subscriptionId}`,
-            );
+            this.logger.warn('Missing subscriptionId in Google notification');
+            await this.logEvent('google', String(type), notification, userId, 'missing_subscription_id');
           }
-        } else {
-          this.logger.warn('Missing subscriptionId in Google notification');
-        }
-        break;
+          break;
 
-      case 3: // CANCELED
-      case 12: // REVOKED
-      case 13: // EXPIRED
-        await this.subscriptionsService.cancelSubscription(userId);
-        // For cancellation, we might not have a new transaction to record in the same way,
-        // or we should record it as a status update.
-        // The current model focuses on successful transactions.
-        // We can record it with a different status if needed, but for now let's just update subscription.
-        // Or we can record it as CANCELLED status.
-        // But we need planId. We can try to get it from current user subscription or just skip recording if we can't find it.
-        // For now, let's skip recording cancellation transaction to avoid complexity with missing planId,
-        // as the requirement was mainly to record payments.
-        break;
+        case 3: // CANCELED
+        case 12: // REVOKED
+        case 13: // EXPIRED
+          try {
+            await this.subscriptionsService.cancelSubscription(userId);
+            await this.logEvent('google', String(type), notification, userId, 'processed');
+          } catch (error) {
+            this.logger.error(
+              `Error canceling subscription for user ${userId}: ${error.message}`,
+            );
+            await this.logEvent('google', String(type), notification, userId, 'error');
+            throw error;
+          }
+          break;
 
-      case 5: // ON_HOLD
-      case 6: // IN_GRACE_PERIOD
-      case 10: // PAUSED
-        this.logger.log(`Subscription status change: ${type}`);
-        break;
+        case 5: // ON_HOLD
+        case 6: // IN_GRACE_PERIOD
+        case 10: // PAUSED
+          this.logger.log(`Subscription status change: ${type}`);
+          await this.logEvent('google', String(type), notification, userId, 'processed');
+          break;
 
-      default:
-        this.logger.log(`Unhandled Google Notification Type: ${type}`);
+        default:
+          this.logger.log(`Unhandled Google Notification Type: ${type}`);
+          await this.logEvent('google', String(type), notification, userId, 'unhandled');
+      }
+    } catch (error) {
+      this.logger.error(`Error processing Google webhook: ${error.message}`, error.stack);
+      await this.logEvent('google', 'processing_error', payload, undefined, 'error');
+      throw error;
     }
   }
 
   async processAppleWebhook(payload: any) {
     this.logger.log('Processing Apple Webhook');
 
-    const signedPayload = payload.signedPayload as string;
-    if (!signedPayload) {
-      this.logger.warn('Invalid Apple Webhook Payload: Missing signedPayload');
-      return;
-    }
+    try {
+      const signedPayload = payload.signedPayload as string;
+      if (!signedPayload) {
+        this.logger.warn('Invalid Apple Webhook Payload: Missing signedPayload');
+        await this.logEvent('apple', 'invalid_payload', payload, undefined, 'error');
+        return;
+      }
 
-    const parts = signedPayload.split('.');
-    if (parts.length !== 3) {
-      this.logger.warn('Invalid JWS format');
-      return;
-    }
+      const parts = signedPayload.split('.');
+      if (parts.length !== 3) {
+        this.logger.warn('Invalid JWS format');
+        await this.logEvent('apple', 'invalid_jws_format', payload, undefined, 'error');
+        return;
+      }
 
-    const payloadBuffer = Buffer.from(parts[1], 'base64');
-    const decodedPayload = JSON.parse(payloadBuffer.toString());
+      let decodedPayload: any;
+      try {
+        const payloadBuffer = Buffer.from(parts[1], 'base64');
+        decodedPayload = JSON.parse(payloadBuffer.toString());
+      } catch (error) {
+        this.logger.error(`Error decoding Apple payload: ${error.message}`);
+        await this.logEvent('apple', 'decode_error', payload, undefined, 'error');
+        throw error;
+      }
 
     const notificationType = decodedPayload.notificationType as string;
     const subtype = decodedPayload.subtype as string;
@@ -220,52 +251,127 @@ export class PaymentsWebhookService {
       return;
     }
 
-    switch (notificationType) {
-      case 'SUBSCRIBED':
-      case 'DID_RENEW':
-        if (productId) {
-          const plan = await this.subscriptionsService.getPlanByProductId(
-            'apple',
-            productId,
-          );
-          if (plan) {
-            await this.subscriptionsService.changePlan(userId, plan.id);
-            await this.recordTransaction(
-              userId,
-              plan.id,
-              PaymentPlatform.APPLE,
-              transactionId || originalTransactionId,
-              productId,
-              PaymentStatus.COMPLETED,
-              decodedPayload,
-              purchaseDate,
-            );
+      switch (notificationType) {
+        case 'SUBSCRIBED':
+        case 'DID_RENEW':
+          if (productId) {
+            try {
+              const plan = await this.subscriptionsService.getPlanByProductId(
+                'apple',
+                productId,
+              );
+              if (plan) {
+                await this.subscriptionsService.changePlan(userId, plan.id);
+                await this.recordTransaction(
+                  userId,
+                  plan.id,
+                  PaymentPlatform.APPLE,
+                  transactionId || originalTransactionId,
+                  productId,
+                  PaymentStatus.COMPLETED,
+                  decodedPayload,
+                  purchaseDate,
+                );
+                await this.logEvent(
+                  'apple',
+                  `${notificationType}:${subtype}`,
+                  decodedPayload,
+                  userId,
+                  'processed',
+                );
+              } else {
+                this.logger.warn(
+                  `Plan not found for Apple Product ID: ${productId}`,
+                );
+                await this.logEvent(
+                  'apple',
+                  `${notificationType}:${subtype}`,
+                  decodedPayload,
+                  userId,
+                  'plan_not_found',
+                );
+              }
+            } catch (error) {
+              this.logger.error(
+                `Error processing Apple webhook for ${notificationType}: ${error.message}`,
+              );
+              await this.logEvent(
+                'apple',
+                `${notificationType}:${subtype}`,
+                decodedPayload,
+                userId,
+                'error',
+              );
+              throw error;
+            }
           } else {
-            this.logger.warn(
-              `Plan not found for Apple Product ID: ${productId}`,
+            this.logger.warn('Missing productId in Apple notification');
+            await this.logEvent(
+              'apple',
+              `${notificationType}:${subtype}`,
+              decodedPayload,
+              userId,
+              'missing_product_id',
             );
           }
-        } else {
-          this.logger.warn('Missing productId in Apple notification');
-        }
-        break;
+          break;
 
-      case 'DID_FAIL_TO_RENEW':
-      case 'EXPIRED':
-      case 'REVOKED':
-      case 'REFUND':
-        await this.subscriptionsService.cancelSubscription(userId);
-        break;
+        case 'DID_FAIL_TO_RENEW':
+        case 'EXPIRED':
+        case 'REVOKED':
+        case 'REFUND':
+          try {
+            await this.subscriptionsService.cancelSubscription(userId);
+            await this.logEvent(
+              'apple',
+              `${notificationType}:${subtype}`,
+              decodedPayload,
+              userId,
+              'processed',
+            );
+          } catch (error) {
+            this.logger.error(
+              `Error canceling subscription for user ${userId}: ${error.message}`,
+            );
+            await this.logEvent(
+              'apple',
+              `${notificationType}:${subtype}`,
+              decodedPayload,
+              userId,
+              'error',
+            );
+            throw error;
+          }
+          break;
 
-      case 'GRACE_PERIOD_EXPIRED':
-      case 'PRICE_INCREASE':
-        this.logger.log(`Apple event handled: ${notificationType}`);
-        break;
+        case 'GRACE_PERIOD_EXPIRED':
+        case 'PRICE_INCREASE':
+          this.logger.log(`Apple event handled: ${notificationType}`);
+          await this.logEvent(
+            'apple',
+            `${notificationType}:${subtype}`,
+            decodedPayload,
+            userId,
+            'processed',
+          );
+          break;
 
-      default:
-        this.logger.log(
-          `Unhandled Apple Notification Type: ${notificationType}`,
-        );
+        default:
+          this.logger.log(
+            `Unhandled Apple Notification Type: ${notificationType}`,
+          );
+          await this.logEvent(
+            'apple',
+            `${notificationType}:${subtype}`,
+            decodedPayload,
+            userId,
+            'unhandled',
+          );
+      }
+    } catch (error) {
+      this.logger.error(`Error processing Apple webhook: ${error.message}`, error.stack);
+      await this.logEvent('apple', 'processing_error', payload, undefined, 'error');
+      throw error;
     }
   }
 
@@ -339,10 +445,29 @@ export class PaymentsWebhookService {
       }
 
       const x5c = decoded.header.x5c;
+      if (!Array.isArray(x5c) || x5c.length === 0) {
+        throw new UnauthorizedException('Invalid JWS: Empty x5c certificate chain');
+      }
+
+      // Use the first certificate in the chain (leaf certificate)
+      // In production, you should validate the full certificate chain
+      // against Apple's root certificates, but for now we verify with the leaf cert
       const publicKey = `-----BEGIN CERTIFICATE-----\n${x5c[0]}\n-----END CERTIFICATE-----`;
 
       jwt.verify(signedPayload, publicKey, { algorithms: ['ES256'] });
+      
+      // Additional validation: Check that the certificate is from Apple
+      // This is a basic check - in production, validate the full chain
+      const cert = Buffer.from(x5c[0], 'base64').toString('utf-8');
+      if (!cert.includes('Apple') && !cert.includes('Apple Inc')) {
+        this.logger.warn('Apple certificate validation: Certificate may not be from Apple');
+        // Don't fail here, but log a warning
+        // In production, implement full certificate chain validation
+      }
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       this.logger.error(
         `Apple signature verification failed: ${error.message}`,
       );

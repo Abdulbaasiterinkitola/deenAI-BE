@@ -1,12 +1,15 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WebhookLog } from './models/webhook-log.model';
 import { PaymentTransaction } from './models/payment-transaction.model';
+import { SuperadminGuard } from '@guards/superadmin.guard';
+import { AuthGuard } from '@guards/auth.guard';
 
 @ApiTags('Payments Admin')
 @Controller('admin/payments')
+@UseGuards(AuthGuard, SuperadminGuard)
 export class PaymentsAdminController {
   constructor(
     @InjectRepository(WebhookLog)
