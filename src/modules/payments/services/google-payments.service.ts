@@ -52,7 +52,7 @@ export class GooglePaymentsService {
     );
   }
 
-  private buildClient(): any {
+  private buildClient(): androidpublisher_v3.Options['auth'] {
     const serviceAccountRaw = this.configService.get<string>(
       'payment.google.serviceAccountJson',
     );
@@ -64,13 +64,16 @@ export class GooglePaymentsService {
       );
     }
 
-    let credentials;
+    let credentials: Record<string, unknown>;
     try {
       if (!serviceAccountRaw.trim().startsWith('{')) {
         const buffer = Buffer.from(serviceAccountRaw, 'base64');
-        credentials = JSON.parse(buffer.toString('utf-8'));
+        credentials = JSON.parse(buffer.toString('utf-8')) as Record<
+          string,
+          unknown
+        >;
       } else {
-        credentials = JSON.parse(serviceAccountRaw);
+        credentials = JSON.parse(serviceAccountRaw) as Record<string, unknown>;
       }
     } catch (error) {
       this.logger.error('Failed to parse Google service account JSON', error);
@@ -83,7 +86,7 @@ export class GooglePaymentsService {
     return new google.auth.GoogleAuth({
       credentials,
       scopes: ['https://www.googleapis.com/auth/androidpublisher'],
-    }) as any;
+    }) as androidpublisher_v3.Options['auth'];
   }
 
   private buildPublisher(
@@ -98,7 +101,7 @@ export class GooglePaymentsService {
   private async tryGetSubscription(
     publisher: AndroidPublisher,
     dto: VerifyGooglePurchaseDto,
-  ): Promise<any> {
+  ): Promise<androidpublisher_v3.Schema$SubscriptionPurchase | null> {
     try {
       const { data } = await publisher.purchases.subscriptions.get({
         packageName: dto.packageName,
@@ -125,7 +128,7 @@ export class GooglePaymentsService {
   private async tryGetProduct(
     publisher: AndroidPublisher,
     dto: VerifyGooglePurchaseDto,
-  ): Promise<any> {
+  ): Promise<androidpublisher_v3.Schema$ProductPurchase | null> {
     try {
       const { data } = await publisher.purchases.products.get({
         packageName: dto.packageName,

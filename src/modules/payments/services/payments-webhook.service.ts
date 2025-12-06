@@ -554,7 +554,8 @@ export class PaymentsWebhookService {
 
       // Additional validation: Check that the certificate is from Apple
       // This is a basic check - in production, validate the full chain
-      const cert = Buffer.from(x5c[0], 'base64').toString('utf-8');
+      const certString = String(x5c[0]);
+      const cert = Buffer.from(certString, 'base64').toString('utf-8');
       if (!cert.includes('Apple') && !cert.includes('Apple Inc')) {
         this.logger.warn(
           'Apple certificate validation: Certificate may not be from Apple',
