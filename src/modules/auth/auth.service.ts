@@ -9,6 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@modules/users/users.service';
 import { CustomHttpException } from '@shared/custom.exception';
+import { SubscriptionsService } from '@modules/subscriptions/subscriptions.service';
+import { PlanWithTokenUsageDto } from '@modules/subscriptions/dtos/plan-with-token-usage.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   async registerWithEmailAndPassword(dto: RegisterDto) {
@@ -50,21 +53,52 @@ export class AuthService {
     const user = result.data.user;
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
     await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
-    return { tokens, user, profile: result.data.profile };
+
+    // Get token usage data (handle gracefully if user has no plan)
+    let tokenUsage: PlanWithTokenUsageDto | null = null;
+    try {
+      tokenUsage = await this.subscriptionsService.getCurrentPlanWithTokenUsage(
+        user.id,
+      );
+    } catch {
+      // User may not have a plan yet, continue without token usage data
+      // This prevents login from failing if user doesn't have a plan
+    }
+
+    return { tokens, user, profile: result.data.profile, tokenUsage };
   }
 
   async googleLogin(idToken: string, platform?: string) {
     const user = await this.googleAuthService.authenticate(idToken, platform);
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
 
-    return { tokens, user };
+    let tokenUsage: PlanWithTokenUsageDto | null = null;
+    try {
+      tokenUsage = await this.subscriptionsService.getCurrentPlanWithTokenUsage(
+        user.id,
+      );
+    } catch {
+      // User may not have a plan yet, continue without token usage data
+    }
+
+    return { tokens, user, tokenUsage };
   }
 
   async appleLogin(idToken: string) {
     const user = await this.appleAuthService.authenticate(idToken);
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
 
-    return { tokens, user };
+    // Get token usage data (handle gracefully if user has no plan)
+    let tokenUsage: PlanWithTokenUsageDto | null = null;
+    try {
+      tokenUsage = await this.subscriptionsService.getCurrentPlanWithTokenUsage(
+        user.id,
+      );
+    } catch {
+      // User may not have a plan yet, continue without token usage data
+    }
+
+    return { tokens, user, tokenUsage };
   }
 
   async refreshTokens(refreshToken: string) {

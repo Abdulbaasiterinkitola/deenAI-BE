@@ -13,6 +13,7 @@ import { User } from '@modules/users/models/user.model';
 import { ApiTags } from '@nestjs/swagger';
 import { RenewSubscriptionDocs } from './docs/renew-subscription.docs';
 import { SubscriptionsCoreService } from './services/subscriptions-core.service';
+import { GetPlanUsageDocs } from './docs/get-plan-usage.docs';
 
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
@@ -42,6 +43,20 @@ export class SubscriptionsController {
       success: true,
       data: plan,
       message: 'Current plan retrieved successfully',
+      meta: null,
+    };
+  }
+
+  @Get('current-plan/usage')
+  @GetPlanUsageDocs.getCurrentPlanWithTokenUsage()
+  async getCurrentPlanWithTokenUsage(@AuthUser() user: User) {
+    const planWithUsage =
+      await this.subscriptionsService.getCurrentPlanWithTokenUsage(user.id);
+
+    return {
+      success: true,
+      data: planWithUsage,
+      message: 'Current plan with token usage retrieved successfully',
       meta: null,
     };
   }
