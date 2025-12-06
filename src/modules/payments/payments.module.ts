@@ -30,7 +30,7 @@ import { SubscriptionsModule } from '@modules/subscriptions/subscriptions.module
     forwardRef(() => UsersModule),
     PlansModule,
     forwardRef(() => AuthModule),
-    SubscriptionsModule,
+    forwardRef(() => SubscriptionsModule),
   ],
   controllers: [
     PaymentsController,

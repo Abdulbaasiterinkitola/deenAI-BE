@@ -19,7 +19,7 @@ import { SubscriptionGuard } from '@guards/subscription.guard';
     PlansModule,
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
-    PaymentsModule,
+    forwardRef(() => PaymentsModule),
   ],
   controllers: [SubscriptionsController],
   providers: [
