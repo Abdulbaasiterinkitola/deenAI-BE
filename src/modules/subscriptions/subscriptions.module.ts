@@ -12,6 +12,7 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { PaymentsModule } from '@modules/payments/payments.module';
 import { ActiveSubscriptionGuard } from '@guards/active-subscription.guard';
 import { SubscriptionGuard } from '@guards/subscription.guard';
+import { TokenUsageModule } from '@modules/token-usage/token-usage.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SubscriptionGuard } from '@guards/subscription.guard';
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     PaymentsModule,
+    TokenUsageModule,
   ],
   controllers: [SubscriptionsController],
   providers: [

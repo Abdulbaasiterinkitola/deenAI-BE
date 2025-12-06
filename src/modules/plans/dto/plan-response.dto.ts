@@ -36,6 +36,9 @@ export class PlanResponseDto {
   features: string[];
 
   @ApiProperty()
+  tokenLimit: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
@@ -54,6 +57,7 @@ export class PlanResponseDto {
       isCustom: plan.isCustom,
       displayOrder: plan.displayOrder,
       features: plan.features || [],
+      tokenLimit: plan.tokenLimit,
       createdAt: plan.createdAt,
       updatedAt: plan.updatedAt,
     };
