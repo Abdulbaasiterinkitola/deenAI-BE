@@ -21,4 +21,3 @@ export class AddProductIdsToPlans1764913325000 implements MigrationInterface {
     );
   }
 }
-

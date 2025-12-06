@@ -82,8 +82,16 @@ export class PaymentsWebhookService {
 
     try {
       if (!payload.message || !payload.message.data) {
-        this.logger.warn('Invalid Google Webhook Payload: Missing message or data');
-        await this.logEvent('google', 'invalid_payload', payload, undefined, 'error');
+        this.logger.warn(
+          'Invalid Google Webhook Payload: Missing message or data',
+        );
+        await this.logEvent(
+          'google',
+          'invalid_payload',
+          payload,
+          undefined,
+          'error',
+        );
         return;
       }
 
@@ -93,27 +101,27 @@ export class PaymentsWebhookService {
       ).toString('utf-8');
       const notification = JSON.parse(decodedData);
 
-    const type = notification.subscriptionNotification
-      ?.notificationType as number;
-    const purchaseToken = notification.subscriptionNotification
-      ?.purchaseToken as string;
-    const subscriptionId = notification.subscriptionNotification
-      ?.subscriptionId as string;
+      const type = notification.subscriptionNotification
+        ?.notificationType as number;
+      const purchaseToken = notification.subscriptionNotification
+        ?.purchaseToken as string;
+      const subscriptionId = notification.subscriptionNotification
+        ?.subscriptionId as string;
 
-    let userId: string | undefined;
-    if (purchaseToken) {
-      const user =
-        await this.subscriptionsService.getUserByGoogleToken(purchaseToken);
-      userId = user?.id;
-    }
+      let userId: string | undefined;
+      if (purchaseToken) {
+        const user =
+          await this.subscriptionsService.getUserByGoogleToken(purchaseToken);
+        userId = user?.id;
+      }
 
-    this.logger.log(`Google Notification Type: ${type}`);
-    await this.logEvent('google', String(type), notification, userId);
+      this.logger.log(`Google Notification Type: ${type}`);
+      await this.logEvent('google', String(type), notification, userId);
 
-    if (!userId) {
-      this.logger.warn('Could not extract userId from Google notification');
-      return;
-    }
+      if (!userId) {
+        this.logger.warn('Could not extract userId from Google notification');
+        return;
+      }
 
       switch (type) {
         case 2: // RENEWED
@@ -136,23 +144,47 @@ export class PaymentsWebhookService {
                   PaymentStatus.COMPLETED,
                   notification,
                 );
-                await this.logEvent('google', String(type), notification, userId, 'processed');
+                await this.logEvent(
+                  'google',
+                  String(type),
+                  notification,
+                  userId,
+                  'processed',
+                );
               } else {
                 this.logger.warn(
                   `Plan not found for Google Product ID: ${subscriptionId}`,
                 );
-                await this.logEvent('google', String(type), notification, userId, 'plan_not_found');
+                await this.logEvent(
+                  'google',
+                  String(type),
+                  notification,
+                  userId,
+                  'plan_not_found',
+                );
               }
             } catch (error) {
               this.logger.error(
                 `Error processing Google webhook for type ${type}: ${error.message}`,
               );
-              await this.logEvent('google', String(type), notification, userId, 'error');
+              await this.logEvent(
+                'google',
+                String(type),
+                notification,
+                userId,
+                'error',
+              );
               throw error;
             }
           } else {
             this.logger.warn('Missing subscriptionId in Google notification');
-            await this.logEvent('google', String(type), notification, userId, 'missing_subscription_id');
+            await this.logEvent(
+              'google',
+              String(type),
+              notification,
+              userId,
+              'missing_subscription_id',
+            );
           }
           break;
 
@@ -161,12 +193,24 @@ export class PaymentsWebhookService {
         case 13: // EXPIRED
           try {
             await this.subscriptionsService.cancelSubscription(userId);
-            await this.logEvent('google', String(type), notification, userId, 'processed');
+            await this.logEvent(
+              'google',
+              String(type),
+              notification,
+              userId,
+              'processed',
+            );
           } catch (error) {
             this.logger.error(
               `Error canceling subscription for user ${userId}: ${error.message}`,
             );
-            await this.logEvent('google', String(type), notification, userId, 'error');
+            await this.logEvent(
+              'google',
+              String(type),
+              notification,
+              userId,
+              'error',
+            );
             throw error;
           }
           break;
@@ -175,16 +219,37 @@ export class PaymentsWebhookService {
         case 6: // IN_GRACE_PERIOD
         case 10: // PAUSED
           this.logger.log(`Subscription status change: ${type}`);
-          await this.logEvent('google', String(type), notification, userId, 'processed');
+          await this.logEvent(
+            'google',
+            String(type),
+            notification,
+            userId,
+            'processed',
+          );
           break;
 
         default:
           this.logger.log(`Unhandled Google Notification Type: ${type}`);
-          await this.logEvent('google', String(type), notification, userId, 'unhandled');
+          await this.logEvent(
+            'google',
+            String(type),
+            notification,
+            userId,
+            'unhandled',
+          );
       }
     } catch (error) {
-      this.logger.error(`Error processing Google webhook: ${error.message}`, error.stack);
-      await this.logEvent('google', 'processing_error', payload, undefined, 'error');
+      this.logger.error(
+        `Error processing Google webhook: ${error.message}`,
+        error.stack,
+      );
+      await this.logEvent(
+        'google',
+        'processing_error',
+        payload,
+        undefined,
+        'error',
+      );
       throw error;
     }
   }
@@ -195,15 +260,29 @@ export class PaymentsWebhookService {
     try {
       const signedPayload = payload.signedPayload as string;
       if (!signedPayload) {
-        this.logger.warn('Invalid Apple Webhook Payload: Missing signedPayload');
-        await this.logEvent('apple', 'invalid_payload', payload, undefined, 'error');
+        this.logger.warn(
+          'Invalid Apple Webhook Payload: Missing signedPayload',
+        );
+        await this.logEvent(
+          'apple',
+          'invalid_payload',
+          payload,
+          undefined,
+          'error',
+        );
         return;
       }
 
       const parts = signedPayload.split('.');
       if (parts.length !== 3) {
         this.logger.warn('Invalid JWS format');
-        await this.logEvent('apple', 'invalid_jws_format', payload, undefined, 'error');
+        await this.logEvent(
+          'apple',
+          'invalid_jws_format',
+          payload,
+          undefined,
+          'error',
+        );
         return;
       }
 
@@ -213,43 +292,49 @@ export class PaymentsWebhookService {
         decodedPayload = JSON.parse(payloadBuffer.toString());
       } catch (error) {
         this.logger.error(`Error decoding Apple payload: ${error.message}`);
-        await this.logEvent('apple', 'decode_error', payload, undefined, 'error');
+        await this.logEvent(
+          'apple',
+          'decode_error',
+          payload,
+          undefined,
+          'error',
+        );
         throw error;
       }
 
-    const notificationType = decodedPayload.notificationType as string;
-    const subtype = decodedPayload.subtype as string;
-    const data = decodedPayload.data;
-    const originalTransactionId = data?.originalTransactionId as string;
-    const transactionId = data?.transactionId as string;
-    const productId = data?.productId as string;
-    const purchaseDate = data?.purchaseDate
-      ? new Date(data.purchaseDate as string)
-      : new Date();
+      const notificationType = decodedPayload.notificationType as string;
+      const subtype = decodedPayload.subtype as string;
+      const data = decodedPayload.data;
+      const originalTransactionId = data?.originalTransactionId as string;
+      const transactionId = data?.transactionId as string;
+      const productId = data?.productId as string;
+      const purchaseDate = data?.purchaseDate
+        ? new Date(data.purchaseDate as string)
+        : new Date();
 
-    let userId = data?.appAccountToken as string | undefined; // Try appAccountToken first
+      let userId = data?.appAccountToken as string | undefined; // Try appAccountToken first
 
-    if (!userId && originalTransactionId) {
-      const user = await this.subscriptionsService.getUserByAppleId(
-        originalTransactionId,
+      if (!userId && originalTransactionId) {
+        const user = await this.subscriptionsService.getUserByAppleId(
+          originalTransactionId,
+        );
+        userId = user?.id;
+      }
+
+      this.logger.log(`Apple Notification: ${notificationType} - ${subtype}`);
+      await this.logEvent(
+        'apple',
+        `${notificationType}:${subtype}`,
+        decodedPayload,
+        userId,
       );
-      userId = user?.id;
-    }
 
-    this.logger.log(`Apple Notification: ${notificationType} - ${subtype}`);
-    await this.logEvent(
-      'apple',
-      `${notificationType}:${subtype}`,
-      decodedPayload,
-      userId,
-    );
-
-    if (!userId) {
-      this.logger.warn(
-        'Could not extract userId (appAccountToken) from Apple notification',
-      );
-      return;
-    }
+      if (!userId) {
+        this.logger.warn(
+          'Could not extract userId (appAccountToken) from Apple notification',
+        );
+        return;
+      }
 
       switch (notificationType) {
         case 'SUBSCRIBED':
@@ -369,8 +454,17 @@ export class PaymentsWebhookService {
           );
       }
     } catch (error) {
-      this.logger.error(`Error processing Apple webhook: ${error.message}`, error.stack);
-      await this.logEvent('apple', 'processing_error', payload, undefined, 'error');
+      this.logger.error(
+        `Error processing Apple webhook: ${error.message}`,
+        error.stack,
+      );
+      await this.logEvent(
+        'apple',
+        'processing_error',
+        payload,
+        undefined,
+        'error',
+      );
       throw error;
     }
   }
@@ -446,7 +540,9 @@ export class PaymentsWebhookService {
 
       const x5c = decoded.header.x5c;
       if (!Array.isArray(x5c) || x5c.length === 0) {
-        throw new UnauthorizedException('Invalid JWS: Empty x5c certificate chain');
+        throw new UnauthorizedException(
+          'Invalid JWS: Empty x5c certificate chain',
+        );
       }
 
       // Use the first certificate in the chain (leaf certificate)
@@ -455,12 +551,14 @@ export class PaymentsWebhookService {
       const publicKey = `-----BEGIN CERTIFICATE-----\n${x5c[0]}\n-----END CERTIFICATE-----`;
 
       jwt.verify(signedPayload, publicKey, { algorithms: ['ES256'] });
-      
+
       // Additional validation: Check that the certificate is from Apple
       // This is a basic check - in production, validate the full chain
       const cert = Buffer.from(x5c[0], 'base64').toString('utf-8');
       if (!cert.includes('Apple') && !cert.includes('Apple Inc')) {
-        this.logger.warn('Apple certificate validation: Certificate may not be from Apple');
+        this.logger.warn(
+          'Apple certificate validation: Certificate may not be from Apple',
+        );
         // Don't fail here, but log a warning
         // In production, implement full certificate chain validation
       }

@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddCurrentPeriodStartToUsers1764524295337
-  implements MigrationInterface
-{
+export class AddCurrentPeriodStartToUsers1764524295337 implements MigrationInterface {
   name = 'AddCurrentPeriodStartToUsers1764524295337';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

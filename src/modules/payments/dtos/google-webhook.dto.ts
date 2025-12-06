@@ -20,4 +20,3 @@ export class GoogleSubscriptionNotificationDto {
   @ApiProperty({ required: false })
   subscriptionId?: string;
 }
-

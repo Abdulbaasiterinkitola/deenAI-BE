@@ -32,4 +32,3 @@ export class AppleWebhookDecodedDto {
   @ApiProperty({ type: AppleWebhookDataDto, required: false })
   data?: AppleWebhookDataDto;
 }
-
